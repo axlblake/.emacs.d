@@ -75,8 +75,10 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
                   shell-mode-hook
                   treemacs-mode-hook
                   eshell-mode-hook))
-    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
+  (setq-default
+   whitespace-style '(face tabs tab-mark spaces space-mark trailing))
 #+end_src
 
 ** Font Configuration
@@ -144,7 +146,6 @@ Install [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://fonts.go
 #+end_src
 
 * UI Configuration
-
 ** Command Log Mode
 
 [[https://github.com/lewang/command-log-mode][command-log-mode]] is useful for displaying a panel showing each key binding you use in a panel on the right side of the frame.
@@ -274,6 +275,31 @@ This is an example of using [[https://github.com/abo-abo/hydra][Hydra]] to desig
   (rune/leader-keys
     "ts" '(hydra-text-scale/body :which-key "scale text"))
 
+#+end_src
+
+** Highlight indent
+Highlight indent makes much easier to find code block.
+#+begin_src emacs-lisp
+  (use-package highlight-indent-guides
+  :hook ((prog-mode text-mode conf-mode) . highlight-indent-guides-mode)
+  :init
+  (setq highlight-indent-guides-method 'character)
+  :config
+  (defun +indent-guides-init-faces-h (&rest _)
+    (when (display-graphic-p)
+      (highlight-indent-guides-auto-set-faces)))
+
+  ;; HACK `highlight-indent-guides' calculates its faces from the current theme,
+  ;;      but is unable to do so properly in terminal Emacs, where it only has
+  ;;      access to 256 colors. So if the user uses a daemon we must wait for
+  ;;      the first graphical frame to be available to do.
+  (add-hook 'doom-load-theme-hook #'+indent-guides-init-faces-h)
+  ;; `highlight-indent-guides' breaks when `org-indent-mode' is active
+  (add-hook 'org-mode-local-vars-hook
+    (defun +indent-guides-disable-maybe-h ()
+      (and highlight-indent-guides-mode
+           (bound-and-true-p org-indent-mode)
+           (highlight-indent-guides-mode -1)))))
 #+end_src
 
 * Org Mode
@@ -1056,4 +1082,10 @@ List of buffers grouped by project
                       modes
                     (delq 'ibuffer-mode modes)))))
   (ibuffer-update nil t))
+#+end_src
+* Custom
+Some additional custom changes
+#+begin_src emacs-lisp
+(add-hook 'python-mode-hook
+  (lambda () (whitespace-mode t)))
 #+end_src
