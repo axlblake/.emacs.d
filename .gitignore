@@ -1,7 +1,6 @@
-/elpa/*
-/auto-save-list/*
-projectile-bookmarks.eld
-session*
-recentf*
-ido.last
-**~
+/elpa 
+/.extension
+/transient
+*.log
+*.eld
+*.el~
