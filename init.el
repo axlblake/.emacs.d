@@ -35,9 +35,6 @@
 
 (menu-bar-mode -1)            ; Disable the menu bar
 
-;; Set up the visible bell
-(setq visible-bell t)
-
 (column-number-mode)
 (global-display-line-numbers-mode t)
 
@@ -484,8 +481,11 @@
 
 (use-package vterm
   :commands vterm
+  :ensure t
   :config
+  (setq vterm-always-compile-module t)
   (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")  ;; Set this to match your custom shell prompt
+
   ;;(setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
   (setq vterm-max-scrollback 10000))
 

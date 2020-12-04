@@ -58,9 +58,6 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
 
   (menu-bar-mode -1)            ; Disable the menu bar
 
-  ;; Set up the visible bell
-  (setq visible-bell t)
-
   (column-number-mode)
   (global-display-line-numbers-mode t)
 
@@ -835,11 +832,13 @@ The =eterm-256color= package enhances the output of =term-mode= to enable handli
 Make sure that you have the [[https://github.com/akermu/emacs-libvterm/#requirements][necessary dependencies]] installed before trying to use =vterm= because there is a module that will need to be compiled before you can use it successfully.
 
 #+begin_src emacs-lisp
-
   (use-package vterm
     :commands vterm
+    :ensure t
     :config
+    (setq vterm-always-compile-module t)
     (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")  ;; Set this to match your custom shell prompt
+
     ;;(setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
     (setq vterm-max-scrollback 10000))
 
@@ -918,7 +917,6 @@ For more thoughts on Eshell, check out these articles by Pierre Neidhardt:
 
 
 #+end_src
-
 * File Management
 ** Dired
 Dired is a built-in file manager for Emacs that does some pretty amazing things!  Here are some key bindings you should try out:
