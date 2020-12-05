@@ -522,7 +522,6 @@ To execute or export code in =org-mode= code blocks, you'll need to set up =org-
 #+end_src
 
 ** Structure Templates
-
 Org Mode's [[https://orgmode.org/manual/Structure-Templates.html][structure templates]] feature enables you to quickly insert code blocks into your Org files in combination with =org-tempo= by typing =<= followed by the template name like =el= or =py= and then press =TAB=.  For example, to insert an empty =emacs-lisp= block below, you can type =<el= and press =TAB= to expand into such a block.
 
 You can add more =src= block templates below by copying one of the lines and changing the two strings at the end, the first to be the template name and the second to contain the name of the language [[https://orgmode.org/worg/org-contrib/babel/languages.html][as it is known by Org Babel]].
@@ -1156,7 +1155,19 @@ List of buffers grouped by project
 
 * Custom
 Some additional custom changes
+
 #+begin_src emacs-lisp
+;; Duplicate row
+(defun duplicate-line()
+  (interactive)
+  (move-beginning-of-line 1)
+  (kill-line)
+  (yank)
+  (newline)
+  (yank)
+)
+(global-set-key (kbd "C-d") 'duplicate-line)
+
 (add-hook 'python-mode-hook
   (lambda () (whitespace-mode t)))
 #+end_src

@@ -679,18 +679,16 @@
                     " ")
           "Project: "))
 
+;; Duplicate row
+(defun duplicate-line()
+  (interactive)
+  (move-beginning-of-line 1)
+  (kill-line)
+  (yank)
+  (newline)
+  (yank)
+)
+(global-set-key (kbd "C-d") 'duplicate-line)
+
 (add-hook 'python-mode-hook
   (lambda () (whitespace-mode t)))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(lsp-java which-key vterm visual-fill-column use-package typescript-mode rainbow-delimiters pyvenv python-mode persp-projectile persp-mode org-bullets lsp-ui lsp-ivy ivy-rich ibuffer-vc ibuffer-projectile highlight-indent-guides helpful general forge evil-nerd-commenter eterm-256color eshell-git-prompt doom-themes doom-modeline dired-single dired-open dired-hide-dotfiles dap-mode counsel-projectile company-box command-log-mode all-the-icons-dired)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
