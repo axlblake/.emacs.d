@@ -558,7 +558,6 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 * Development
 ** Languages
-
 *** IDE Features with lsp-mode
 
 **** lsp-mode
@@ -722,6 +721,51 @@ You can use the pyvenv package to use =virtualenv= environments in Emacs.  The =
 
 #+end_src
 
+*** Java
+Java configuration for lsp mode
+#+begin_src emacs-lisp
+(use-package lsp-java
+  :init
+  (defun jmi/java-mode-config ()
+    (setq-local tab-width 4
+                c-basic-offset 4)
+    (toggle-truncate-lines 1)
+    (setq-local tab-width 4)
+    (setq-local c-basic-offset 4)
+    (lsp))
+
+  :config
+  ;; Enable dap-java
+  (require 'dap-java)
+
+  ;; Support Lombok in our projects, among other things
+  (setq lsp-java-vmargs
+        (list "-noverify"
+              "-Xmx2G"
+              "-XX:+UseG1GC"
+              "-XX:+UseStringDeduplication"
+              (concat "-javaagent:" jmi/lombok-jar)
+              (concat "-Xbootclasspath/a:" jmi/lombok-jar))
+        lsp-file-watch-ignored
+        '(".idea" ".ensime_cache" ".eunit" "node_modules"
+          ".git" ".hg" ".fslckout" "_FOSSIL_"
+          ".bzr" "_darcs" ".tox" ".svn" ".stack-work"
+          "build")
+
+        lsp-java-import-order '["" "java" "javax" "#"]
+        ;; Don't organize imports on save
+        lsp-java-save-action-organize-imports nil
+
+        ;; Formatter profile
+        lsp-java-format-settings-url
+        (concat "file://" jmi/java-format-settings-file))
+
+  :hook (java-mode   . jmi/java-mode-config)
+
+  :demand t
+  :after (lsp lsp-mode dap-mode jmi-init-platform-paths))
+
+#+end_src
 ** Company Mode
 
 [[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).
