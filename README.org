@@ -861,6 +861,14 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
 
 #+end_src
 
+** Multiple cursors
+#+begin_src emacs-lisp
+(use-package multiple-cursors)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+#+end_src
+
 * Terminals
 
 ** term-mode
