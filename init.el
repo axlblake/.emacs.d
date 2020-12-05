@@ -477,6 +477,12 @@
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
 
+;; TODO
+;;   (use-package persp-mode)
+;;   (use-package persp-projectile
+;;     :after (perspective)
+;;     :ensure t)
+
 (use-package magit
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
@@ -576,44 +582,61 @@
   ;;   "H" 'dired-hide-dotfiles-mode)
 )
 
+(use-package ibuffer
+  :bind ("C-x C-b" . ibuffer))
+
 (use-package ibuffer-vc
+  :init
   :config
-  (add-hook 'ibuffer-hook
-    (lambda ()
-      (ibuffer-vc-set-filter-groups-by-vc-root)
-      (unless (eq ibuffer-sorting-mode 'alphabetic)
-        (ibuffer-do-sort-by-alphabetic)))))
+  (define-ibuffer-column icon
+    (:name "Icon" :inline t)
+    (all-the-icons-icon-for-mode 'major-mode)))
 
+(with-eval-after-load 'ibuffer
+  ;; Display buffer icons on GUI
+  (define-ibuffer-column icon (:name "  ")
+    (let ((icon (if (and (buffer-file-name)
+                         (all-the-icons-auto-mode-match?))
+                    (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
+                  (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
+      (if (symbolp icon)
+          (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
+        icon)))
 
-;; autoload
-(defun ibuffer-set-filter-groups-by-path ()
-  "Set the current filter groups to filter by file path."
-  (interactive)
-  (setq ibuffer-filter-groups
-        (mapcar 'ibuffer-header-for-file-path
-                (let ((paths (ibuffer-remove-duplicates
-                              (mapcar 'buffer-file-name (buffer-list)))))
-                  (if ibuffer-view-ibuffer
-                      paths))))
-  (ibuffer-update nil t))
+  ;; Redefine size column to display human readable size
+  (define-ibuffer-column size
+    (:name "Size"
+     :inline t
+     :header-mouse-map ibuffer-size-header-map)
+    (file-size-human-readable (buffer-size))))
 
+    ;; (define-ibuffer-filter workspace-buffers
+    ;;     "Filter for workspace buffers"
+    ;;   (:reader (+workspace-get (read-string "workspace name: "))
+    ;;    :description "workspace")
+    ;;   (memq buf (+workspace-buffer-list qualifier)))
 
+    ;; (defun +ibuffer-workspace (workspace-name)
+    ;;   "Open an ibuffer window for a workspace"
+    ;;   (ibuffer nil (format "%s buffers" workspace-name)
+    ;;            (list (cons 'workspace-buffers (+workspace-get workspace-name)))))
 
-(defun ibuffer-set-filter-groups-by-mode ()
-  "Set the current filter groups to filter by mode."
-  (interactive)
-  (setq ibuffer-filter-groups
-        (mapcar (lambda (mode)
-                  (cons (format "%s" mode) `((mode . ,mode))))
-                (let ((modes
-                       (ibuffer-remove-duplicates
-                        (mapcar (lambda (buf)
-                                  (buffer-local-value 'major-mode buf))
-                                (buffer-list)))))
-                  (if ibuffer-view-ibuffer
-                      modes
-                    (delq 'ibuffer-mode modes)))))
-  (ibuffer-update nil t))
+;;     (defun +ibuffer/open-for-current-workspace ()
+;;       "Open an ibuffer window for the current workspace"
+;;       (interactive)
+;;       (+ibuffer-workspace (+workspace-current-name))))
+
+(use-package ibuffer-projectile
+  ;; Group ibuffer's list by project root
+  :hook (ibuffer . ibuffer-projectile-set-filter-groups)
+  :config
+  (setq ibuffer-projectile-prefix
+            (concat (all-the-icons-octicon
+                     "file-directory"
+                     :face ibuffer-filter-group-name-face
+                     :v-adjust -0.05)
+                    " ")
+          "Project: "))
 
 (add-hook 'python-mode-hook
   (lambda () (whitespace-mode t)))
