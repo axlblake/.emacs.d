@@ -208,7 +208,7 @@ Counsel is a customized set of commands to replace `find-file` with `counsel-fin
 
   (use-package ivy
     :diminish
-    :bind (("C-s" . swiper)
+    :bind (("C-S-s" . swiper)
            :map ivy-minibuffer-map
            ("TAB" . ivy-alt-done)
            ("C-l" . ivy-alt-done)
@@ -811,17 +811,6 @@ We also use [[https://github.com/sebastiencs/company-box][company-box]] to furth
     :config (counsel-projectile-mode))
 #+end_src
 
-** Perspective
-Multiple projects handling at a time
-#+begin_src emacs-lisp
-  ;; TODO
-  ;;   (use-package persp-mode)
-  ;;   (use-package persp-projectile
-  ;;     :after (perspective)
-  ;;     :ensure t)
-
-#+end_src
-
 ** Magit
 
 [[https://magit.vc/][Magit]] is the best Git interface I've ever used.  Common Git operations are easy to execute quickly using Magit's command panel system.
@@ -835,7 +824,7 @@ Multiple projects handling at a time
   ;; NOTE: Make sure to configure a GitHub token before using this package!
   ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
   ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
-  (use-package forge)
+  ;;(use-package forge)
 
 #+end_src
 
@@ -869,6 +858,76 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 #+end_src
 
+** iBuffer
+List of buffers grouped by project
+
+#+begin_src emacs-lisp
+  (use-package ibuffer
+    :bind ("C-x C-b" . ibuffer))
+
+  (use-package ibuffer-vc
+    :init
+    :config
+    (define-ibuffer-column icon
+      (:name "Icon" :inline t)
+      (all-the-icons-icon-for-mode 'major-mode)))
+
+  (with-eval-after-load 'ibuffer
+    ;; Display buffer icons on GUI
+    (define-ibuffer-column icon (:name "  ")
+      (let ((icon (if (and (buffer-file-name)
+                           (all-the-icons-auto-mode-match?))
+                      (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
+                    (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
+        (if (symbolp icon)
+            (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
+          icon)))
+
+    ;; Redefine size column to display human readable size
+    (define-ibuffer-column size
+      (:name "Size"
+       :inline t
+       :header-mouse-map ibuffer-size-header-map)
+      (file-size-human-readable (buffer-size))))
+
+      ;; (define-ibuffer-filter workspace-buffers
+      ;;     "Filter for workspace buffers"
+      ;;   (:reader (+workspace-get (read-string "workspace name: "))
+      ;;    :description "workspace")
+      ;;   (memq buf (+workspace-buffer-list qualifier)))
+
+      ;; (defun +ibuffer-workspace (workspace-name)
+      ;;   "Open an ibuffer window for a workspace"
+      ;;   (ibuffer nil (format "%s buffers" workspace-name)
+      ;;            (list (cons 'workspace-buffers (+workspace-get workspace-name)))))
+
+  ;;     (defun +ibuffer/open-for-current-workspace ()
+  ;;       "Open an ibuffer window for the current workspace"
+  ;;       (interactive)
+  ;;       (+ibuffer-workspace (+workspace-current-name))))
+
+  (use-package ibuffer-projectile
+    ;; Group ibuffer's list by project root
+    :hook (ibuffer . ibuffer-projectile-set-filter-groups)
+    :config
+    (setq ibuffer-projectile-prefix
+              (concat (all-the-icons-octicon
+                       "file-directory"
+                       :face ibuffer-filter-group-name-face
+                       :v-adjust -0.05)
+                      " "
+            "Project: ")))
+#+end_src
+** Eyebrowse
+Windows management for multiple projects at once
+#+begin_src emacs-lisp
+(use-package eyebrowse
+  :init  
+  (setq eyebrowse-keymap-prefix (kbd "C-c w"))
+  :ensure t
+  :config
+  (eyebrowse-mode t))
+#+end_src
 * Terminals
 
 ** term-mode
@@ -1099,68 +1158,6 @@ Dired is a built-in file manager for Emacs that does some pretty amazing things!
 
 #+end_src
 
-* Project Management
-** ibuffer
-List of buffers grouped by project
-
-#+begin_src emacs-lisp
-  (use-package ibuffer
-    :bind ("C-x C-b" . ibuffer))
-
-  (use-package ibuffer-vc
-    :init
-    :config
-    (define-ibuffer-column icon
-      (:name "Icon" :inline t)
-      (all-the-icons-icon-for-mode 'major-mode)))
-
-  (with-eval-after-load 'ibuffer
-    ;; Display buffer icons on GUI
-    (define-ibuffer-column icon (:name "  ")
-      (let ((icon (if (and (buffer-file-name)
-                           (all-the-icons-auto-mode-match?))
-                      (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
-                    (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
-        (if (symbolp icon)
-            (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
-          icon)))
-
-    ;; Redefine size column to display human readable size
-    (define-ibuffer-column size
-      (:name "Size"
-       :inline t
-       :header-mouse-map ibuffer-size-header-map)
-      (file-size-human-readable (buffer-size))))
-
-      ;; (define-ibuffer-filter workspace-buffers
-      ;;     "Filter for workspace buffers"
-      ;;   (:reader (+workspace-get (read-string "workspace name: "))
-      ;;    :description "workspace")
-      ;;   (memq buf (+workspace-buffer-list qualifier)))
-
-      ;; (defun +ibuffer-workspace (workspace-name)
-      ;;   "Open an ibuffer window for a workspace"
-      ;;   (ibuffer nil (format "%s buffers" workspace-name)
-      ;;            (list (cons 'workspace-buffers (+workspace-get workspace-name)))))
-
-  ;;     (defun +ibuffer/open-for-current-workspace ()
-  ;;       "Open an ibuffer window for the current workspace"
-  ;;       (interactive)
-  ;;       (+ibuffer-workspace (+workspace-current-name))))
-
-  (use-package ibuffer-projectile
-    ;; Group ibuffer's list by project root
-    :hook (ibuffer . ibuffer-projectile-set-filter-groups)
-    :config
-    (setq ibuffer-projectile-prefix
-              (concat (all-the-icons-octicon
-                       "file-directory"
-                       :face ibuffer-filter-group-name-face
-                       :v-adjust -0.05)
-                      " ")
-            "Project: "))
-#+end_src
-
 * Custom
 Some additional custom changes
 
@@ -1175,6 +1172,9 @@ Some additional custom changes
   (yank)
 )
 (global-set-key (kbd "C-d") 'duplicate-line)
+
+;; Yes Or No y-or-p
+(defalias 'yes-or-no-p 'y-or-n-p)
 
 (add-hook 'python-mode-hook
   (lambda () (whitespace-mode t)))

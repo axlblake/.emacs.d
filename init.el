@@ -124,7 +124,7 @@
 
 (use-package ivy
   :diminish
-  :bind (("C-s" . swiper)
+  :bind (("C-S-s" . swiper)
          :map ivy-minibuffer-map
          ("TAB" . ivy-alt-done)
          ("C-l" . ivy-alt-done)
@@ -518,12 +518,6 @@
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
 
-;; TODO
-;;   (use-package persp-mode)
-;;   (use-package persp-projectile
-;;     :after (perspective)
-;;     :ensure t)
-
 (use-package magit
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
@@ -531,7 +525,7 @@
 ;; NOTE: Make sure to configure a GitHub token before using this package!
 ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
 ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
-(use-package forge)
+;;(use-package forge)
 
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
@@ -543,6 +537,69 @@
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
+(use-package ibuffer
+  :bind ("C-x C-b" . ibuffer))
+
+(use-package ibuffer-vc
+  :init
+  :config
+  (define-ibuffer-column icon
+    (:name "Icon" :inline t)
+    (all-the-icons-icon-for-mode 'major-mode)))
+
+(with-eval-after-load 'ibuffer
+  ;; Display buffer icons on GUI
+  (define-ibuffer-column icon (:name "  ")
+    (let ((icon (if (and (buffer-file-name)
+                         (all-the-icons-auto-mode-match?))
+                    (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
+                  (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
+      (if (symbolp icon)
+          (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
+        icon)))
+
+  ;; Redefine size column to display human readable size
+  (define-ibuffer-column size
+    (:name "Size"
+     :inline t
+     :header-mouse-map ibuffer-size-header-map)
+    (file-size-human-readable (buffer-size))))
+
+    ;; (define-ibuffer-filter workspace-buffers
+    ;;     "Filter for workspace buffers"
+    ;;   (:reader (+workspace-get (read-string "workspace name: "))
+    ;;    :description "workspace")
+    ;;   (memq buf (+workspace-buffer-list qualifier)))
+
+    ;; (defun +ibuffer-workspace (workspace-name)
+    ;;   "Open an ibuffer window for a workspace"
+    ;;   (ibuffer nil (format "%s buffers" workspace-name)
+    ;;            (list (cons 'workspace-buffers (+workspace-get workspace-name)))))
+
+;;     (defun +ibuffer/open-for-current-workspace ()
+;;       "Open an ibuffer window for the current workspace"
+;;       (interactive)
+;;       (+ibuffer-workspace (+workspace-current-name))))
+
+(use-package ibuffer-projectile
+  ;; Group ibuffer's list by project root
+  :hook (ibuffer . ibuffer-projectile-set-filter-groups)
+  :config
+  (setq ibuffer-projectile-prefix
+            (concat (all-the-icons-octicon
+                     "file-directory"
+                     :face ibuffer-filter-group-name-face
+                     :v-adjust -0.05)
+                    " "
+          "Project: ")))
+
+(use-package eyebrowse
+  :init  
+  (setq eyebrowse-keymap-prefix (kbd "C-c w"))
+  :ensure t
+  :config
+  (eyebrowse-mode t))
 
 (use-package term
   :config
@@ -628,62 +685,6 @@
   ;;   "H" 'dired-hide-dotfiles-mode)
 )
 
-(use-package ibuffer
-  :bind ("C-x C-b" . ibuffer))
-
-(use-package ibuffer-vc
-  :init
-  :config
-  (define-ibuffer-column icon
-    (:name "Icon" :inline t)
-    (all-the-icons-icon-for-mode 'major-mode)))
-
-(with-eval-after-load 'ibuffer
-  ;; Display buffer icons on GUI
-  (define-ibuffer-column icon (:name "  ")
-    (let ((icon (if (and (buffer-file-name)
-                         (all-the-icons-auto-mode-match?))
-                    (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
-                  (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
-      (if (symbolp icon)
-          (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
-        icon)))
-
-  ;; Redefine size column to display human readable size
-  (define-ibuffer-column size
-    (:name "Size"
-     :inline t
-     :header-mouse-map ibuffer-size-header-map)
-    (file-size-human-readable (buffer-size))))
-
-    ;; (define-ibuffer-filter workspace-buffers
-    ;;     "Filter for workspace buffers"
-    ;;   (:reader (+workspace-get (read-string "workspace name: "))
-    ;;    :description "workspace")
-    ;;   (memq buf (+workspace-buffer-list qualifier)))
-
-    ;; (defun +ibuffer-workspace (workspace-name)
-    ;;   "Open an ibuffer window for a workspace"
-    ;;   (ibuffer nil (format "%s buffers" workspace-name)
-    ;;            (list (cons 'workspace-buffers (+workspace-get workspace-name)))))
-
-;;     (defun +ibuffer/open-for-current-workspace ()
-;;       "Open an ibuffer window for the current workspace"
-;;       (interactive)
-;;       (+ibuffer-workspace (+workspace-current-name))))
-
-(use-package ibuffer-projectile
-  ;; Group ibuffer's list by project root
-  :hook (ibuffer . ibuffer-projectile-set-filter-groups)
-  :config
-  (setq ibuffer-projectile-prefix
-            (concat (all-the-icons-octicon
-                     "file-directory"
-                     :face ibuffer-filter-group-name-face
-                     :v-adjust -0.05)
-                    " ")
-          "Project: "))
-
 ;; Duplicate row
 (defun duplicate-line()
   (interactive)
@@ -695,18 +696,8 @@
 )
 (global-set-key (kbd "C-d") 'duplicate-line)
 
+;; Yes Or No y-or-p
+(defalias 'yes-or-no-p 'y-or-n-p)
+
 (add-hook 'python-mode-hook
   (lambda () (whitespace-mode t)))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(multiple-cursors which-key vterm visual-fill-column use-package typescript-mode rainbow-delimiters pyvenv python-mode persp-projectile persp-mode org-bullets lsp-ui lsp-java lsp-ivy ivy-rich ibuffer-vc ibuffer-projectile highlight-indent-guides helpful general forge evil-nerd-commenter eterm-256color eshell-git-prompt doom-themes doom-modeline dired-single dired-open dired-hide-dotfiles counsel-projectile company-box command-log-mode all-the-icons-dired)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
