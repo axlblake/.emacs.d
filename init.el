@@ -366,6 +366,9 @@
 
 (use-package lsp-ivy)
 
+(use-package yasnippet)                  ; Snippets
+(use-package yasnippet-snippets)         ; Collection of snippets
+
 (use-package dap-mode
   ;; Uncomment the config below if you want all UI panes to be hidden by default!
   ;; :custom
@@ -622,16 +625,3 @@
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(dockerfile-mode which-key vterm visual-fill-column use-package typescript-mode smex rainbow-delimiters pyvenv python-mode org-bullets multiple-cursors magit lsp-ui lsp-java lsp-ivy ivy-rich ibuffer-vc ibuffer-projectile highlight-indent-guides helpful eyebrowse evil-nerd-commenter doom-themes doom-modeline dired-single dired-open dired-hide-dotfiles counsel-projectile company-box command-log-mode all-the-icons-dired)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
