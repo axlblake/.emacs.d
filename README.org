@@ -675,6 +675,7 @@ Java configuration for lsp mode
     (toggle-truncate-lines 1)
     (setq-local tab-width 4)
     (setq-local c-basic-offset 4)
+    (setq lsp-java-jdt-download-url "https://download.eclipse.org/jdtls/milestones/0.57.0/jdt-language-server-0.57.0-202006172108.tar.gz")
     (lsp))
 
   :config
