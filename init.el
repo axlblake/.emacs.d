@@ -65,46 +65,6 @@
 ;; Set the variable pitch face
 (set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
 
-;; Make ESC quit prompts
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-
-(use-package general
-  :config
-  (general-create-definer rune/leader-keys
-    :keymaps '(normal insert visual emasc)
-    :prefix "SPC"
-    :global-prefix "C-SPC")
-
-  (rune/leader-keys
-    "t"  '(:ignore t :which-key "toggles")
-    "tt" '(counsel-load-theme :which-key "choose theme")))
-
-;; Left EVIL mode disabled
-(use-package evil
-  :init
-  :disabled
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-C-i-jump nil)
-  :config
-  (evil-mode 1)
-  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
-
-  ;; Use visual line motions even outside of visual-line-mode buffers
-  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-
-  (evil-set-initial-state 'messages-buffer-mode 'normal)
-  (evil-set-initial-state 'dashboard-mode 'normal))
-
-(use-package evil-collection
-  :after evil
-  :config
-  :disabled
-  (evil-collection-init))
-
 (use-package command-log-mode)
 
 (use-package doom-themes
@@ -153,6 +113,9 @@
   :config
   (counsel-mode 1))
 
+;; Counsel should remeber last M-x commands (make it smarter)
+(use-package smex)
+
 (use-package helpful
   :custom
   (counsel-describe-function-function #'helpful-callable)
@@ -164,15 +127,6 @@
   ([remap describe-key] . helpful-key))
 
 (use-package hydra)
-
-(defhydra hydra-text-scale (:timeout 4)
-  "scale text"
-  ("j" text-scale-increase "in")
-  ("k" text-scale-decrease "out")
-  ("f" nil "finished" :exit t))
-
-(rune/leader-keys
-  "ts" '(hydra-text-scale/body :which-key "scale text"))
 
 (use-package highlight-indent-guides
 :hook ((prog-mode text-mode conf-mode) . highlight-indent-guides-mode)
@@ -420,12 +374,7 @@
   ;; Set up Node debugging
   (require 'dap-node)
   (dap-node-setup) ;; Automatically installs Node debug adapter if needed
-
-  ;; Bind `C-c l d` to `dap-hydra` for easy access
-  (general-define-key
-    :keymaps 'lsp-mode-map
-    :prefix lsp-keymap-prefix
-    "d" '(dap-hydra t :wk "debugger")))
+)
 
 (use-package typescript-mode
   :mode "\\.ts\\'"
@@ -699,5 +648,6 @@
 ;; Yes Or No y-or-p
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+;; Whitespace mode only for python-mode (add others if you need)
 (add-hook 'python-mode-hook
   (lambda () (whitespace-mode t)))

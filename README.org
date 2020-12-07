@@ -45,7 +45,8 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
 
 #+end_src
 
-* Basic UI Configuration
+* UI Configuration
+** Basic UI Configuration
 
 #+begin_src emacs-lisp
 
@@ -97,55 +98,6 @@ Install [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://fonts.go
 
 #+end_src
 
-* Keybinding Configuration
-
-  [[https://github.com/noctuid/general.el][general.el]] is used for easy keybinding configuration that integrates well with which-key.
-
-#+begin_src emacs-lisp
-
-  ;; Make ESC quit prompts
-  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-
-  (use-package general
-    :config
-    (general-create-definer rune/leader-keys
-      :keymaps '(normal insert visual emasc)
-      :prefix "SPC"
-      :global-prefix "C-SPC")
-
-    (rune/leader-keys
-      "t"  '(:ignore t :which-key "toggles")
-      "tt" '(counsel-load-theme :which-key "choose theme")))
-  
-  ;; Left EVIL mode disabled
-  (use-package evil
-    :init
-    :disabled
-    (setq evil-want-integration t)
-    (setq evil-want-keybinding nil)
-    (setq evil-want-C-u-scroll t)
-    (setq evil-want-C-i-jump nil)
-    :config
-    (evil-mode 1)
-    (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-    (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
-
-    ;; Use visual line motions even outside of visual-line-mode buffers
-    (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-
-    (evil-set-initial-state 'messages-buffer-mode 'normal)
-    (evil-set-initial-state 'dashboard-mode 'normal))
-
-  (use-package evil-collection
-    :after evil
-    :config
-    :disabled
-    (evil-collection-init))
-
-#+end_src
-
-* UI Configuration
 ** Command Log Mode
 
 [[https://github.com/lewang/command-log-mode][command-log-mode]] is useful for displaying a panel showing each key binding you use in a panel on the right side of the frame.
@@ -237,10 +189,12 @@ Counsel is a customized set of commands to replace `find-file` with `counsel-fin
     :config
     (counsel-mode 1))
 
+  ;; Counsel should remeber last M-x commands (make it smarter)
+  (use-package smex)
+
 #+end_src
 
 ** Helpful Help Commands
-
 [[https://github.com/Wilfred/helpful][Helpful]] adds a lot of very helpful (get it?) information to Emacs' =describe-= command buffers.  
 For example, if you use =describe-function=, you will not only get the documentation about the function, you will also see the source code of the function and where it gets used in other places in the Emacs configuration.
 
@@ -259,22 +213,10 @@ For example, if you use =describe-function=, you will not only get the documenta
 #+end_src
 
 ** Text Scaling
-
-This is an example of using [[https://github.com/abo-abo/hydra][Hydra]] to design a transient key binding for quickly adjusting the scale of the text on screen. 
+[[https://github.com/abo-abo/hydra][Hydra]] quickly adjusting the scale of the text on screen. 
 
 #+begin_src emacs-lisp
-
   (use-package hydra)
-
-  (defhydra hydra-text-scale (:timeout 4)
-    "scale text"
-    ("j" text-scale-increase "in")
-    ("k" text-scale-decrease "out")
-    ("f" nil "finished" :exit t))
-
-  (rune/leader-keys
-    "ts" '(hydra-text-scale/body :which-key "scale text"))
-
 #+end_src
 
 ** Highlight indent
@@ -303,7 +245,6 @@ Highlight indent makes much easier to find code block.
 #+end_src
 
 * Org Mode
-
 [[https://orgmode.org/][Org Mode]] is one of the hallmark features of Emacs.  It is a rich document editor, project planner, task and time tracker, blogging engine, and literate coding utility all wrapped up in one package.
 
 ** Better Font Faces
@@ -647,12 +588,7 @@ Try these commands with =M-x=:
     ;; Set up Node debugging
     (require 'dap-node)
     (dap-node-setup) ;; Automatically installs Node debug adapter if needed
-
-    ;; Bind `C-c l d` to `dap-hydra` for easy access
-    (general-define-key
-      :keymaps 'lsp-mode-map
-      :prefix lsp-keymap-prefix
-      "d" '(dap-hydra t :wk "debugger")))
+  )
 
 #+end_src
 
@@ -929,7 +865,6 @@ Windows management for multiple projects at once
   (eyebrowse-mode t))
 #+end_src
 * Terminals
-
 ** term-mode
 
 =term-mode= is a built-in terminal emulator in Emacs.  Because it is written in Emacs Lisp, you can start using it immediately with very little configuration.  If you are on Linux or macOS, =term-mode= is a great choice to get started because it supports fairly complex terminal applications (=htop=, =vim=, etc) and works pretty reliably.  However, because it is written in Emacs Lisp, it can be slower than other options like =vterm=.  The speed will only be an issue if you regularly run console apps with a lot of output.
@@ -1160,7 +1095,6 @@ Dired is a built-in file manager for Emacs that does some pretty amazing things!
 
 * Custom
 Some additional custom changes
-
 #+begin_src emacs-lisp
 ;; Duplicate row
 (defun duplicate-line()
@@ -1176,6 +1110,7 @@ Some additional custom changes
 ;; Yes Or No y-or-p
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+;; Whitespace mode only for python-mode (add others if you need)
 (add-hook 'python-mode-hook
   (lambda () (whitespace-mode t)))
 #+end_src
