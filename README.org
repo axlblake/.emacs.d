@@ -11,11 +11,11 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
   ;;       in Emacs and init.el will be generated automatically!
 
   ;; Font size
-  (defvar efs/default-font-size 120)
-  (defvar efs/default-variable-font-size 120)
+  (defvar cfg/default-font-size 120)
+  (defvar cfg/default-variable-font-size 120)
 
   ;; Frame transparency
-  (defvar efs/frame-transparency '(97 . 97))
+  (defvar cfg/frame-transparency '(97 . 97))
 
 #+end_src
 
@@ -63,8 +63,8 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
   (global-display-line-numbers-mode t)
 
   ;; Set frame transparency
-  ;; (set-frame-parameter (selected-frame) 'alpha efs/frame-transparency)
-  ;; (add-to-list 'default-frame-alist `(alpha . ,efs/frame-transparency))
+  ;; (set-frame-parameter (selected-frame) 'alpha cfg/frame-transparency)
+  ;; (add-to-list 'default-frame-alist `(alpha . ,cfg/frame-transparency))
 
   ;; Set frame fulscreen
   (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
@@ -88,13 +88,13 @@ Install [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://fonts.go
 
 #+begin_src emacs-lisp
 
-(set-face-attribute 'default nil :font "Fira Code Retina" :height efs/default-font-size)
+(set-face-attribute 'default nil :font "Fira Code Retina" :height cfg/default-font-size)
 
 ;; Set the fixed pitch face
-(set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height efs/default-font-size)
+(set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height cfg/default-font-size)
 
 ;; Set the variable pitch face
-(set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
+(set-face-attribute 'variable-pitch nil :font "Cantarell" :height cfg/default-variable-font-size :weight 'regular)
 
 #+end_src
 
@@ -256,11 +256,11 @@ Highlight indent makes much easier to find code block.
 
 ** Better Font Faces
 
-The =efs/org-font-setup= function configures various text faces to tweak the sizes of headings and use variable width fonts in most cases so that it looks more like we're editing a document in =org-mode=.  We switch back to fixed width (monospace) fonts for code blocks and tables so that they display correctly.
+The =cfg/org-font-setup= function configures various text faces to tweak the sizes of headings and use variable width fonts in most cases so that it looks more like we're editing a document in =org-mode=.  We switch back to fixed width (monospace) fonts for code blocks and tables so that they display correctly.
 
 #+begin_src emacs-lisp
 
-  (defun efs/org-font-setup ()
+  (defun cfg/org-font-setup ()
     ;; Replace list hyphen with dot
     (font-lock-add-keywords 'org-mode
                             '(("^ *\\([-]\\) "
@@ -294,14 +294,14 @@ This section contains the basic configuration for =org-mode= plus the configurat
 
 #+begin_src emacs-lisp
 
-  (defun efs/org-mode-setup ()
+  (defun cfg/org-mode-setup ()
     (org-indent-mode)
     (variable-pitch-mode 1)
     (visual-line-mode 1))
 
   (use-package org
     :pin org
-    :hook (org-mode . efs/org-mode-setup)
+    :hook (org-mode . cfg/org-mode-setup)
     :config
     (setq org-ellipsis " ▾")
 
@@ -420,7 +420,7 @@ This section contains the basic configuration for =org-mode= plus the configurat
     (define-key global-map (kbd "C-c j")
       (lambda () (interactive) (org-capture nil "jj")))
 
-    (efs/org-font-setup))
+    (cfg/org-font-setup))
 
 #+end_src
 
@@ -444,13 +444,13 @@ We use [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]
 
 #+begin_src emacs-lisp
 
-  (defun efs/org-mode-visual-fill ()
+  (defun cfg/org-mode-visual-fill ()
     (setq visual-fill-column-width 100
           visual-fill-column-center-text t)
     (visual-fill-column-mode 1))
 
   (use-package visual-fill-column
-    :hook (org-mode . efs/org-mode-visual-fill))
+    :hook (org-mode . cfg/org-mode-visual-fill))
 
 #+end_src
 
@@ -487,19 +487,19 @@ You can add more =src= block templates below by copying one of the lines and cha
 
 ** Auto-tangle Configuration Files
 
-This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
+This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
 
 #+begin_src emacs-lisp
 
   ;; Automatically tangle our Emacs.org config file when we save it
-  (defun efs/org-babel-tangle-config ()
+  (defun cfg/org-babel-tangle-config ()
     (when (string-equal (file-name-directory (buffer-file-name))
                         (expand-file-name user-emacs-directory))
       ;; Dynamic scoping to the rescue
       (let ((org-confirm-babel-evaluate nil))
         (org-babel-tangle))))
 
-  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'cfg/org-babel-tangle-config)))
 
 #+end_src
 
@@ -518,7 +518,6 @@ The =which-key= integration adds helpful descriptions of the various keys so you
 
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
-    :hook (lsp-mode . efs/lsp-mode-setup)
     :init
     (setq lsp-keymap-prefix "C-c c")
     :config

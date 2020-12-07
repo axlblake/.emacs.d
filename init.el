@@ -2,11 +2,11 @@
 ;;       in Emacs and init.el will be generated automatically!
 
 ;; Font size
-(defvar efs/default-font-size 120)
-(defvar efs/default-variable-font-size 120)
+(defvar cfg/default-font-size 120)
+(defvar cfg/default-variable-font-size 120)
 
 ;; Frame transparency
-(defvar efs/frame-transparency '(97 . 97))
+(defvar cfg/frame-transparency '(97 . 97))
 
 ;; Initialize package sources
 (require 'package)
@@ -39,8 +39,8 @@
 (global-display-line-numbers-mode t)
 
 ;; Set frame transparency
-;; (set-frame-parameter (selected-frame) 'alpha efs/frame-transparency)
-;; (add-to-list 'default-frame-alist `(alpha . ,efs/frame-transparency))
+;; (set-frame-parameter (selected-frame) 'alpha cfg/frame-transparency)
+;; (add-to-list 'default-frame-alist `(alpha . ,cfg/frame-transparency))
 
 ;; Set frame fulscreen
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
@@ -57,13 +57,13 @@
 (setq-default
  whitespace-style '(face tabs tab-mark spaces space-mark trailing))
 
-(set-face-attribute 'default nil :font "Fira Code Retina" :height efs/default-font-size)
+(set-face-attribute 'default nil :font "Fira Code Retina" :height cfg/default-font-size)
 
 ;; Set the fixed pitch face
-(set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height efs/default-font-size)
+(set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height cfg/default-font-size)
 
 ;; Set the variable pitch face
-(set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
+(set-face-attribute 'variable-pitch nil :font "Cantarell" :height cfg/default-variable-font-size :weight 'regular)
 
 (use-package command-log-mode)
 
@@ -154,7 +154,7 @@
          (bound-and-true-p org-indent-mode)
          (highlight-indent-guides-mode -1)))))
 
-(defun efs/org-font-setup ()
+(defun cfg/org-font-setup ()
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
                           '(("^ *\\([-]\\) "
@@ -180,14 +180,14 @@
   (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
-(defun efs/org-mode-setup ()
+(defun cfg/org-mode-setup ()
   (org-indent-mode)
   (variable-pitch-mode 1)
   (visual-line-mode 1))
 
 (use-package org
   :pin org
-  :hook (org-mode . efs/org-mode-setup)
+  :hook (org-mode . cfg/org-mode-setup)
   :config
   (setq org-ellipsis " ▾")
 
@@ -306,7 +306,7 @@
   (define-key global-map (kbd "C-c j")
     (lambda () (interactive) (org-capture nil "jj")))
 
-  (efs/org-font-setup))
+  (cfg/org-font-setup))
 
 (use-package org-bullets
   :after org
@@ -314,13 +314,13 @@
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
-(defun efs/org-mode-visual-fill ()
+(defun cfg/org-mode-visual-fill ()
   (setq visual-fill-column-width 100
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
 (use-package visual-fill-column
-  :hook (org-mode . efs/org-mode-visual-fill))
+  :hook (org-mode . cfg/org-mode-visual-fill))
 
 (org-babel-do-load-languages
   'org-babel-load-languages
@@ -337,18 +337,17 @@
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
-(defun efs/org-babel-tangle-config ()
+(defun cfg/org-babel-tangle-config ()
   (when (string-equal (file-name-directory (buffer-file-name))
                       (expand-file-name user-emacs-directory))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
 
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'cfg/org-babel-tangle-config)))
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
-  :hook (lsp-mode . efs/lsp-mode-setup)
   :init
   (setq lsp-keymap-prefix "C-c c")
   :config
@@ -403,46 +402,8 @@
   :config
   (pyvenv-mode 1))
 
-(use-package lsp-java
-  :init
-  (defun jmi/java-mode-config ()
-    (setq-local tab-width 4
-                c-basic-offset 4)
-    (toggle-truncate-lines 1)
-    (setq-local tab-width 4)
-    (setq-local c-basic-offset 4)
-    (lsp))
-
-  :config
-  ;; Enable dap-java
-  (require 'dap-java)
-
-  ;; Support Lombok in our projects, among other things
-  (setq lsp-java-vmargs
-        (list "-noverify"
-              "-Xmx2G"
-              "-XX:+UseG1GC"
-              "-XX:+UseStringDeduplication"
-              (concat "-javaagent:" jmi/lombok-jar)
-              (concat "-Xbootclasspath/a:" jmi/lombok-jar))
-        lsp-file-watch-ignored
-        '(".idea" ".ensime_cache" ".eunit" "node_modules"
-          ".git" ".hg" ".fslckout" "_FOSSIL_"
-          ".bzr" "_darcs" ".tox" ".svn" ".stack-work"
-          "build")
-
-        lsp-java-import-order '["" "java" "javax" "#"]
-        ;; Don't organize imports on save
-        lsp-java-save-action-organize-imports nil
-
-        ;; Formatter profile
-        lsp-java-format-settings-url
-        (concat "file://" jmi/java-format-settings-file))
-
-  :hook (java-mode   . jmi/java-mode-config)
-
-  :demand t
-  :after (lsp lsp-mode dap-mode jmi-init-platform-paths))
+(use-package lsp-java :config (add-hook 'java-mode-hook 'lsp))
+(use-package dap-java :ensure nil)
 
 (use-package company
   :after lsp-mode
