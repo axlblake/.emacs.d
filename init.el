@@ -354,7 +354,7 @@
   :commands (lsp lsp-deferred)
   :hook (lsp-mode . efs/lsp-mode-setup)
   :init
-  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+  (setq lsp-keymap-prefix "C-c c")
   :config
   (lsp-enable-which-key-integration t))
 
@@ -618,3 +618,7 @@
 ;; Whitespace mode only for python-mode (add others if you need)
 (add-hook 'python-mode-hook
   (lambda () (whitespace-mode t)))
+
+;; ;; Clean up lsp blacklist folders
+;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
+;; (lsp--persist-session (lsp-session))

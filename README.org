@@ -506,7 +506,6 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 * Development
 ** Languages
 *** IDE Features with lsp-mode
-
 **** lsp-mode
 
 We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enable IDE-like functionality for many different programming languages via "language servers" that speak the [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]].  Before trying to set up =lsp-mode= for a particular language, check out the [[https://emacs-lsp.github.io/lsp-mode/page/languages/][documentation for your language]] so that you can learn which language servers are available and how to install them.
@@ -525,7 +524,7 @@ The =which-key= integration adds helpful descriptions of the various keys so you
     :commands (lsp lsp-deferred)
     :hook (lsp-mode . efs/lsp-mode-setup)
     :init
-    (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+    (setq lsp-keymap-prefix "C-c c")
     :config
     (lsp-enable-which-key-integration t))
 
@@ -1030,4 +1029,11 @@ Some additional custom changes
 ;; Whitespace mode only for python-mode (add others if you need)
 (add-hook 'python-mode-hook
   (lambda () (whitespace-mode t)))
+#+end_src
+
+Some additional snippets on-demand:
+#+begin_src emacs-lisp
+  ;; ;; Clean up lsp blacklist folders
+  ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
+  ;; (lsp--persist-session (lsp-session))
 #+end_src
