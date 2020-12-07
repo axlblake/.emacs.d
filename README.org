@@ -115,7 +115,7 @@ Install [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://fonts.go
 #+begin_src emacs-lisp
 
 (use-package doom-themes
-  :init (load-theme 'doom-dracula t))
+  :init (load-theme 'doom-one t))
 
 #+end_src
 
@@ -516,10 +516,6 @@ The =which-key= integration adds helpful descriptions of the various keys so you
 
 #+begin_src emacs-lisp
 
-  (defun efs/lsp-mode-setup ()
-    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-    (lsp-headerline-breadcrumb-mode))
-
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
     :hook (lsp-mode . efs/lsp-mode-setup)
@@ -528,6 +524,7 @@ The =which-key= integration adds helpful descriptions of the various keys so you
     :config
     (lsp-enable-which-key-integration t))
 
+  (global-set-key (kbd "C-c c e") 'flymake-show-diagnostics-buffer)
 #+end_src
 
 **** lsp-ui

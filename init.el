@@ -68,7 +68,7 @@
 (use-package command-log-mode)
 
 (use-package doom-themes
-  :init (load-theme 'doom-dracula t))
+  :init (load-theme 'doom-one t))
 
 (use-package all-the-icons)
 
@@ -346,10 +346,6 @@
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
-(defun efs/lsp-mode-setup ()
-  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-  (lsp-headerline-breadcrumb-mode))
-
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :hook (lsp-mode . efs/lsp-mode-setup)
@@ -357,6 +353,8 @@
   (setq lsp-keymap-prefix "C-c c")
   :config
   (lsp-enable-which-key-integration t))
+
+(global-set-key (kbd "C-c c e") 'flymake-show-diagnostics-buffer)
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
