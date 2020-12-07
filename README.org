@@ -869,6 +869,11 @@ Windows management for multiple projects at once
   :config
   (eyebrowse-mode t))
 #+end_src
+** Dockerfile mode
+Pretty dockerfiles
+#+begin_src emacs-lisp
+(use-package dockerfile-mode)
+#+end_src
 * Terminals
 ** vterm
 
