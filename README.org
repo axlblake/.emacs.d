@@ -213,10 +213,17 @@ For example, if you use =describe-function=, you will not only get the documenta
 #+end_src
 
 ** Text Scaling
-[[https://github.com/abo-abo/hydra][Hydra]] quickly adjusting the scale of the text on screen. 
+[[https://github.com/abo-abo/hydra][Hydra]] 
 
+Quickly adjusting the scale of the text on screen. 
 #+begin_src emacs-lisp
   (use-package hydra)
+  (defhydra hydra-text-scale (:timeout 10)
+  "scale text"
+  ("j" text-scale-increase "in")
+  ("k" text-scale-decrease "out"))
+  (global-set-key (kbd "C-c l") 'hydra-text-scale/body)
+
 #+end_src
 
 ** Highlight indent
@@ -722,6 +729,8 @@ We also use [[https://github.com/sebastiencs/company-box][company-box]] to furth
 
   (use-package company-box
     :hook (company-mode . company-box-mode))
+
+  ;; (add-hook 'after-init-hook 'global-company-mode)
 
 #+end_src
 

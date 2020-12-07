@@ -127,6 +127,11 @@
   ([remap describe-key] . helpful-key))
 
 (use-package hydra)
+(defhydra hydra-text-scale (:timeout 10)
+"scale text"
+("j" text-scale-increase "in")
+("k" text-scale-decrease "out"))
+(global-set-key (kbd "C-c l") 'hydra-text-scale/body)
 
 (use-package highlight-indent-guides
 :hook ((prog-mode text-mode conf-mode) . highlight-indent-guides-mode)
@@ -451,6 +456,8 @@
 
 (use-package company-box
   :hook (company-mode . company-box-mode))
+
+;; (add-hook 'after-init-hook 'global-company-mode)
 
 (use-package projectile
   :diminish projectile-mode
