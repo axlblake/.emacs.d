@@ -885,6 +885,13 @@ Pretty dockerfiles
 #+begin_src emacs-lisp
 (use-package json-mode)
 #+end_src
+** Move text
+#+begin_src emacs-lisp
+(use-package move-text
+  :init
+  (move-text-default-bindings))
+#+end_src
+
 * Terminals
 ** vterm
 
