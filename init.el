@@ -559,6 +559,7 @@
   (eyebrowse-mode t))
 
 (use-package dockerfile-mode)
+(use-package docker-compose-mode)
 
 (use-package json-mode)
 
@@ -633,7 +634,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(json-mode yasnippet-snippets which-key vterm visual-fill-column use-package typescript-mode smex rainbow-delimiters pyvenv python-mode org-bullets multiple-cursors magit lsp-ui lsp-java lsp-ivy ivy-rich ibuffer-vc ibuffer-projectile highlight-indent-guides helpful eyebrowse evil-nerd-commenter doom-themes doom-modeline dockerfile-mode dired-single dired-open dired-hide-dotfiles counsel-projectile company-box command-log-mode all-the-icons-dired)))
+   '(docker-compose-mode yasnippet-snippets which-key vterm visual-fill-column use-package typescript-mode smex rainbow-delimiters pyvenv python-mode org-bullets multiple-cursors magit lsp-ui lsp-java lsp-ivy json-mode ivy-rich ibuffer-vc ibuffer-projectile highlight-indent-guides helpful eyebrowse evil-nerd-commenter doom-themes doom-modeline dockerfile-mode dired-single dired-open dired-hide-dotfiles counsel-projectile company-box command-log-mode all-the-icons-dired)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
