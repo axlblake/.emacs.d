@@ -560,6 +560,8 @@
 
 (use-package dockerfile-mode)
 
+(use-package json-mode)
+
 (use-package vterm
   :commands vterm
   :ensure t
@@ -625,3 +627,16 @@
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(json-mode yasnippet-snippets which-key vterm visual-fill-column use-package typescript-mode smex rainbow-delimiters pyvenv python-mode org-bullets multiple-cursors magit lsp-ui lsp-java lsp-ivy ivy-rich ibuffer-vc ibuffer-projectile highlight-indent-guides helpful eyebrowse evil-nerd-commenter doom-themes doom-modeline dockerfile-mode dired-single dired-open dired-hide-dotfiles counsel-projectile company-box command-log-mode all-the-icons-dired)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

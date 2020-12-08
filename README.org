@@ -880,6 +880,10 @@ Pretty dockerfiles
 #+begin_src emacs-lisp
 (use-package dockerfile-mode)
 #+end_src
+** JSON mode
+#+begin_src emacs-lisp
+(use-package json-mode)
+#+end_src
 * Terminals
 ** vterm
 
