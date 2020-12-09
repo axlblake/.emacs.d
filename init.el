@@ -626,8 +626,11 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; Whitespace mode only for python-mode (add others if you need)
-(add-hook 'python-mode-hook
-  (lambda () (whitespace-mode t)))
+(defun whitespace-mode-enable()
+  (whitespace-mode t))
+
+(add-hook 'java-mode-hook 'whitespace-mode-enable)
+(add-hook 'python-mode-hook 'whitespace-mode-enable)
 
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
