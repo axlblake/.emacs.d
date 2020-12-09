@@ -335,6 +335,7 @@
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-to-list 'org-structure-template-alist '("json" . "src json"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun cfg/org-babel-tangle-config ()
