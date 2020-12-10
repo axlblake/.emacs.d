@@ -354,8 +354,6 @@
   :config
   (lsp-enable-which-key-integration t))
 
-(global-set-key (kbd "C-c c e") 'flymake-show-diagnostics-buffer)
-
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
   :custom
@@ -398,6 +396,10 @@
   (dap-python-debugger 'debugpy)
   :config
   (require 'dap-python))
+
+(use-package py-isort)
+(add-hook 'python-mode-hook
+        (lambda () (local-set-key (kbd "C-c c i") 'py-isort-buffer)))
 
 (use-package pyvenv
   :config
@@ -460,6 +462,12 @@
   :hook (company-mode . company-box-mode))
 
 ;; (add-hook 'after-init-hook 'global-company-mode)
+
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+
+(global-set-key (kbd "C-c c e") 'flycheck-list-errors)
 
 (use-package projectile
   :diminish projectile-mode
