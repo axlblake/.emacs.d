@@ -474,9 +474,12 @@ To execute or export code in =org-mode= code blocks, you'll need to set up =org-
     'org-babel-load-languages
     '((emacs-lisp . t)
       (shell . t)
+      (sql . t)
+      (js . t)
       (python . t)))
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
+  (setq org-confirm-babel-evaluate nil)
 
 #+end_src
 
@@ -493,6 +496,8 @@ You can add more =src= block templates below by copying one of the lines and cha
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
+  (add-to-list 'org-structure-template-alist '("js" . "src js"))
+  (add-to-list 'org-structure-template-alist '("sql" . "src sql"))
   (add-to-list 'org-structure-template-alist '("json" . "src json"))
 
 #+end_src

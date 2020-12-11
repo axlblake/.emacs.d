@@ -333,9 +333,12 @@
   'org-babel-load-languages
   '((emacs-lisp . t)
     (shell . t)
+    (sql . t)
+    (js . t)
     (python . t)))
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
+(setq org-confirm-babel-evaluate nil)
 
 ;; This is needed as of Org 9.2
 (require 'org-tempo)
@@ -343,6 +346,8 @@
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-to-list 'org-structure-template-alist '("js" . "src js"))
+(add-to-list 'org-structure-template-alist '("sql" . "src sql"))
 (add-to-list 'org-structure-template-alist '("json" . "src json"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
