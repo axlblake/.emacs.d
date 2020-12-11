@@ -205,9 +205,7 @@
   (setq org-log-into-drawer t)
 
   (setq org-agenda-files
-        '("~/org_files/Tasks.org"
-          "~/org_files/Habits.org"
-          "~/org_files/Birthdays.org"))
+        '("~/org_files/tasks.org"))
 
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
@@ -288,24 +286,24 @@
 
   (setq org-capture-templates
     `(("t" "Tasks / Projects")
-      ("tt" "Task" entry (file+olp "~/org_files/Tasks.org" "Inbox")
+      ("tt" "Task" entry (file+olp "~/org_files/tasks.org" "Inbox")
            "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
 
       ("j" "Journal Entries")
       ("jj" "Journal" entry
-           (file+olp+datetree "~/org_files/Journal.org")
+           (file+olp+datetree "~/org_files/journal.org")
            "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
            ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
            :clock-in :clock-resume
            :empty-lines 1)
       ("jm" "Meeting" entry
-           (file+olp+datetree "~/org_files/Journal.org")
+           (file+olp+datetree "~/org_files/journal.org")
            "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
            :clock-in :clock-resume
            :empty-lines 1)
 
       ("w" "Workflows")
-      ("we" "Checking Email" entry (file+olp+datetree "~/org_files/Journal.org")
+      ("we" "Checking Email" entry (file+olp+datetree "~/org_files/journal.org")
            "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
 
       ("m" "Metrics Capture")
@@ -477,7 +475,7 @@
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
-;; (add-hook 'after-init-hook 'global-company-mode)
+(add-hook 'after-init-hook 'global-company-mode)
 
 (use-package flycheck
   :ensure t
@@ -493,8 +491,8 @@
   ("C-c p" . projectile-command-map)
   :init
   ;; NOTE: Set this to the folder where you keep your Git repos!
-  (when (file-directory-p "~/Projects/Code")
-    (setq projectile-project-search-path '("~/Projects/Code")))
+  (when (file-directory-p "~/code")
+    (setq projectile-project-search-path '("~/code")))
   (setq projectile-switch-project-action #'projectile-dired))
 
 (use-package counsel-projectile
@@ -548,23 +546,7 @@
      :header-mouse-map ibuffer-size-header-map)
     (file-size-human-readable (buffer-size))))
 
-    ;; (define-ibuffer-filter workspace-buffers
-    ;;     "Filter for workspace buffers"
-    ;;   (:reader (+workspace-get (read-string "workspace name: "))
-    ;;    :description "workspace")
-    ;;   (memq buf (+workspace-buffer-list qualifier)))
-
-    ;; (defun +ibuffer-workspace (workspace-name)
-    ;;   "Open an ibuffer window for a workspace"
-    ;;   (ibuffer nil (format "%s buffers" workspace-name)
-    ;;            (list (cons 'workspace-buffers (+workspace-get workspace-name)))))
-
-;;     (defun +ibuffer/open-for-current-workspace ()
-;;       "Open an ibuffer window for the current workspace"
-;;       (interactive)
-;;       (+ibuffer-workspace (+workspace-current-name))))
-
-(use-package ibuffer-projectile
+ (use-package ibuffer-projectile
   ;; Group ibuffer's list by project root
   :hook (ibuffer . ibuffer-projectile-set-filter-groups)
   :config
@@ -637,7 +619,7 @@
 )
 
 ;; Duplicate row
-(defun duplicate-line()
+(defun my-duplicate-line()
   (interactive)
   (move-beginning-of-line 1)
   (kill-line)
@@ -645,7 +627,7 @@
   (newline)
   (yank)
 )
-(global-set-key (kbd "C-c d") 'duplicate-line)
+(global-set-key (kbd "C-c d") 'my-duplicate-line)
 
 ;; Yes Or No y-or-p
 (defalias 'yes-or-no-p 'y-or-n-p)
