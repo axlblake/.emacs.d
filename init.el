@@ -461,6 +461,7 @@
 
   :demand t
   :after (lsp lsp-mode dap-mode jmi-init-platform-paths))
+  (add-hook 'java-mode-hook 'lsp-deferred)
 
 (use-package company
   :after lsp-mode
