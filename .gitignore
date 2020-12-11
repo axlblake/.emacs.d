@@ -4,3 +4,11 @@
 *.log
 *.eld
 *.el~
+.cache/*
+.lsp-session*
+.mc-lists*
+auto-save-list*
+projectile.cache
+.dap*
+eclipse*
+workspace*
