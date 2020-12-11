@@ -654,6 +654,28 @@
 (add-hook 'java-mode-hook 'whitespace-mode-enable)
 (add-hook 'python-mode-hook 'whitespace-mode-enable)
 
+(defun my-delete-word (arg)
+  "Delete characters forward until encountering the end of a word.
+With argument, do this that many times.
+This command does not push text to `kill-ring'."
+  (interactive "p")
+  (delete-region
+   (point)
+   (progn
+     (forward-word arg)
+     (point))))
+
+(defun my-backward-delete-word (arg)
+  "Delete characters backward until encountering the beginning of a word.
+With argument, do this that many times.
+This command does not push text to `kill-ring'."
+  (interactive "p")
+  (my-delete-word (- arg)))
+
+; bind them to emacs's default shortcut keys:
+(global-set-key (kbd "<C-delete>") 'my-delete-word)
+(global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
+
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
