@@ -8,6 +8,8 @@
 ;; Frame transparency
 (defvar cfg/frame-transparency '(97 . 97))
 
+(setq gc-cons-threshold 100000000) ;; 100mb of memory
+
 ;; Initialize package sources
 (require 'package)
 

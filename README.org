@@ -17,6 +17,8 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
   ;; Frame transparency
   (defvar cfg/frame-transparency '(97 . 97))
 
+  (setq gc-cons-threshold 100000000) ;; 100mb of memory
+
 #+end_src
 
 Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
