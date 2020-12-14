@@ -512,8 +512,8 @@
 :hook (magit-post-refresh . diff-hl-magit-post-refresh)
 :config
 ;; use margin instead of fringe
-(diff-hl-margin-mode)
-(global-diff-hl-mode))
+(diff-hl-margin-mode))
+(global-diff-hl-mode)
 
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
