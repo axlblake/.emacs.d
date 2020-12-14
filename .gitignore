@@ -10,6 +10,7 @@
 auto-save-list*
 projectile.cache
 .dap*
+eclipse*
 eclipse/*
 workspace/*
 projects
