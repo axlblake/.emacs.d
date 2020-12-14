@@ -507,6 +507,14 @@
 ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
 ;;(use-package forge)
 
+(use-package diff-hl
+:hook (magit-pre-refresh . diff-hl-magit-pre-refresh)
+:hook (magit-post-refresh . diff-hl-magit-post-refresh)
+:config
+;; use margin instead of fringe
+(diff-hl-margin-mode)
+(global-diff-hl-mode))
+
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 

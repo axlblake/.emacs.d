@@ -803,7 +803,17 @@ Flymake alternative
   ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
   ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
   ;;(use-package forge)
+#+end_src
 
+Diff hl shows changes in buffer within magit diff
+#+begin_src emacs-lisp
+  (use-package diff-hl
+  :hook (magit-pre-refresh . diff-hl-magit-pre-refresh)
+  :hook (magit-post-refresh . diff-hl-magit-post-refresh)
+  :config
+  ;; use margin instead of fringe
+  (diff-hl-margin-mode)
+  (global-diff-hl-mode))
 #+end_src
 
 ** Commenting
