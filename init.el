@@ -665,9 +665,12 @@ This command does not push text to `kill-ring'."
   (interactive "p")
   (my-delete-word (- arg)))
 
-; bind them to emacs's default shortcut keys:
+;; Bind them to emacs's default shortcut keys:
 (global-set-key (kbd "<C-delete>") 'my-delete-word)
 (global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
+
+;; Delete highlighted text on input
+(delete-selection-mode 1)
 
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
