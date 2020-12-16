@@ -369,6 +369,8 @@
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
+  :bind ("C-c c d" . lsp-ui-doc-focus-frame)
+  ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
   :custom
   (lsp-ui-doc-position 'bottom))
 
