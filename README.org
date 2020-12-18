@@ -917,6 +917,10 @@ Pretty dockerfiles
   :init
   (move-text-default-bindings))
 #+end_src
+** View Large Files
+#+begin_src emacs-lisp
+(use-package vlf)
+#+end_src
 
 * Terminals
 ** vterm
