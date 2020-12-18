@@ -1059,6 +1059,15 @@ Dired is a built-in file manager for Emacs that does some pretty amazing things!
 
 #+end_src
 
+** Temporary files
+Store all backup and autosave files in the =tmp= dir
+#+begin_src emacs-lisp
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
+#+end_src
+
 * Custom
 Some additional custom changes
 #+begin_src emacs-lisp
