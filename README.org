@@ -963,6 +963,35 @@ One advantage of =shell-mode= on Windows is that it's the only way to run =cmd.e
 
 #+end_src
 
+** shell toggle
+#+begin_src emacs-lisp
+(defun shell-toggle (&optional command)
+  "Toggle a persistent terminal popup window.
+If popup is visible but unselected, selected it.
+If popup is focused, delete it."
+  (interactive)
+  (let ((buffer
+         (get-buffer-create
+          (format "*shell-popup:%s*"
+                  (if (bound-and-true-p persp-mode)
+                      (safe-persp-name (get-current-persp))
+                    "main"))))
+        (dir default-directory))
+    (if-let (win (get-buffer-window buffer))
+        (if (eq (selected-window) win)
+            (let (confirm-kill-processes)
+              (delete-window win))
+          (select-window win)
+          (goto-char (point-max)))
+      (with-current-buffer (pop-to-buffer buffer)
+        (if (not (eq major-mode 'shell-mode))
+            (shell buffer)
+          (cd dir)
+          (run-mode-hooks 'shell-mode-hook))))))
+(global-set-key (kbd "C-c t") 'shell-toggle)
+
+#+end_src
+
 * File Management
 ** Dired
 Dired is a built-in file manager for Emacs that does some pretty amazing things!  Here are some key bindings you should try out:

@@ -599,6 +599,31 @@
   (setq explicit-shell-file-name "powershell.exe")
   (setq explicit-powershell.exe-args '()))
 
+(defun shell-toggle (&optional command)
+  "Toggle a persistent terminal popup window.
+If popup is visible but unselected, selected it.
+If popup is focused, delete it."
+  (interactive)
+  (let ((buffer
+         (get-buffer-create
+          (format "*shell-popup:%s*"
+                  (if (bound-and-true-p persp-mode)
+                      (safe-persp-name (get-current-persp))
+                    "main"))))
+        (dir default-directory))
+    (if-let (win (get-buffer-window buffer))
+        (if (eq (selected-window) win)
+            (let (confirm-kill-processes)
+              (delete-window win))
+          (select-window win)
+          (goto-char (point-max)))
+      (with-current-buffer (pop-to-buffer buffer)
+        (if (not (eq major-mode 'shell-mode))
+            (shell buffer)
+          (cd dir)
+          (run-mode-hooks 'shell-mode-hook))))))
+(global-set-key (kbd "C-c t") 'shell-toggle)
+
 (use-package dired
   :ensure nil
   :commands (dired dired-jump)
