@@ -314,6 +314,9 @@
 
   (cfg/org-font-setup))
 
+  (if (equal user-full-name "axl")
+      (add-hook 'after-init-hook 'org-agenda-list))
+
 (use-package org-bullets
   :after org
   :hook (org-mode . org-bullets-mode)
