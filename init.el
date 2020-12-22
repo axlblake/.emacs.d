@@ -708,6 +708,11 @@ This command does not push text to `kill-ring'."
 ;; Delete highlighted text on input
 (delete-selection-mode 1)
 
+;; So-long
+(if (version<= "27.1" emacs-version)
+    (global-so-long-mode 1)
+    (setq bidi-inhibit-bpa t))
+
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
