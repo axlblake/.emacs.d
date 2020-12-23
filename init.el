@@ -10,6 +10,28 @@
 
 (setq gc-cons-threshold 100000000) ;; 100mb of memory
 
+(use-package page-break-lines)
+(use-package all-the-icons)
+
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook))
+
+(setq dashboard-items '((recents  . 5)
+                        (bookmarks . 5)
+                        (projects . 5)
+                        (agenda . 5)
+                        (registers . 5)))
+
+(setq dashboard-startup-banner 'logo)
+(setq dashboard-set-heading-icons t)
+(setq dashboard-set-file-icons t)
+(setq dashboard-center-content t)
+(setq dashboard-set-footer nil)
+  ;; (if (equal user-full-name "axl")
+  ;;     (add-hook 'after-init-hook 'org-agenda-list))
+
 ;; Initialize package sources
 (require 'package)
 
@@ -28,7 +50,7 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(setq inhibit-startup-message t)
+;; (setq inhibit-startup-message t)
 
 (scroll-bar-mode -1)        ; Disable visible scrollbar
 (tool-bar-mode -1)          ; Disable the toolbar
@@ -313,9 +335,6 @@
     (lambda () (interactive) (org-capture nil "jj")))
 
   (cfg/org-font-setup))
-
-  (if (equal user-full-name "axl")
-      (add-hook 'after-init-hook 'org-agenda-list))
 
 (use-package org-bullets
   :after org

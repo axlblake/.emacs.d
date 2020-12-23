@@ -23,6 +23,31 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
 
 Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
 
+* Dashboard
+Startup dashboard
+#+begin_src emacs-lisp
+(use-package page-break-lines)
+(use-package all-the-icons)
+
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook))
+
+(setq dashboard-items '((recents  . 5)
+                        (bookmarks . 5)
+                        (projects . 5)
+                        (agenda . 5)
+                        (registers . 5)))
+
+(setq dashboard-startup-banner 'logo)
+(setq dashboard-set-heading-icons t)
+(setq dashboard-set-file-icons t)
+(setq dashboard-center-content t)
+(setq dashboard-set-footer nil)
+  ;; (if (equal user-full-name "axl")
+  ;;     (add-hook 'after-init-hook 'org-agenda-list))
+#+end_src
 * Package System Setup
 
 #+begin_src emacs-lisp
@@ -52,7 +77,7 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
 
 #+begin_src emacs-lisp
 
-  (setq inhibit-startup-message t)
+  ;; (setq inhibit-startup-message t)
 
   (scroll-bar-mode -1)        ; Disable visible scrollbar
   (tool-bar-mode -1)          ; Disable the toolbar
@@ -430,9 +455,6 @@ This section contains the basic configuration for =org-mode= plus the configurat
       (lambda () (interactive) (org-capture nil "jj")))
 
     (cfg/org-font-setup))
-
-    (if (equal user-full-name "axl")
-        (add-hook 'after-init-hook 'org-agenda-list))
 #+end_src
 
 *** Nicer Heading Bullets
