@@ -607,6 +607,10 @@
 
 (use-package vlf)
 
+(use-package yafolding)
+(add-hook 'json-mode-hook
+          (lambda () (yafolding-mode)))
+
 (use-package vterm
   :commands vterm
   :ensure t

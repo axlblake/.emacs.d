@@ -945,6 +945,13 @@ Pretty dockerfiles
 #+begin_src emacs-lisp
 (use-package vlf)
 #+end_src
+** Yafolding
+Yet another folding extension for Emacs
+#+begin_src emacs-lisp
+(use-package yafolding)
+(add-hook 'json-mode-hook
+          (lambda () (yafolding-mode)))
+#+end_src
 
 * Terminals
 ** vterm
