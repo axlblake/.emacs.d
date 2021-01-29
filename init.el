@@ -81,6 +81,9 @@
 (setq-default
  whitespace-style '(face tabs tab-mark spaces space-mark trailing))
 
+(setq-default tab-width 4)
+(setq-default c-basic-offset 4)
+
 (set-face-attribute 'default nil :font "Fira Code Retina" :height cfg/default-font-size)
 
 ;; Set the fixed pitch face
@@ -444,11 +447,7 @@
 (use-package lsp-java
   :init
   (defun jmi/java-mode-config ()
-    (setq-local tab-width 4
-                c-basic-offset 4)
     (toggle-truncate-lines 1)
-    (setq-local tab-width 4)
-    (setq-local c-basic-offset 4)
     (setq lsp-java-jdt-download-url "https://download.eclipse.org/jdtls/milestones/0.57.0/jdt-language-server-0.57.0-202006172108.tar.gz")
     (lsp))
 
@@ -478,7 +477,7 @@
         lsp-java-format-settings-url
         (concat "file://" jmi/java-format-settings-file))
 
-  :hook (java-mode   . jmi/java-mode-config)
+  :hook (java-mode . jmi/java-mode-config)
 
   :demand t
   :after (lsp lsp-mode dap-mode jmi-init-platform-paths))
