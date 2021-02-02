@@ -359,9 +359,12 @@
     (shell . t)
     (sql . t)
     (js . t)
+    (plantuml . t)
     (python . t)))
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
+(push '("plantuml" . plantuml) org-src-lang-modes)
+
 (setq org-confirm-babel-evaluate nil)
 
 ;; This is needed as of Org 9.2
@@ -373,6 +376,7 @@
 (add-to-list 'org-structure-template-alist '("js" . "src js"))
 (add-to-list 'org-structure-template-alist '("sql" . "src sql"))
 (add-to-list 'org-structure-template-alist '("json" . "src json"))
+(add-to-list 'org-structure-template-alist '("plant" . "src plantuml"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun cfg/org-babel-tangle-config ()
@@ -383,6 +387,10 @@
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'cfg/org-babel-tangle-config)))
+
+(use-package plantuml-mode)
+(setq plantuml-jar-path "~/plantuml.jar")
+(setq plantuml-default-exec-mode 'jar)
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
