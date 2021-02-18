@@ -491,6 +491,16 @@
   :after (lsp lsp-mode dap-mode jmi-init-platform-paths))
   (add-hook 'java-mode-hook 'lsp-deferred)
 
+(use-package web-mode
+:mode
+  (
+   ".twig$"
+   ".hbs$"
+   ".blade.php$"
+   ".liquid$"
+   )
+)
+
 (use-package company
   :after lsp-mode
   :hook (lsp-mode . company-mode)
