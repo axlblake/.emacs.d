@@ -411,8 +411,8 @@
 
 (use-package lsp-ivy)
 
-;; (use-package yasnippet)                  ; Snippets
-;; (use-package yasnippet-snippets)         ; Collection of snippets
+(use-package yasnippet)                  ; Snippets
+(use-package yasnippet-snippets)         ; Collection of snippets
 
 (use-package dap-mode
   ;; Uncomment the config below if you want all UI panes to be hidden by default!
@@ -490,6 +490,7 @@
   :demand t
   :after (lsp lsp-mode dap-mode jmi-init-platform-paths))
   (add-hook 'java-mode-hook 'lsp-deferred)
+  (add-hook 'java-mode-hook 'yas-minor-mode-on)
 
 (use-package web-mode
 :mode

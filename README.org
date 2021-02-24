@@ -629,8 +629,8 @@ Try these commands with =M-x=:
 
 *** Yasnippet
 #+begin_src emacs-lisp
-;; (use-package yasnippet)                  ; Snippets
-;; (use-package yasnippet-snippets)         ; Collection of snippets
+(use-package yasnippet)                  ; Snippets
+(use-package yasnippet-snippets)         ; Collection of snippets
 #+end_src
 
 *** Debugging with dap-mode
@@ -764,6 +764,7 @@ Java configuration for lsp mode
   :demand t
   :after (lsp lsp-mode dap-mode jmi-init-platform-paths))
   (add-hook 'java-mode-hook 'lsp-deferred)
+  (add-hook 'java-mode-hook 'yas-minor-mode-on)
 
 
 #+end_src
