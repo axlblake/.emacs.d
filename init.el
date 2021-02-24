@@ -230,7 +230,7 @@
   (setq org-log-into-drawer t)
 
   (setq org-agenda-files
-        '("~/org_files/tasks.org"))
+        '("~/Dropbox/org_files/tasks.org"))
 
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
@@ -311,27 +311,27 @@
 
   (setq org-capture-templates
     `(("t" "Tasks / Projects")
-      ("tt" "Task" entry (file+olp "~/org_files/tasks.org" "Inbox")
+      ("tt" "Task" entry (file+olp "~/Dropbox/org_files/tasks.org" "Inbox")
            "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
 
       ("j" "Journal Entries")
       ("jj" "Journal" entry
-           (file+olp+datetree "~/org_files/journal.org")
+           (file+olp+datetree "~/Dropbox/org_files/journal.org")
            "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
            :clock-in :clock-resume
            :empty-lines 1)
       ("jm" "Meeting" entry
-           (file+olp+datetree "~/org_files/journal.org")
+           (file+olp+datetree "~/Dropbox/org_files/journal.org")
            "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
            :clock-in :clock-resume
            :empty-lines 1)
 
       ("w" "Workflows")
-      ("we" "Checking Email" entry (file+olp+datetree "~/org_files/journal.org")
+      ("we" "Checking Email" entry (file+olp+datetree "~/Dropbox/org_files/journal.org")
            "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
 
       ("m" "Metrics Capture")
-      ("mw" "Weight" table-line (file+headline "~/org_files/metrics.org" "Weight")
+      ("mw" "Weight" table-line (file+headline "~/Dropbox/org_files/metrics.org" "Weight")
        "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
 
   (define-key global-map (kbd "C-c j")
@@ -411,8 +411,8 @@
 
 (use-package lsp-ivy)
 
-(use-package yasnippet)                  ; Snippets
-(use-package yasnippet-snippets)         ; Collection of snippets
+;; (use-package yasnippet)                  ; Snippets
+;; (use-package yasnippet-snippets)         ; Collection of snippets
 
 (use-package dap-mode
   ;; Uncomment the config below if you want all UI panes to be hidden by default!
