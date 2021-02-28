@@ -401,7 +401,7 @@
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
-  :bind ("C-c c d" . lsp-ui-doc-focus-frame)
+  :bind ("C-c c f" . lsp-ui-doc-focus-frame)
   ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
   :custom
   (lsp-ui-doc-position 'bottom))
@@ -423,9 +423,19 @@
 
   :config
   ;; Set up Node debugging
-  (require 'dap-node)
-  (dap-node-setup) ;; Automatically installs Node debug adapter if needed
+  ;; (require 'dap-node)
+  ;; (dap-node-setup) ;; Automatically installs Node debug adapter if needed
+  ;; Set up python debugging
+  ;; requires pip install ptvsd >= 4.2
+  (require 'dap-python)
+  ;; Set up java debugging
+  (require 'dap-java)
+
 )
+(add-hook 'dap-stopped-hook
+        (lambda (arg) (call-interactively #'dap-hydra)))
+(global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
+(global-set-key (kbd "C-c c d") 'dap-debug)
 
 (use-package typescript-mode
   :mode "\\.ts\\'"
