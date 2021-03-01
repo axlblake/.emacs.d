@@ -995,7 +995,14 @@ The difference is that Ange-FTP uses FTP to transfer files between the
 local and the remote host, whereas Tramp uses a combination of `rsh'
 and `rcp' or other work-alike programs, such as `ssh'/`scp'.
 #+begin_src emacs-lisp
-(use-package tramp)
+(use-package tramp ;; with use-package
+  :config
+  (setq-default tramp-default-method "scp")) ;; for performance
+#+end_src
+** Docker
+#+begin_src emacs-lisp
+(use-package docker) ;; manage docker containers
+;; docker fs access via tramp
 (use-package docker-tramp)
 #+end_src
 

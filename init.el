@@ -639,7 +639,12 @@
 (add-hook 'json-mode-hook
           (lambda () (yafolding-mode)))
 
-(use-package tramp)
+(use-package tramp ;; with use-package
+  :config
+  (setq-default tramp-default-method "scp")) ;; for performance
+
+(use-package docker) ;; manage docker containers
+;; docker fs access via tramp
 (use-package docker-tramp)
 
 (use-package vterm
@@ -770,16 +775,3 @@ This command does not push text to `kill-ring'."
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(docker-tramp yasnippet-snippets yafolding which-key web-mode vterm vlf visual-fill-column use-package typescript-mode smex rainbow-delimiters pyvenv python-mode py-isort plantuml-mode org-bullets multiple-cursors move-text magit lsp-ui lsp-java lsp-ivy json-mode ivy-rich ibuffer-vc ibuffer-projectile highlight-indent-guides helpful flycheck eyebrowse evil-nerd-commenter doom-themes doom-modeline dockerfile-mode docker-compose-mode dired-single dired-open dired-hide-dotfiles diff-hl dashboard counsel-projectile company-box command-log-mode all-the-icons-dired)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
