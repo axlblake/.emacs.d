@@ -986,6 +986,18 @@ Yet another folding extension for Emacs
 (add-hook 'json-mode-hook
           (lambda () (yafolding-mode)))
 #+end_src
+** Tramp
+Tramp stands for `Transparent Remote (file) Access, Multiple
+Protocol'.  This package provides remote file editing, similar to
+Ange-FTP.
+
+The difference is that Ange-FTP uses FTP to transfer files between the
+local and the remote host, whereas Tramp uses a combination of `rsh'
+and `rcp' or other work-alike programs, such as `ssh'/`scp'.
+#+begin_src emacs-lisp
+(use-package tramp)
+(use-package docker-tramp)
+#+end_src
 
 * Terminals
 ** vterm
