@@ -575,7 +575,8 @@ The =which-key= integration adds helpful descriptions of the various keys so you
     :init
     (setq lsp-keymap-prefix "C-c c")
     :config
-    (lsp-enable-which-key-integration t))
+    (lsp-enable-which-key-integration t)
+    (setq lsp-headerline-breadcrumb-enable nil))
 #+end_src
 
 **** lsp-ui
