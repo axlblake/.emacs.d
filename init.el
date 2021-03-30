@@ -648,6 +648,13 @@
 ;; docker fs access via tramp
 (use-package docker-tramp)
 
+(use-package imenu-list
+  :ensure t
+  :bind ("C-c c l i" . imenu-list-minor-mode)
+  :config
+  (setq imenu-list-focus-after-activation t))
+(global-set-key (kbd "C-c c l o") 'occur)
+
 (use-package vterm
   :commands vterm
   :ensure t
