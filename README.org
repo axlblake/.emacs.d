@@ -17,8 +17,8 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
   ;; Frame transparency
   (defvar cfg/frame-transparency '(97 . 97))
 
-  (setq gc-cons-threshold 100000000) ;; 100mb of memory
-
+  (setq gc-cons-threshold 1000000000) ;; 1000mb of memory
+  (setq read-process-output-max (* 1024 1024))
 #+end_src
 
 Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
@@ -88,7 +88,7 @@ Startup dashboard
 
   (column-number-mode)
   (global-display-line-numbers-mode t)
-
+  (global-visual-line-mode t)
   ;; Set frame transparency
   ;; (set-frame-parameter (selected-frame) 'alpha cfg/frame-transparency)
   ;; (add-to-list 'default-frame-alist `(alpha . ,cfg/frame-transparency))
@@ -662,7 +662,7 @@ Try these commands with =M-x=:
           (lambda (arg) (call-interactively #'dap-hydra)))
   (global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
   (global-set-key (kbd "C-c c d") 'dap-debug)
-
+  (setq dap-python-debugger 'debugpy)
 #+end_src
 
 *** TypeScript
@@ -791,7 +791,22 @@ Java configuration for lsp mode
    )
 )
 #+end_src
+*** Solidity
+#+begin_src emacs-lisp
+(use-package solidity-mode
+  :config
+  (setq solidity-comment-style 'slash))
 
+(use-package solidity-flycheck
+  :config
+  (setq solidity-flycheck-solc-checker-active t)
+  (setq solidity-flycheck-solium-checker-active t)
+  ;; (setq solidity-flycheck-chaining-error-level ...)
+  )
+(add-hook 'solidity-mode-hook 'flycheck-mode)
+
+(use-package company-solidity)
+#+end_src
 ** Company Mode
 
 [[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).

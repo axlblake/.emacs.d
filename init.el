@@ -8,7 +8,8 @@
 ;; Frame transparency
 (defvar cfg/frame-transparency '(97 . 97))
 
-(setq gc-cons-threshold 100000000) ;; 100mb of memory
+(setq gc-cons-threshold 1000000000) ;; 1000mb of memory
+(setq read-process-output-max (* 1024 1024))
 
 ;; Initialize package sources
 (require 'package)
@@ -61,7 +62,7 @@
 
 (column-number-mode)
 (global-display-line-numbers-mode t)
-
+(global-visual-line-mode t)
 ;; Set frame transparency
 ;; (set-frame-parameter (selected-frame) 'alpha cfg/frame-transparency)
 ;; (add-to-list 'default-frame-alist `(alpha . ,cfg/frame-transparency))
@@ -437,6 +438,7 @@
         (lambda (arg) (call-interactively #'dap-hydra)))
 (global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
 (global-set-key (kbd "C-c c d") 'dap-debug)
+(setq dap-python-debugger 'debugpy)
 
 (use-package typescript-mode
   :mode "\\.ts\\'"
@@ -512,6 +514,20 @@
    ".liquid$"
    )
 )
+
+(use-package solidity-mode
+  :config
+  (setq solidity-comment-style 'slash))
+
+(use-package solidity-flycheck
+  :config
+  (setq solidity-flycheck-solc-checker-active t)
+  (setq solidity-flycheck-solium-checker-active t)
+  ;; (setq solidity-flycheck-chaining-error-level ...)
+  )
+(add-hook 'solidity-mode-hook 'flycheck-mode)
+
+(use-package company-solidity)
 
 (use-package company
   :after lsp-mode
