@@ -10,6 +10,7 @@
 
 (setq gc-cons-threshold 1000000000) ;; 1000mb of memory
 (setq read-process-output-max (* 1024 1024))
+(setq warning-minimum-level :emergency)
 
 ;; Initialize package sources
 (require 'package)
@@ -670,6 +671,8 @@
   :config
   (setq imenu-list-focus-after-activation t))
 (global-set-key (kbd "C-c c l o") 'occur)
+
+(use-package prettier)
 
 (use-package vterm
   :commands vterm
