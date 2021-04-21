@@ -10,7 +10,7 @@
 
 (setq gc-cons-threshold 1000000000) ;; 1000mb of memory
 (setq read-process-output-max (* 1024 1024))
-(setq warning-minimum-level :emergency)
+;; (setq warning-minimum-level :emergency)
 
 ;; Initialize package sources
 (require 'package)
@@ -568,13 +568,15 @@
   :config (counsel-projectile-mode))
 
 (use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status))
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-;; NOTE: Make sure to configure a GitHub token before using this package!
-;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
-;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
-;;(use-package forge)
+ ;; NOTE: Make sure to configure a GitHub token before using this package!
+ ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+ ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
+ ;;(use-package forge)
 
 (use-package diff-hl
 :hook (magit-pre-refresh . diff-hl-magit-pre-refresh)

@@ -19,7 +19,7 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
 
   (setq gc-cons-threshold 1000000000) ;; 1000mb of memory
   (setq read-process-output-max (* 1024 1024))
-  (setq warning-minimum-level :emergency)
+  ;; (setq warning-minimum-level :emergency)
 #+end_src
 
 Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
@@ -870,15 +870,16 @@ Flymake alternative
 [[https://magit.vc/][Magit]] is the best Git interface I've ever used.  Common Git operations are easy to execute quickly using Magit's command panel system.
 
 #+begin_src emacs-lisp
+   (use-package magit
+     :ensure t
+     :bind (("C-x g" . magit-status))
+     :custom
+     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-  (use-package magit
-    :custom
-    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-  ;; NOTE: Make sure to configure a GitHub token before using this package!
-  ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
-  ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
-  ;;(use-package forge)
+    ;; NOTE: Make sure to configure a GitHub token before using this package!
+    ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+    ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
+    ;;(use-package forge)
 #+end_src
 
 Diff hl shows changes in buffer within magit diff
