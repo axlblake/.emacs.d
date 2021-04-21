@@ -578,6 +578,10 @@
  ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
  ;;(use-package forge)
 
+(use-package git-timemachine
+   :ensure t
+   :bind (("C-c g" . git-timemachine)))
+
 (use-package diff-hl
 :hook (magit-pre-refresh . diff-hl-magit-pre-refresh)
 :hook (magit-post-refresh . diff-hl-magit-post-refresh)
@@ -675,6 +679,16 @@
 (global-set-key (kbd "C-c c l o") 'occur)
 
 (use-package prettier)
+
+(use-package undo-tree
+  :ensure t
+  :config
+  ;; autosave the undo-tree history
+  (setq undo-tree-history-directory-alist
+        `((".*" . ,temporary-file-directory)))
+  (setq undo-tree-auto-save-history t)
+  (global-undo-tree-mode +1)
+  (diminish 'undo-tree-mode))
 
 (use-package vterm
   :commands vterm
@@ -804,3 +818,16 @@ This command does not push text to `kill-ring'."
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(undo-tree git-timemachine yasnippet-snippets yafolding which-key web-mode vterm vlf visual-fill-column use-package typescript-mode solidity-flycheck smex rainbow-delimiters pyvenv python-mode py-isort prettier plantuml-mode org-bullets multiple-cursors move-text magit lsp-ui lsp-java lsp-ivy ivy-rich imenu-list ibuffer-vc ibuffer-projectile highlight-indent-guides helpful format-all eyebrowse evil-nerd-commenter doom-themes doom-modeline dockerfile-mode docker-compose-mode docker dired-single dired-open dired-hide-dotfiles diff-hl dashboard counsel-projectile company-solidity company-box command-log-mode all-the-icons-dired)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

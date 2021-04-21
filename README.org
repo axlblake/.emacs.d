@@ -870,16 +870,20 @@ Flymake alternative
 [[https://magit.vc/][Magit]] is the best Git interface I've ever used.  Common Git operations are easy to execute quickly using Magit's command panel system.
 
 #+begin_src emacs-lisp
-   (use-package magit
-     :ensure t
-     :bind (("C-x g" . magit-status))
-     :custom
-     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  (use-package magit
+    :ensure t
+    :bind (("C-x g" . magit-status))
+    :custom
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-    ;; NOTE: Make sure to configure a GitHub token before using this package!
-    ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
-    ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
-    ;;(use-package forge)
+   ;; NOTE: Make sure to configure a GitHub token before using this package!
+   ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+   ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
+   ;;(use-package forge)
+
+  (use-package git-timemachine
+     :ensure t
+     :bind (("C-c g" . git-timemachine)))
 #+end_src
 
 Diff hl shows changes in buffer within magit diff
@@ -1035,6 +1039,18 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
 ** prettier
 #+begin_src emacs-lisp
 (use-package prettier)
+#+end_src
+** undo-tree
+#+begin_src emacs-lisp
+(use-package undo-tree
+  :ensure t
+  :config
+  ;; autosave the undo-tree history
+  (setq undo-tree-history-directory-alist
+        `((".*" . ,temporary-file-directory)))
+  (setq undo-tree-auto-save-history t)
+  (global-undo-tree-mode +1)
+  (diminish 'undo-tree-mode))
 #+end_src
 
 * Terminals
