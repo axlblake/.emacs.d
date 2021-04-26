@@ -17,7 +17,7 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
   ;; Frame transparency
   (defvar cfg/frame-transparency '(97 . 97))
 
-  (setq gc-cons-threshold 1000000000) ;; 1000mb of memory
+  (setq gc-cons-threshold 2000000000) ;; 2000mb of memory
   (setq read-process-output-max (* 1024 1024))
   ;; (setq warning-minimum-level :emergency)
 #+end_src
@@ -459,6 +459,8 @@ This section contains the basic configuration for =org-mode= plus the configurat
       (lambda () (interactive) (org-capture nil "jj")))
 
     (cfg/org-font-setup))
+  (setq org-startup-folded t)
+  (add-hook 'org-mode-hook 'org-hide-block-all)
 #+end_src
 
 *** Nicer Heading Bullets
@@ -728,10 +730,25 @@ There are a number of other language servers for Python so if you find that =pyl
 You can use the pyvenv package to use =virtualenv= environments in Emacs.  The =pyvenv-activate= command should configure Emacs to cause =lsp-mode= and =dap-mode= to use the virtual environment when they are loaded, just select the path to your virtual environment before loading your project.
 
 #+begin_src emacs-lisp
+   (setenv "PATH" (concat (getenv "PATH") ":~/.pyenv/bin"))
+   (setq exec-path (append exec-path '("~/.pyenv/bin")))
 
-  (use-package pyvenv
-    :config
-    (pyvenv-mode 1))
+   (use-package pyvenv)
+   (use-package pyenv-mode
+     :ensure t
+     :init
+     (add-to-list 'exec-path "~/.pyenv/shims")
+     (setenv "WORKON_HOME" "~/.pyenv/versions/")
+     :config
+     (pyenv-mode))
+   (defun projectile-pyenv-mode-set ()
+   "Set pyenv version matching project name."
+   (let ((project (projectile-project-name)))
+     (if (member project (pyenv-mode-versions))
+         (pyenv-mode-set project)
+       (pyenv-mode-unset))))
+
+   (add-hook 'projectile-after-switch-project-hook 'projectile-pyenv-mode-set)
 
 #+end_src
 
@@ -1231,56 +1248,76 @@ Store all backup and autosave files in the =tmp= dir
 * Custom
 Some additional custom changes
 #+begin_src emacs-lisp
-;; Duplicate row
-(defun my-duplicate-line()
-  (interactive)
-  (move-beginning-of-line 1)
-  (kill-line)
-  (yank)
-  (newline)
-  (yank)
-)
-(global-set-key (kbd "C-c d") 'my-duplicate-line)
+   ;; Duplicate row
+   (defun my-duplicate-line()
+     (interactive)
+     (move-beginning-of-line 1)
+     (kill-line)
+     (yank)
+     (newline)
+     (yank)
+   )
+   (global-set-key (kbd "C-c d") 'my-duplicate-line)
 
-;; Yes Or No y-or-p
-(defalias 'yes-or-no-p 'y-or-n-p)
+   ;; Yes Or No y-or-p
+   (defalias 'yes-or-no-p 'y-or-n-p)
 
-;; Whitespace mode only for python-mode (add others if you need)
-(defun whitespace-mode-enable()
-  (whitespace-mode t))
+   ;; Whitespace mode only for python-mode (add others if you need)
+   (defun whitespace-mode-enable()
+     (whitespace-mode t))
 
-(add-hook 'java-mode-hook 'whitespace-mode-enable)
-(add-hook 'python-mode-hook 'whitespace-mode-enable)
+   (add-hook 'java-mode-hook 'whitespace-mode-enable)
+   (add-hook 'python-mode-hook 'whitespace-mode-enable)
 
-(defun my-delete-word (arg)
-  "Delete characters forward until encountering the end of a word.
-With argument, do this that many times.
-This command does not push text to `kill-ring'."
-  (interactive "p")
-  (delete-region
-   (point)
-   (progn
-     (forward-word arg)
-     (point))))
+   (defun my-delete-word (arg)
+     "Delete characters forward until encountering the end of a word.
+   With argument, do this that many times.
+   This command does not push text to `kill-ring'."
+     (interactive "p")
+     (delete-region
+      (point)
+      (progn
+        (forward-word arg)
+        (point))))
 
-(defun my-backward-delete-word (arg)
-  "Delete characters backward until encountering the beginning of a word.
-With argument, do this that many times.
-This command does not push text to `kill-ring'."
-  (interactive "p")
-  (my-delete-word (- arg)))
+   (defun my-backward-delete-word (arg)
+     "Delete characters backward until encountering the beginning of a word.
+   With argument, do this that many times.
+   This command does not push text to `kill-ring'."
+     (interactive "p")
+     (my-delete-word (- arg)))
 
-;; Bind them to emacs's default shortcut keys:
-(global-set-key (kbd "<C-delete>") 'my-delete-word)
-(global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
+   ;; Bind them to emacs's default shortcut keys:
+   (global-set-key (kbd "<C-delete>") 'my-delete-word)
+   (global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
 
-;; Delete highlighted text on input
-(delete-selection-mode 1)
+   ;; Delete highlighted text on input
+   (delete-selection-mode 1)
 
-;; So-long
-(if (version<= "27.1" emacs-version)
-    (global-so-long-mode 1)
-    (setq bidi-inhibit-bpa t))
+   ;; So-long
+   (if (version<= "27.1" emacs-version)
+       (global-so-long-mode 1)
+       (setq bidi-inhibit-bpa t))
+
+  (dap-register-debug-template "Docker Debug"
+                               (list :type "python"
+                                     :request "attach"
+                                     :name "Docker Debug"
+                                     :host "localhost"
+                                     :port 5678))
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-tramp-connection "pyls")
+                    :major-modes '(python-mode)
+                    :remote? t
+                    :server-id 'pyls-remote))
+  (defun start-file-process-shell-command@around (start-file-process-shell-command name buffer &rest args)
+    "Start a program in a subprocess.  Return the process object for it.
+   Similar to `start-process-shell-command', but calls `start-file-process'."
+    ;; On remote hosts, the local `shell-file-name' might be useless.
+    (let ((command (mapconcat 'identity args " ")))
+      (funcall start-file-process-shell-command name buffer command)))
+
+  (advice-add 'start-file-process-shell-command :around #'start-file-process-shell-command@around)
 #+end_src
 
 Some additional snippets on-demand:

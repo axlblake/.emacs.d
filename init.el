@@ -8,7 +8,7 @@
 ;; Frame transparency
 (defvar cfg/frame-transparency '(97 . 97))
 
-(setq gc-cons-threshold 1000000000) ;; 1000mb of memory
+(setq gc-cons-threshold 2000000000) ;; 2000mb of memory
 (setq read-process-output-max (* 1024 1024))
 ;; (setq warning-minimum-level :emergency)
 
@@ -340,6 +340,8 @@
     (lambda () (interactive) (org-capture nil "jj")))
 
   (cfg/org-font-setup))
+(setq org-startup-folded t)
+(add-hook 'org-mode-hook 'org-hide-block-all)
 
 (use-package org-bullets
   :after org
@@ -462,9 +464,25 @@
 (add-hook 'python-mode-hook
         (lambda () (local-set-key (kbd "C-c c i") 'py-isort-buffer)))
 
-(use-package pyvenv
+(setenv "PATH" (concat (getenv "PATH") ":~/.pyenv/bin"))
+(setq exec-path (append exec-path '("~/.pyenv/bin")))
+
+(use-package pyvenv)
+(use-package pyenv-mode
+  :ensure t
+  :init
+  (add-to-list 'exec-path "~/.pyenv/shims")
+  (setenv "WORKON_HOME" "~/.pyenv/versions/")
   :config
-  (pyvenv-mode 1))
+  (pyenv-mode))
+(defun projectile-pyenv-mode-set ()
+"Set pyenv version matching project name."
+(let ((project (projectile-project-name)))
+  (if (member project (pyenv-mode-versions))
+      (pyenv-mode-set project)
+    (pyenv-mode-unset))))
+
+(add-hook 'projectile-after-switch-project-hook 'projectile-pyenv-mode-set)
 
 (use-package lsp-java
   :init
@@ -765,69 +783,76 @@ If popup is focused, delete it."
       `((".*" ,temporary-file-directory t)))
 
 ;; Duplicate row
-(defun my-duplicate-line()
-  (interactive)
-  (move-beginning-of-line 1)
-  (kill-line)
-  (yank)
-  (newline)
-  (yank)
-)
-(global-set-key (kbd "C-c d") 'my-duplicate-line)
+ (defun my-duplicate-line()
+   (interactive)
+   (move-beginning-of-line 1)
+   (kill-line)
+   (yank)
+   (newline)
+   (yank)
+ )
+ (global-set-key (kbd "C-c d") 'my-duplicate-line)
 
-;; Yes Or No y-or-p
-(defalias 'yes-or-no-p 'y-or-n-p)
+ ;; Yes Or No y-or-p
+ (defalias 'yes-or-no-p 'y-or-n-p)
 
-;; Whitespace mode only for python-mode (add others if you need)
-(defun whitespace-mode-enable()
-  (whitespace-mode t))
+ ;; Whitespace mode only for python-mode (add others if you need)
+ (defun whitespace-mode-enable()
+   (whitespace-mode t))
 
-(add-hook 'java-mode-hook 'whitespace-mode-enable)
-(add-hook 'python-mode-hook 'whitespace-mode-enable)
+ (add-hook 'java-mode-hook 'whitespace-mode-enable)
+ (add-hook 'python-mode-hook 'whitespace-mode-enable)
 
-(defun my-delete-word (arg)
-  "Delete characters forward until encountering the end of a word.
-With argument, do this that many times.
-This command does not push text to `kill-ring'."
-  (interactive "p")
-  (delete-region
-   (point)
-   (progn
-     (forward-word arg)
-     (point))))
+ (defun my-delete-word (arg)
+   "Delete characters forward until encountering the end of a word.
+ With argument, do this that many times.
+ This command does not push text to `kill-ring'."
+   (interactive "p")
+   (delete-region
+    (point)
+    (progn
+      (forward-word arg)
+      (point))))
 
-(defun my-backward-delete-word (arg)
-  "Delete characters backward until encountering the beginning of a word.
-With argument, do this that many times.
-This command does not push text to `kill-ring'."
-  (interactive "p")
-  (my-delete-word (- arg)))
+ (defun my-backward-delete-word (arg)
+   "Delete characters backward until encountering the beginning of a word.
+ With argument, do this that many times.
+ This command does not push text to `kill-ring'."
+   (interactive "p")
+   (my-delete-word (- arg)))
 
-;; Bind them to emacs's default shortcut keys:
-(global-set-key (kbd "<C-delete>") 'my-delete-word)
-(global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
+ ;; Bind them to emacs's default shortcut keys:
+ (global-set-key (kbd "<C-delete>") 'my-delete-word)
+ (global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
 
-;; Delete highlighted text on input
-(delete-selection-mode 1)
+ ;; Delete highlighted text on input
+ (delete-selection-mode 1)
 
-;; So-long
-(if (version<= "27.1" emacs-version)
-    (global-so-long-mode 1)
-    (setq bidi-inhibit-bpa t))
+ ;; So-long
+ (if (version<= "27.1" emacs-version)
+     (global-so-long-mode 1)
+     (setq bidi-inhibit-bpa t))
+
+(dap-register-debug-template "Docker Debug"
+                             (list :type "python"
+                                   :request "attach"
+                                   :name "Docker Debug"
+                                   :host "localhost"
+                                   :port 5678))
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-tramp-connection "pyls")
+                  :major-modes '(python-mode)
+                  :remote? t
+                  :server-id 'pyls-remote))
+(defun start-file-process-shell-command@around (start-file-process-shell-command name buffer &rest args)
+  "Start a program in a subprocess.  Return the process object for it.
+ Similar to `start-process-shell-command', but calls `start-file-process'."
+  ;; On remote hosts, the local `shell-file-name' might be useless.
+  (let ((command (mapconcat 'identity args " ")))
+    (funcall start-file-process-shell-command name buffer command)))
+
+(advice-add 'start-file-process-shell-command :around #'start-file-process-shell-command@around)
 
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(undo-tree git-timemachine yasnippet-snippets yafolding which-key web-mode vterm vlf visual-fill-column use-package typescript-mode solidity-flycheck smex rainbow-delimiters pyvenv python-mode py-isort prettier plantuml-mode org-bullets multiple-cursors move-text magit lsp-ui lsp-java lsp-ivy ivy-rich imenu-list ibuffer-vc ibuffer-projectile highlight-indent-guides helpful format-all eyebrowse evil-nerd-commenter doom-themes doom-modeline dockerfile-mode docker-compose-mode docker dired-single dired-open dired-hide-dotfiles diff-hl dashboard counsel-projectile company-solidity company-box command-log-mode all-the-icons-dired)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
