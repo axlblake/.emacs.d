@@ -82,7 +82,7 @@
 
 (setq-default
  whitespace-style '(face tabs tab-mark spaces space-mark trailing))
-
+(setq indent-tabs-mode nil)
 (setq-default tab-width 4)
 (setq-default c-basic-offset 4)
 
@@ -432,15 +432,13 @@
   ;; (dap-node-setup) ;; Automatically installs Node debug adapter if needed
   ;; Set up python debugging
   ;; requires pip install ptvsd >= 4.2
-  (require 'dap-python)
-  ;; Set up java debugging
-  (require 'dap-java)
+  (require 'dap-python))
 
-)
 (add-hook 'dap-stopped-hook
         (lambda (arg) (call-interactively #'dap-hydra)))
 (global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
 (global-set-key (kbd "C-c c d") 'dap-debug)
+
 (setq dap-python-debugger 'debugpy)
 
 (use-package typescript-mode
@@ -802,6 +800,7 @@ If popup is focused, delete it."
 
  (add-hook 'java-mode-hook 'whitespace-mode-enable)
  (add-hook 'python-mode-hook 'whitespace-mode-enable)
+ (add-hook 'js-mode-hook 'whitespace-mode-enable)
 
  (defun my-delete-word (arg)
    "Delete characters forward until encountering the end of a word.
