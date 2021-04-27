@@ -656,7 +656,11 @@ Try these commands with =M-x=:
     ;; (dap-node-setup) ;; Automatically installs Node debug adapter if needed
     ;; Set up python debugging
     ;; requires pip install ptvsd >= 4.2
-    (require 'dap-python))
+    (require 'dap-python)
+    ;; dap-mode for javascript
+    ;; you only need call dap-firefox-setup after requiring dap-firefox
+    ;; Make sure that dap-firefox-debug-program is pointing to the proper file.
+    (require 'dap-firefox))
 
   (add-hook 'dap-stopped-hook
           (lambda (arg) (call-interactively #'dap-hydra)))
