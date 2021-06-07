@@ -294,7 +294,6 @@ Highlight indent makes much easier to find code block.
 
 * Org Mode
 [[https://orgmode.org/][Org Mode]] is one of the hallmark features of Emacs.  It is a rich document editor, project planner, task and time tracker, blogging engine, and literate coding utility all wrapped up in one package.
-
 ** Better Font Faces
 
 The =cfg/org-font-setup= function configures various text faces to tweak the sizes of headings and use variable width fonts in most cases so that it looks more like we're editing a document in =org-mode=.  We switch back to fixed width (monospace) fonts for code blocks and tables so that they display correctly.
@@ -560,6 +559,16 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
   (setq plantuml-default-exec-mode 'jar)
 #+end_src
 
+** Company org block
+#+begin_src emacs-lisp
+  (use-package company-org-block
+    :ensure t
+    :custom
+    (company-org-block-edit-style 'auto) ;; 'auto, 'prompt, or 'inline
+    :hook ((org-mode . (lambda ()
+                         (setq-local company-backends '(company-org-block))
+                         (company-mode +1)))))
+#+end_src
 * Development
 ** Languages
 *** IDE Features with lsp-mode
@@ -827,6 +836,10 @@ Java configuration for lsp mode
 
 (use-package company-solidity)
 #+end_src
+*** Elisp
+#+begin_src emacs-lisp
+  (use-package 'elisp-format)
+#+end_src 
 ** Company Mode
 
 [[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).
@@ -1247,6 +1260,21 @@ Store all backup and autosave files in the =tmp= dir
       `((".*" ,temporary-file-directory t)))
 #+end_src
 
+* Text editing
+** Flyspell with hunspell
+#+begin_src emacs-lisp
+  (if (executable-find "hunspell") 
+      (progn 
+        (setq ispell-program-name "hunspell") 
+          (setq ispell-really-aspell nil) 
+          (setq ispell-really-hunspell t) 
+          (setq ispell-dictionary "en-ru")) ) 
+  (setq default-major-mode 'text-mode)
+  (dolist (hook '(text-mode-hook)) 
+    (add-hook hook (lambda () 
+                     (flyspell-mode 1))) )
+  (global-set-key (kbd "C-c s") 'ispell)
+#+end_src
 * Custom
 Some additional custom changes
 #+begin_src emacs-lisp

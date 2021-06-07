@@ -396,6 +396,14 @@
 (setq plantuml-jar-path "~/plantuml.jar")
 (setq plantuml-default-exec-mode 'jar)
 
+(use-package company-org-block
+  :ensure t
+  :custom
+  (company-org-block-edit-style 'auto) ;; 'auto, 'prompt, or 'inline
+  :hook ((org-mode . (lambda ()
+                       (setq-local company-backends '(company-org-block))
+                       (company-mode +1)))))
+
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :init
@@ -549,6 +557,8 @@
 (add-hook 'solidity-mode-hook 'flycheck-mode)
 
 (use-package company-solidity)
+
+(use-package 'elisp-format)
 
 (use-package company
   :after lsp-mode
@@ -783,6 +793,18 @@ If popup is focused, delete it."
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
+
+(if (executable-find "hunspell") 
+    (progn 
+      (setq ispell-program-name "hunspell") 
+        (setq ispell-really-aspell nil) 
+        (setq ispell-really-hunspell t) 
+        (setq ispell-dictionary "en-ru")) ) 
+(setq default-major-mode 'text-mode)
+(dolist (hook '(text-mode-hook)) 
+  (add-hook hook (lambda () 
+                   (flyspell-mode 1))) )
+(global-set-key (kbd "C-c s") 'ispell)
 
 ;; Duplicate row
  (defun my-duplicate-line()
