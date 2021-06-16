@@ -10,6 +10,11 @@
 
 (setq gc-cons-threshold 2000000000) ;; 2000mb of memory
 (setq read-process-output-max (* 1024 1024))
+(setq history-length 100)
+(put 'minibuffer-history 'history-length 50)
+(put 'evil-ex-history 'history-length 50)
+(put 'kill-ring 'history-length 25)
+(savehist-mode -1)
 ;; (setq warning-minimum-level :emergency)
 
 ;; Initialize package sources
@@ -558,7 +563,7 @@
 
 (use-package company-solidity)
 
-(use-package 'elisp-format)
+(use-package elisp-format)
 
 (use-package company
   :after lsp-mode
@@ -717,8 +722,7 @@
   (setq undo-tree-history-directory-alist
         `((".*" . ,temporary-file-directory)))
   (setq undo-tree-auto-save-history t)
-  (global-undo-tree-mode +1)
-  (diminish 'undo-tree-mode))
+  (global-undo-tree-mode +1))
 
 (use-package vterm
   :commands vterm

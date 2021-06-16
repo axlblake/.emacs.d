@@ -19,6 +19,11 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
 
   (setq gc-cons-threshold 2000000000) ;; 2000mb of memory
   (setq read-process-output-max (* 1024 1024))
+  (setq history-length 100)
+  (put 'minibuffer-history 'history-length 50)
+  (put 'evil-ex-history 'history-length 50)
+  (put 'kill-ring 'history-length 25)
+  (savehist-mode -1)
   ;; (setq warning-minimum-level :emergency)
 #+end_src
 
@@ -838,7 +843,7 @@ Java configuration for lsp mode
 #+end_src
 *** Elisp
 #+begin_src emacs-lisp
-  (use-package 'elisp-format)
+  (use-package elisp-format)
 #+end_src 
 ** Company Mode
 
@@ -1081,8 +1086,7 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
   (setq undo-tree-history-directory-alist
         `((".*" . ,temporary-file-directory)))
   (setq undo-tree-auto-save-history t)
-  (global-undo-tree-mode +1)
-  (diminish 'undo-tree-mode))
+  (global-undo-tree-mode +1))
 #+end_src
 
 * Terminals
