@@ -900,6 +900,9 @@ Flymake alternative
 
   (use-package counsel-projectile
     :config (counsel-projectile-mode))
+
+  (setq projectile-indexing-method 'native) ;; native hybrid alien
+  (setq projectile-sort-order 'recentf)
 #+end_src
 
 ** Magit

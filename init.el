@@ -602,6 +602,9 @@
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
 
+(setq projectile-indexing-method 'native) ;; native hybrid alien
+(setq projectile-sort-order 'recentf)
+
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status))
