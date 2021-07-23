@@ -297,6 +297,16 @@ Highlight indent makes much easier to find code block.
   (setq aw-ignore-current t))
 #+end_src
 
+** Reverse-im for multilanguage support
+#+begin_src emacs-lisp
+(use-package reverse-im
+  :ensure t
+  :custom
+  (reverse-im-input-methods '("russian-computer"))
+  :config
+  (reverse-im-mode t))
+#+end_src
+
 * Org Mode
 [[https://orgmode.org/][Org Mode]] is one of the hallmark features of Emacs.  It is a rich document editor, project planner, task and time tracker, blogging engine, and literate coding utility all wrapped up in one package.
 ** Better Font Faces
@@ -1295,6 +1305,7 @@ Some additional custom changes
      (yank)
    )
    (global-set-key (kbd "C-c d") 'my-duplicate-line)
+   (global-set-key (kbd "C-c r") 'kill-whole-line)
 
    ;; Yes Or No y-or-p
    (defalias 'yes-or-no-p 'y-or-n-p)

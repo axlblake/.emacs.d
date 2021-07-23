@@ -195,6 +195,13 @@
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   (setq aw-ignore-current t))
 
+(use-package reverse-im
+  :ensure t
+  :custom
+  (reverse-im-input-methods '("russian-computer"))
+  :config
+  (reverse-im-mode t))
+
 (defun cfg/org-font-setup ()
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
@@ -823,6 +830,7 @@ If popup is focused, delete it."
    (yank)
  )
  (global-set-key (kbd "C-c d") 'my-duplicate-line)
+ (global-set-key (kbd "C-c r") 'kill-whole-line)
 
  ;; Yes Or No y-or-p
  (defalias 'yes-or-no-p 'y-or-n-p)
