@@ -597,13 +597,14 @@ The =which-key= integration adds helpful descriptions of the various keys so you
 
 #+begin_src emacs-lisp
 
-  (use-package lsp-mode
-    :commands (lsp lsp-deferred)
-    :init
-    (setq lsp-keymap-prefix "C-c c")
-    :config
-    (lsp-enable-which-key-integration t)
-    (setq lsp-headerline-breadcrumb-enable nil))
+    (use-package lsp-mode
+      :commands (lsp lsp-deferred)
+      :init
+      (setq lsp-keymap-prefix "C-c c")
+      :config
+      (lsp-enable-which-key-integration t)
+      (setq lsp-diagnostic-package 'flycheck)
+      (setq lsp-headerline-breadcrumb-enable nil))
 #+end_src
 
 **** lsp-ui
@@ -690,8 +691,6 @@ Try these commands with =M-x=:
           (lambda (arg) (call-interactively #'dap-hydra)))
   (global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
   (global-set-key (kbd "C-c c d") 'dap-debug)
-
-  (setq dap-python-debugger 'debugpy)
 #+end_src
 
 *** TypeScript
@@ -728,7 +727,10 @@ Make sure you have the =pyls= language server installed before trying =lsp-mode=
 
 #+begin_src sh :tangle no
 
-pip install --user "python-language-server[all]"
+  pip install --user "python-lsp-server[all]"
+  pip install --user "black"
+  pip install --user "isort"
+  pip install --user "debugpy"
 
 #+end_src
 
@@ -738,19 +740,33 @@ There are a number of other language servers for Python so if you find that =pyl
 
   (use-package python-mode
     :ensure t
-    :hook (python-mode . lsp-deferred)
+    :hook (python-mode . lsp)
     :custom
     ;; NOTE: Set these if Python 3 is called "python3" on your system!
-    ;; (python-shell-interpreter "python3")
-    ;; (dap-python-executable "python3")
+    (python-shell-interpreter "python3")
+    (dap-python-executable "python3")
     (dap-python-debugger 'debugpy)
-    :config
-    (require 'dap-python))
+    )
+
+  (use-package lsp-python-ms
+    :ensure t
+    :init (setq lsp-python-ms-auto-install-server t)
+    :hook (python-mode . (lambda ()
+                           (require 'lsp-python-ms)
+                           (lsp))))  ; or lsp-deferred
+
+  (use-package python-black
+    :demand t
+    :after python)
 
   (use-package py-isort)
-  (add-hook 'python-mode-hook
-          (lambda () (local-set-key (kbd "C-c c i") 'py-isort-buffer)))
 
+  (defun py-local-keys()
+    (local-set-key (kbd "C-c c i") 'py-isort-buffer)
+    (local-set-key (kbd "C-c c = =") 'python-black-buffer)
+    (local-set-key (kbd "C-c c = r") 'python-black-region))
+
+  (add-hook 'python-mode-hook 'py-local-keys)
 #+end_src
 
 You can use the pyvenv package to use =virtualenv= environments in Emacs.  The =pyvenv-activate= command should configure Emacs to cause =lsp-mode= and =dap-mode= to use the virtual environment when they are loaded, just select the path to your virtual environment before loading your project.
@@ -911,7 +927,7 @@ Flymake alternative
   (use-package counsel-projectile
     :config (counsel-projectile-mode))
 
-  (setq projectile-indexing-method 'native) ;; native hybrid alien
+  (setq projectile-indexing-method 'alien) ;; native hybrid alien
   (setq projectile-sort-order 'recentf)
 #+end_src
 

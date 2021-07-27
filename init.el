@@ -422,6 +422,7 @@
   (setq lsp-keymap-prefix "C-c c")
   :config
   (lsp-enable-which-key-integration t)
+  (setq lsp-diagnostic-package 'flycheck)
   (setq lsp-headerline-breadcrumb-enable nil))
 
 (use-package lsp-ui
@@ -463,8 +464,6 @@
 (global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
 (global-set-key (kbd "C-c c d") 'dap-debug)
 
-(setq dap-python-debugger 'debugpy)
-
 (use-package typescript-mode
   :mode "\\.ts\\'"
   :hook (typescript-mode . lsp-deferred)
@@ -473,18 +472,33 @@
 
 (use-package python-mode
   :ensure t
-  :hook (python-mode . lsp-deferred)
+  :hook (python-mode . lsp)
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
-  ;; (python-shell-interpreter "python3")
-  ;; (dap-python-executable "python3")
+  (python-shell-interpreter "python3")
+  (dap-python-executable "python3")
   (dap-python-debugger 'debugpy)
-  :config
-  (require 'dap-python))
+  )
+
+(use-package lsp-python-ms
+  :ensure t
+  :init (setq lsp-python-ms-auto-install-server t)
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-python-ms)
+                         (lsp))))  ; or lsp-deferred
+
+(use-package python-black
+  :demand t
+  :after python)
 
 (use-package py-isort)
-(add-hook 'python-mode-hook
-        (lambda () (local-set-key (kbd "C-c c i") 'py-isort-buffer)))
+
+(defun py-local-keys()
+  (local-set-key (kbd "C-c c i") 'py-isort-buffer)
+  (local-set-key (kbd "C-c c = =") 'python-black-buffer)
+  (local-set-key (kbd "C-c c = r") 'python-black-region))
+
+(add-hook 'python-mode-hook 'py-local-keys)
 
 (setenv "PATH" (concat (getenv "PATH") ":~/.pyenv/bin"))
 (setq exec-path (append exec-path '("~/.pyenv/bin")))
@@ -609,7 +623,7 @@
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
 
-(setq projectile-indexing-method 'native) ;; native hybrid alien
+(setq projectile-indexing-method 'alien) ;; native hybrid alien
 (setq projectile-sort-order 'recentf)
 
 (use-package magit
