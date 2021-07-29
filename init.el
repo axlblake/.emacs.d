@@ -35,6 +35,13 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(use-package auto-package-update
+  :ensure t
+  :config
+  (setq auto-package-update-delete-old-versions t
+        auto-package-update-interval 4)
+  (auto-package-update-maybe))
+
 (use-package page-break-lines)
 (use-package all-the-icons)
 
@@ -475,7 +482,7 @@
   :hook (python-mode . lsp)
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
-  (python-shell-interpreter "python3")
+  ;; (python-shell-interpreter "python3.9")
   (dap-python-executable "python3")
   (dap-python-debugger 'debugpy)
   )
@@ -500,25 +507,15 @@
 
 (add-hook 'python-mode-hook 'py-local-keys)
 
-(setenv "PATH" (concat (getenv "PATH") ":~/.pyenv/bin"))
-(setq exec-path (append exec-path '("~/.pyenv/bin")))
+;; (use-package pyvenv)
+;; (use-package pipenv
+;;     :hook (python-mode . pipenv-mode)
+;;     :init
+;;     (setq
+;;      pipenv-projectile-after-switch-function
+;;      #'pipenv-projectile-after-switch-extended))
 
-(use-package pyvenv)
-(use-package pyenv-mode
-  :ensure t
-  :init
-  (add-to-list 'exec-path "~/.pyenv/shims")
-  (setenv "WORKON_HOME" "~/.pyenv/versions/")
-  :config
-  (pyenv-mode))
-(defun projectile-pyenv-mode-set ()
-"Set pyenv version matching project name."
-(let ((project (projectile-project-name)))
-  (if (member project (pyenv-mode-versions))
-      (pyenv-mode-set project)
-    (pyenv-mode-unset))))
-
-(add-hook 'projectile-after-switch-project-hook 'projectile-pyenv-mode-set)
+;; (add-hook 'python-mode-hook #'pipenv-mode)
 
 (use-package lsp-java
   :init
