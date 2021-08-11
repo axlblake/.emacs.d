@@ -106,8 +106,6 @@
 ;; Set the variable pitch face
 (set-face-attribute 'variable-pitch nil :font "Cantarell" :height cfg/default-variable-font-size :weight 'regular)
 
-(use-package command-log-mode)
-
 (use-package doom-themes
   :init (load-theme 'doom-one t))
 
@@ -423,6 +421,20 @@
                        (setq-local company-backends '(company-org-block))
                        (company-mode +1)))))
 
+(setq org-roam-v2-ack t)
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory "~/Dropbox/org_files/org_roam")
+  (org-roam-completion-everywhere t)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+         :map org-mode-map
+         ("C-M-i"   . completion-at-point))
+  :config
+  (org-roam-setup))
+
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :init
@@ -507,6 +519,11 @@
 
 (add-hook 'python-mode-hook 'py-local-keys)
 
+(add-hook 'hack-local-variables-hook
+          (lambda ()
+            (when (derived-mode-p 'python-mode)
+              (require 'lsp-python-ms)
+              (lsp)))) ; or lsp-deferred
 ;; (use-package pyvenv)
 ;; (use-package pipenv
 ;;     :hook (python-mode . pipenv-mode)
@@ -826,9 +843,9 @@ If popup is focused, delete it."
         (setq ispell-really-hunspell t) 
         (setq ispell-dictionary "en-ru")) ) 
 (setq default-major-mode 'text-mode)
-(dolist (hook '(text-mode-hook)) 
-  (add-hook hook (lambda () 
-                   (flyspell-mode 1))) )
+;; (dolist (hook '(text-mode-hook)) 
+;;   (add-hook hook (lambda () 
+;;                    (flyspell-mode 1))) )
 (global-set-key (kbd "C-c s") 'ispell)
 
 ;; Duplicate row
@@ -878,6 +895,9 @@ If popup is focused, delete it."
 
  ;; Delete highlighted text on input
  (delete-selection-mode 1)
+
+ ;; Electric pair mode (parenthesis)
+ (electric-pair-mode 1)
 
  ;; So-long
  (if (version<= "27.1" emacs-version)

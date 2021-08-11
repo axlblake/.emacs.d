@@ -2,7 +2,6 @@
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
 
 * Default variables and startup info
-
 This file generates [[file:init.el][init.el]] which can be loaded by Emacs at startup.
 
 #+begin_src emacs-lisp
@@ -28,9 +27,7 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
 #+end_src
 
 Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
-
 * Package System Setup
-
 #+begin_src emacs-lisp
 
   ;; Initialize package sources
@@ -58,7 +55,6 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
           auto-package-update-interval 4)
     (auto-package-update-maybe))
 #+end_src
-
 * Dashboard
 Startup dashboard
 #+begin_src emacs-lisp
@@ -137,16 +133,6 @@ Install [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://fonts.go
 
 ;; Set the variable pitch face
 (set-face-attribute 'variable-pitch nil :font "Cantarell" :height cfg/default-variable-font-size :weight 'regular)
-
-#+end_src
-
-** Command Log Mode
-
-[[https://github.com/lewang/command-log-mode][command-log-mode]] is useful for displaying a panel showing each key binding you use in a panel on the right side of the frame.
-
-#+begin_src emacs-lisp
-
-(use-package command-log-mode)
 
 #+end_src
 
@@ -303,7 +289,7 @@ Highlight indent makes much easier to find code block.
   (setq aw-ignore-current t))
 #+end_src
 
-** Reverse-im for multilanguage support
+** Reverse-im for multi-language support
 #+begin_src emacs-lisp
 (use-package reverse-im
   :ensure t
@@ -312,7 +298,6 @@ Highlight indent makes much easier to find code block.
   :config
   (reverse-im-mode t))
 #+end_src
-
 * Org Mode
 [[https://orgmode.org/][Org Mode]] is one of the hallmark features of Emacs.  It is a rich document editor, project planner, task and time tracker, blogging engine, and literate coding utility all wrapped up in one package.
 ** Better Font Faces
@@ -590,6 +575,23 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
                          (setq-local company-backends '(company-org-block))
                          (company-mode +1)))))
 #+end_src
+
+** Org-roam
+#+begin_src emacs-lisp
+  (setq org-roam-v2-ack t)
+  (use-package org-roam
+    :ensure t
+    :custom
+    (org-roam-directory "~/Dropbox/org_files/org_roam")
+    (org-roam-completion-everywhere t)
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+           ("C-c n f" . org-roam-node-find)
+           ("C-c n i" . org-roam-node-insert)
+           :map org-mode-map
+           ("C-M-i"   . completion-at-point))
+    :config
+    (org-roam-setup))
+#+end_src
 * Development
 ** Languages
 *** IDE Features with lsp-mode
@@ -777,6 +779,11 @@ There are a number of other language servers for Python so if you find that =pyl
 
 Virtual environment support:
 #+begin_src emacs-lisp
+  (add-hook 'hack-local-variables-hook
+            (lambda ()
+              (when (derived-mode-p 'python-mode)
+                (require 'lsp-python-ms)
+                (lsp)))) ; or lsp-deferred
   ;; (use-package pyvenv)
   ;; (use-package pipenv
   ;;     :hook (python-mode . pipenv-mode)
@@ -1297,9 +1304,9 @@ Store all backup and autosave files in the =tmp= dir
           (setq ispell-really-hunspell t) 
           (setq ispell-dictionary "en-ru")) ) 
   (setq default-major-mode 'text-mode)
-  (dolist (hook '(text-mode-hook)) 
-    (add-hook hook (lambda () 
-                     (flyspell-mode 1))) )
+  ;; (dolist (hook '(text-mode-hook)) 
+  ;;   (add-hook hook (lambda () 
+  ;;                    (flyspell-mode 1))) )
   (global-set-key (kbd "C-c s") 'ispell)
 #+end_src
 * Custom
@@ -1352,6 +1359,9 @@ Some additional custom changes
 
    ;; Delete highlighted text on input
    (delete-selection-mode 1)
+
+   ;; Electric pair mode (parenthesis)
+   (electric-pair-mode 1)
 
    ;; So-long
    (if (version<= "27.1" emacs-version)
