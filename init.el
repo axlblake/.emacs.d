@@ -8,12 +8,11 @@
 ;; Frame transparency
 (defvar cfg/frame-transparency '(97 . 97))
 
-(setq gc-cons-threshold 2000000000) ;; 2000mb of memory
+(setq gc-cons-threshold 3000000000) ;; 3000mb of memory
 (setq read-process-output-max (* 1024 1024))
 (setq history-length 100)
-(put 'minibuffer-history 'history-length 50)
-(put 'evil-ex-history 'history-length 50)
-(put 'kill-ring 'history-length 25)
+(put 'minibuffer-history 'history-length 100)
+(put 'kill-ring 'history-length 30)
 (savehist-mode -1)
 ;; (setq warning-minimum-level :emergency)
 
@@ -77,8 +76,8 @@
 (global-display-line-numbers-mode t)
 (global-visual-line-mode t)
 ;; Set frame transparency
-;; (set-frame-parameter (selected-frame) 'alpha cfg/frame-transparency)
-;; (add-to-list 'default-frame-alist `(alpha . ,cfg/frame-transparency))
+(set-frame-parameter (selected-frame) 'alpha cfg/frame-transparency)
+(add-to-list 'default-frame-alist `(alpha . ,cfg/frame-transparency))
 
 ;; Set frame fulscreen
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
@@ -806,10 +805,6 @@ If popup is focused, delete it."
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump))
   :custom ((dired-listing-switches "-laGh1v --group-directories-first"))
-  :config
-  ;; (evil-collection-define-key 'normal 'dired-mode-map
-    ;; "h" 'dired-single-up-directory
-    ;; "l" 'dired-single-buffer)
 )
 
 (use-package dired-single)
@@ -826,9 +821,9 @@ If popup is focused, delete it."
 
 (use-package dired-hide-dotfiles
   :hook (dired-mode . dired-hide-dotfiles-mode)
-  :config
-  ;; (evil-collection-define-key 'normal 'dired-mode-map
-  ;;   "H" 'dired-hide-dotfiles-mode)
+  :bind (:map dired-mode-map
+         ("," . dired-clean-directory)
+         ("." . dired-hide-dotfiles-mode))
 )
 
 (setq backup-directory-alist
