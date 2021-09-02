@@ -464,6 +464,7 @@ This section contains the basic configuration for =org-mode= plus the configurat
     (cfg/org-font-setup))
   (setq org-startup-folded t)
   (add-hook 'org-mode-hook 'org-hide-block-all)
+  (setq org-export-backends '(ascii html icalendar latex md odt))
 #+end_src
 
 *** Nicer Heading Bullets
@@ -699,17 +700,19 @@ Try these commands with =M-x=:
   (global-set-key (kbd "C-c c d") 'dap-debug)
 #+end_src
 
-*** TypeScript
+*** JavaScript \ TypeScript
 
 This is a basic configuration for the TypeScript language so that =.ts= files activate =typescript-mode= when opened.  We're also adding a hook to =typescript-mode-hook= to call =lsp-deferred= so that we activate =lsp-mode= to get LSP features every time we edit TypeScript code.
 
 #+begin_src emacs-lisp
 
   (use-package typescript-mode
-    :mode "\\.ts\\'"
-    :hook (typescript-mode . lsp-deferred)
-    :config
-    (setq typescript-indent-level 2))
+      :mode "\\.ts\\'"
+      :hook (typescript-mode . lsp-deferred)
+      :config
+      (setq typescript-indent-level 2))
+
+  (use-package vue-mode)
 
 #+end_src
 
@@ -724,7 +727,6 @@ npm install -g typescript-language-server typescript
 #+RESULTS:
 
 This will install the [[https://github.com/theia-ide/typescript-language-server][typescript-language-server]] and the TypeScript compiler package.
-
 *** Python
 
 We use =lsp-mode= and =dap-mode= to provide a more complete development environment for Python in Emacs.  Check out [[https://emacs-lsp.github.io/lsp-mode/page/lsp-pyls/][the =pyls= configuration]] in the =lsp-mode= documentation for more details.
@@ -1082,10 +1084,13 @@ The difference is that Ange-FTP uses FTP to transfer files between the
 local and the remote host, whereas Tramp uses a combination of `rsh'
 and `rcp' or other work-alike programs, such as `ssh'/`scp'.
 #+begin_src emacs-lisp
-(use-package tramp ;; with use-package
-  :config
-  (setq-default tramp-default-method "scp")) ;; for performance
+  (use-package tramp ;; with use-package
+    :config
+    (setq-default tramp-default-method "scp")) ;; for performance
+
+   (use-package vagrant-tramp)    
 #+end_src
+
 ** Docker
 #+begin_src emacs-lisp
 (use-package docker) ;; manage docker containers

@@ -358,6 +358,7 @@
   (cfg/org-font-setup))
 (setq org-startup-folded t)
 (add-hook 'org-mode-hook 'org-hide-block-all)
+(setq org-export-backends '(ascii html icalendar latex md odt))
 
 (use-package org-bullets
   :after org
@@ -483,10 +484,12 @@
 (global-set-key (kbd "C-c c d") 'dap-debug)
 
 (use-package typescript-mode
-  :mode "\\.ts\\'"
-  :hook (typescript-mode . lsp-deferred)
-  :config
-  (setq typescript-indent-level 2))
+    :mode "\\.ts\\'"
+    :hook (typescript-mode . lsp-deferred)
+    :config
+    (setq typescript-indent-level 2))
+
+(use-package vue-mode)
 
 (use-package python-mode
   :ensure t
@@ -738,6 +741,8 @@
 (use-package tramp ;; with use-package
   :config
   (setq-default tramp-default-method "scp")) ;; for performance
+
+ (use-package vagrant-tramp)
 
 (use-package docker) ;; manage docker containers
 ;; docker fs access via tramp
