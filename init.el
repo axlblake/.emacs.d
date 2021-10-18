@@ -8,7 +8,7 @@
 ;; Frame transparency
 (defvar cfg/frame-transparency '(97 . 97))
 
-(setq gc-cons-threshold 3000000000) ;; 3000mb of memory
+(setq gc-cons-threshold 4000000000) ;; 4000mb of memory
 (setq read-process-output-max (* 1024 1024))
 (setq history-length 100)
 (put 'minibuffer-history 'history-length 100)
@@ -38,7 +38,7 @@
   :ensure t
   :config
   (setq auto-package-update-delete-old-versions t
-        auto-package-update-interval 4)
+        auto-package-update-interval 30)
   (auto-package-update-maybe))
 
 (use-package page-break-lines)
@@ -359,6 +359,11 @@
 (setq org-startup-folded t)
 (add-hook 'org-mode-hook 'org-hide-block-all)
 (setq org-export-backends '(ascii html icalendar latex md odt))
+(setq org-startup-with-inline-images "inlineimages")
+(add-hook 'org-babel-after-execute-hook
+        (lambda ()
+          (when org-inline-image-overlays
+            (org-redisplay-inline-images))))
 
 (use-package org-bullets
   :after org
@@ -394,6 +399,7 @@
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-to-list 'org-structure-template-alist '("rust" . "src rust"))
 (add-to-list 'org-structure-template-alist '("js" . "src js"))
 (add-to-list 'org-structure-template-alist '("sql" . "src sql"))
 (add-to-list 'org-structure-template-alist '("json" . "src json"))
@@ -411,6 +417,7 @@
 
 (use-package plantuml-mode)
 (setq plantuml-jar-path "~/plantuml.jar")
+(setq org-plantuml-jar-path "~/plantuml.jar")
 (setq plantuml-default-exec-mode 'jar)
 
 (use-package company-org-block
@@ -439,10 +446,17 @@
   :commands (lsp lsp-deferred)
   :init
   (setq lsp-keymap-prefix "C-c c")
+  :custom
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
+  (lsp-eldoc-render-all t)
+  (lsp-idle-delay 0.6)
+  (lsp-rust-analyzer-server-display-inlay-hints t)
   :config
   (lsp-enable-which-key-integration t)
   (setq lsp-diagnostic-package 'flycheck)
-  (setq lsp-headerline-breadcrumb-enable nil))
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  )
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
@@ -493,7 +507,9 @@
 
 (use-package python-mode
   :ensure t
-  :hook (python-mode . lsp)
+  :hook
+  (python-mode . lsp)
+  (python-mode . flycheck-mode)
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
   ;; (python-shell-interpreter "python3.9")
@@ -501,11 +517,17 @@
   (dap-python-debugger 'debugpy)
   )
 
-(use-package lsp-python-ms
+;; (use-package lsp-python-ms
+;;   :ensure t
+;;   :init (setq lsp-python-ms-auto-install-server t)
+;;   :hook
+;;   (python-mode . (lambda ()
+;;                  (require 'lsp-python-ms)
+;;                  (lsp))))
+(use-package lsp-pyright
   :ensure t
-  :init (setq lsp-python-ms-auto-install-server t)
   :hook (python-mode . (lambda ()
-                         (require 'lsp-python-ms)
+                         (require 'lsp-pyright)
                          (lsp))))  ; or lsp-deferred
 
 (use-package python-black
@@ -526,7 +548,7 @@
             (when (derived-mode-p 'python-mode)
               (require 'lsp-python-ms)
               (lsp)))) ; or lsp-deferred
-;; (use-package pyvenv)
+(use-package pyvenv)
 ;; (use-package pipenv
 ;;     :hook (python-mode . pipenv-mode)
 ;;     :init
@@ -602,6 +624,11 @@
 
 (use-package elisp-format)
 
+(use-package rust-mode)
+(add-hook 'rust-mode-hook
+        (lambda () (setq indent-tabs-mode nil)))
+(define-key rust-mode-map (kbd "C-c C-c") 'rust-run)
+
 (use-package company
   :after lsp-mode
   :hook (lsp-mode . company-mode)
@@ -619,10 +646,17 @@
 (add-hook 'after-init-hook 'global-company-mode)
 
 (use-package flycheck
+  :diminish flycheck-mode
   :ensure t
-  :init (global-flycheck-mode))
-
-(global-set-key (kbd "C-c c e") 'flycheck-list-errors)
+  :init
+  (setq flycheck-check-syntax-automatically '(save new-line)
+        flycheck-idle-change-delay 5.0
+        flycheck-display-errors-delay 0.9
+        flycheck-highlighting-mode 'symbols
+        flycheck-indication-mode 'left-fringe
+        flycheck-standard-error-navigation t
+        flycheck-deferred-syntax-check nil)
+  )
 
 (use-package projectile
   :diminish projectile-mode
@@ -766,6 +800,17 @@
   (setq undo-tree-auto-save-history t)
   (global-undo-tree-mode +1))
 
+(use-package pomidor
+  :bind (("<f12>" . pomidor))
+  :config (setq pomidor-sound-tick nil
+                pomidor-sound-tack nil)
+  :hook (pomidor-mode . (lambda ()
+                          (display-line-numbers-mode -1) ; Emacs 26.1+
+                          (setq left-fringe-width 0 right-fringe-width 0)
+                          (setq left-margin-width 2 right-margin-width 0)
+                          ;; force fringe update
+                          (set-window-buffer nil (current-buffer)))))
+
 (use-package vterm
   :commands vterm
   :ensure t
@@ -869,6 +914,7 @@ If popup is focused, delete it."
 
  (add-hook 'java-mode-hook 'whitespace-mode-enable)
  (add-hook 'python-mode-hook 'whitespace-mode-enable)
+ (add-hook 'rust-mode-hook 'whitespace-mode-enable)
  (add-hook 'js-mode-hook 'whitespace-mode-enable)
 
  (defun my-delete-word (arg)
