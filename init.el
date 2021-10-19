@@ -457,10 +457,11 @@
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
-  :bind ("C-c c f" . lsp-ui-doc-focus-frame)
+  ;; :bind ("C-c c f" . lsp-ui-doc-focus-frame)
   ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
   :custom
-  (lsp-ui-doc-position 'bottom))
+  ;; (lsp-ui-doc-position 'bottom)
+  (lsp-ui-doc-enable nil))
 
 (use-package lsp-treemacs
   :after lsp)
