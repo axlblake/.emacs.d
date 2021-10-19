@@ -1117,6 +1117,7 @@ local and the remote host, whereas Tramp uses a combination of `rsh'
 and `rcp' or other work-alike programs, such as `ssh'/`scp'.
 #+begin_src emacs-lisp
   (use-package tramp ;; with use-package
+    :defer t
     :config
     (setq-default tramp-default-method "scp")) ;; for performance
 
@@ -1125,9 +1126,13 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
 
 ** Docker
 #+begin_src emacs-lisp
-(use-package docker) ;; manage docker containers
-;; docker fs access via tramp
-(use-package docker-tramp)
+  (use-package docker) ;; manage docker containers
+  ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
+
+  ;; docker fs access via tramp
+  (use-package docker-tramp)
+  (use-package helm-tramp)
+
 #+end_src
 ** imenu-list and occur hotkey
 #+begin_src emacs-lisp

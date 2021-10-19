@@ -769,14 +769,18 @@
           (lambda () (yafolding-mode)))
 
 (use-package tramp ;; with use-package
+  :defer t
   :config
   (setq-default tramp-default-method "scp")) ;; for performance
 
  (use-package vagrant-tramp)
 
 (use-package docker) ;; manage docker containers
+;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
+
 ;; docker fs access via tramp
 (use-package docker-tramp)
+(use-package helm-tramp)
 
 (use-package imenu-list
   :ensure t
