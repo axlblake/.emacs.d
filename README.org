@@ -612,7 +612,6 @@ The =which-key= integration adds helpful descriptions of the various keys so you
 #+begin_src emacs-lisp
 
   (use-package lsp-mode
-    :commands (lsp lsp-deferred)
     :init
     (setq lsp-keymap-prefix "C-c c")
     :custom
@@ -622,9 +621,7 @@ The =which-key= integration adds helpful descriptions of the various keys so you
     (lsp-rust-analyzer-server-display-inlay-hints t)
     :config
     (lsp-enable-which-key-integration t)
-    (setq lsp-diagnostic-package 'flycheck)
     (setq lsp-headerline-breadcrumb-enable nil)
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
     )
 #+end_src
 

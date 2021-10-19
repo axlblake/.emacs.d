@@ -443,7 +443,6 @@
   (org-roam-setup))
 
 (use-package lsp-mode
-  :commands (lsp lsp-deferred)
   :init
   (setq lsp-keymap-prefix "C-c c")
   :custom
@@ -453,9 +452,7 @@
   (lsp-rust-analyzer-server-display-inlay-hints t)
   :config
   (lsp-enable-which-key-integration t)
-  (setq lsp-diagnostic-package 'flycheck)
   (setq lsp-headerline-breadcrumb-enable nil)
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   )
 
 (use-package lsp-ui
@@ -507,9 +504,7 @@
 
 (use-package python-mode
   :ensure t
-  :hook
-  (python-mode . lsp)
-  (python-mode . flycheck-mode)
+  :hook (python-mode . lsp)
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
   ;; (python-shell-interpreter "python3.9")
