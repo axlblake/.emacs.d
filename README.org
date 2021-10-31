@@ -234,9 +234,7 @@ Counsel is a customized set of commands to replace `find-file` with `counsel-fin
     (ivy-rich-mode 1))
 
   (use-package counsel
-    :bind (("C-M-j" . 'counsel-switch-buffer)
-           :map minibuffer-local-map
-           ("C-r" . 'counsel-minibuffer-history))
+    :bind (("C-x b" . 'counsel-switch-buffer))
     :custom
     (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
     :config
@@ -668,6 +666,7 @@ We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enab
     :config
     (lsp-enable-which-key-integration t)
     (setq lsp-headerline-breadcrumb-enable nil)
+    (setq lsp-signature-auto-activate nil)
     )
 #+end_src
 
@@ -677,13 +676,14 @@ We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enab
 
 #+begin_src emacs-lisp
 
-  (use-package lsp-ui
-    :hook (lsp-mode . lsp-ui-mode)
-    ;; :bind ("C-c c f" . lsp-ui-doc-focus-frame)
-    ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
-    :custom
-    ;; (lsp-ui-doc-position 'bottom)
-    (lsp-ui-doc-enable nil))
+    (use-package lsp-ui
+      :hook (lsp-mode . lsp-ui-mode)
+      ;; :bind ("C-c c f" . lsp-ui-doc-focus-frame)
+      ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
+      :custom
+      ;; (lsp-ui-doc-position 'bottom)
+      (lsp-ui-doc-enable nil)
+      )
 
 #+end_src
 

@@ -171,9 +171,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (ivy-rich-mode 1))
 
 (use-package counsel
-  :bind (("C-M-j" . 'counsel-switch-buffer)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history))
+  :bind (("C-x b" . 'counsel-switch-buffer))
   :custom
   (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
   :config
@@ -502,6 +500,7 @@ The default tab-bar name uses the buffer name."
   :config
   (lsp-enable-which-key-integration t)
   (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-signature-auto-activate nil)
   )
 
 (use-package lsp-ui
