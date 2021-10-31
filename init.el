@@ -97,6 +97,8 @@
 (setq-default tab-width 4)
 (setq-default c-basic-offset 4)
 
+(setq split-width-threshold 9999)
+
 (set-face-attribute 'default nil :font "Fira Code Retina" :height cfg/default-font-size)
 
 ;; Set the fixed pitch face
@@ -113,6 +115,32 @@
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
+
+;; redefing segment to show workspace by name instead of explicit name 
+(doom-modeline-def-segment workspace-name
+"The current workspace name or number.
+Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
+(when doom-modeline-workspace-name
+  (when-let
+      ((name (cond
+              ((and (bound-and-true-p eyebrowse-mode)
+                    (< 1 (length (eyebrowse--get 'window-configs))))
+               (assq-delete-all 'eyebrowse-mode mode-line-misc-info)
+               (when-let*
+                   ((num (eyebrowse--get 'current-slot))
+                    (tag (nth 2 (assoc num (eyebrowse--get 'window-configs)))))
+                 (if (< 0 (length tag)) tag (int-to-string num))))
+              (t
+               (let* ((current-tab (tab-bar--current-tab))
+                      (tab-index (tab-bar--current-tab-index))
+                      (explicit-name (alist-get 'name current-tab))
+                      (tab-name (alist-get 'name current-tab)))
+                 (if explicit-name tab-name (+ 1 tab-index))
+                 )))))
+    (propertize (format " %s " name) 'face
+                (if (doom-modeline--active)
+                    'doom-modeline-buffer-major-mode
+                  'mode-line-inactive)))))
 
 (use-package which-key
   :init (which-key-mode)
@@ -153,6 +181,22 @@
 
 ;; Counsel should remeber last M-x commands (make it smarter)
 (use-package smex)
+
+(defun my-name-tab-by-project-or-default ()
+  "Return project name if in a project, or default tab-bar name if not.
+The default tab-bar name uses the buffer name."
+  (let ((project-name (projectile-project-name)))
+    (if (string= "-" project-name)
+        (tab-bar-tab-name-current)
+      (projectile-project-name))))
+
+(setq tab-bar-mode t)
+(setq tab-bar-show nil)
+(setq tab-bar-new-tab-choice "*dashboard*")
+(setq tab-bar-tab-name-function #'my-name-tab-by-project-or-default)
+
+(global-set-key (kbd "C-c <left>") 'tab-bar-switch-to-prev-tab)
+(global-set-key (kbd "C-c <right>") 'tab-bar-switch-to-next-tab)
 
 (use-package helpful
   :custom
@@ -390,7 +434,6 @@
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
 (push '("plantuml" . plantuml) org-src-lang-modes)
-
 (setq org-confirm-babel-evaluate nil)
 
 ;; This is needed as of Org 9.2
@@ -447,9 +490,15 @@
   (setq lsp-keymap-prefix "C-c c")
   :custom
   (lsp-rust-analyzer-cargo-watch-command "clippy")
-  (lsp-eldoc-render-all t)
-  (lsp-idle-delay 0.6)
+  ;; (lsp-eldoc-render-all t)
+  (lsp-idle-delay 0.500)
+  (gc-cons-threshold 100000000)
+  (read-process-output-max (* 3 1024 1024))
   (lsp-rust-analyzer-server-display-inlay-hints t)
+  :hook ((python-mode . lsp)
+         (vue-mode . lsp)
+         (rust-mode . lsp)
+         (js-mode . lsp))
   :config
   (lsp-enable-which-key-integration t)
   (setq lsp-headerline-breadcrumb-enable nil)
@@ -505,7 +554,6 @@
 
 (use-package python-mode
   :ensure t
-  :hook (python-mode . lsp)
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
   ;; (python-shell-interpreter "python3.9")
@@ -526,6 +574,7 @@
                          (require 'lsp-pyright)
                          (lsp))))  ; or lsp-deferred
 
+
 (use-package python-black
   :demand t
   :after python)
@@ -539,20 +588,37 @@
 
 (add-hook 'python-mode-hook 'py-local-keys)
 
-(add-hook 'hack-local-variables-hook
-          (lambda ()
-            (when (derived-mode-p 'python-mode)
-              (require 'lsp-python-ms)
-              (lsp)))) ; or lsp-deferred
-(use-package pyvenv)
 ;; (use-package pipenv
-;;     :hook (python-mode . pipenv-mode)
-;;     :init
-;;     (setq
-;;      pipenv-projectile-after-switch-function
-;;      #'pipenv-projectile-after-switch-extended))
+  ;;     :hook (python-mode . pipenv-mode)
+  ;;     :init
+  ;;     (setq
+  ;;      pipenv-projectile-after-switch-function
+  ;;      #'pipenv-projectile-after-switch-extended))
 
-;; (add-hook 'python-mode-hook #'pipenv-mode)
+  ;; (add-hook 'python-mode-hook #'pipenv-mode)
+
+;; (use-package pyvenv
+  ;;   :ensure t
+  ;;   :init
+  ;;   (setenv "WORKON_HOME" "~/.virtualenvs/")
+  ;;   :config
+  ;;   (setq pyvenv-mode-line-indicator
+  ;;         '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
+  ;;   (pyvenv-mode t)
+  ;;   ;; Set correct Python interpreter
+  ;;   (setq pyvenv-post-activate-hooks
+  ;;         (list (lambda ()
+  ;;                 (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
+  ;;   (setq pyvenv-post-deactivate-hooks
+  ;;         (list (lambda ()
+  ;;                 (setq python-shell-interpreter "python3")))))
+
+;;; Directory Local Variables
+;;; For more information see (info "(emacs) Directory Variables")
+
+;; ((python-mode . ((eval . (lsp-register-custom-settings
+;;                           '(("python.pythonPath" "/.../.venv/bin/python"
+;;                              "python.venvPath" "/.../.venv")))))))
 
 (use-package lsp-java
   :init
@@ -751,7 +817,8 @@
   (setq eyebrowse-keymap-prefix (kbd "C-c w"))
   :ensure t
   :config
-  (eyebrowse-mode t))
+  (eyebrowse-mode t)
+  )
 
 (use-package dockerfile-mode)
 (use-package docker-compose-mode)
@@ -969,6 +1036,7 @@ If popup is focused, delete it."
     (funcall start-file-process-shell-command name buffer command)))
 
 (advice-add 'start-file-process-shell-command :around #'start-file-process-shell-command@around)
+(setq org-babel-python-command "python3")
 
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
