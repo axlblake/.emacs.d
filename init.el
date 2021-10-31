@@ -14,7 +14,7 @@
 (put 'minibuffer-history 'history-length 100)
 (put 'kill-ring 'history-length 30)
 (savehist-mode -1)
-;; (setq warning-minimum-level :emergency)
+(setq warning-minimum-level :emergency)
 
 ;; Initialize package sources
 (require 'package)
@@ -561,18 +561,19 @@ The default tab-bar name uses the buffer name."
   (dap-python-debugger 'debugpy)
   )
 
-;; (use-package lsp-python-ms
-;;   :ensure t
-;;   :init (setq lsp-python-ms-auto-install-server t)
-;;   :hook
-;;   (python-mode . (lambda ()
-;;                  (require 'lsp-python-ms)
-;;                  (lsp))))
-(use-package lsp-pyright
+(use-package lsp-python-ms
   :ensure t
-  :hook (python-mode . (lambda ()
-                         (require 'lsp-pyright)
-                         (lsp))))  ; or lsp-deferred
+  :init (setq lsp-python-ms-auto-install-server t)
+  :hook
+  (python-mode . (lambda ()
+                 (require 'lsp-python-ms)
+                 (lsp))))
+;; Cause stuck =( 
+;; (use-package lsp-pyright
+;;   :ensure t
+;;   :hook (python-mode . (lambda ()
+;;                          (require 'lsp-pyright)
+;;                          (lsp))))  ; or lsp-deferred
 
 
 (use-package python-black
@@ -597,21 +598,21 @@ The default tab-bar name uses the buffer name."
 
   ;; (add-hook 'python-mode-hook #'pipenv-mode)
 
-;; (use-package pyvenv
-  ;;   :ensure t
-  ;;   :init
-  ;;   (setenv "WORKON_HOME" "~/.virtualenvs/")
-  ;;   :config
-  ;;   (setq pyvenv-mode-line-indicator
-  ;;         '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
-  ;;   (pyvenv-mode t)
-  ;;   ;; Set correct Python interpreter
-  ;;   (setq pyvenv-post-activate-hooks
-  ;;         (list (lambda ()
-  ;;                 (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
-  ;;   (setq pyvenv-post-deactivate-hooks
-  ;;         (list (lambda ()
-  ;;                 (setq python-shell-interpreter "python3")))))
+(use-package pyvenv
+    :ensure t
+    :init
+    (setenv "WORKON_HOME" "~/.virtualenvs/")
+    :config
+    (setq pyvenv-mode-line-indicator
+          '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
+    (pyvenv-mode t)
+    ;; Set correct Python interpreter
+    (setq pyvenv-post-activate-hooks
+          (list (lambda ()
+                  (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
+    (setq pyvenv-post-deactivate-hooks
+          (list (lambda ()
+                  (setq python-shell-interpreter "python3")))))
 
 ;;; Directory Local Variables
 ;;; For more information see (info "(emacs) Directory Variables")
