@@ -1198,7 +1198,8 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
     (setq-default tramp-default-method "scp")) ;; for performance
 
   (use-package vagrant-tramp)
-  (use-package counsel-tramp)
+  (use-package counsel-tramp
+    :bind (("C-x t" . counsel-tramp)))
 #+end_src
 
 ** Docker

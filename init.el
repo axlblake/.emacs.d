@@ -842,7 +842,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (setq-default tramp-default-method "scp")) ;; for performance
 
 (use-package vagrant-tramp)
-(use-package counsel-tramp)
+(use-package counsel-tramp
+  :bind (("C-x t" . counsel-tramp)))
 
 (use-package docker) ;; manage docker containers
 ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
