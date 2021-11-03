@@ -1,4 +1,4 @@
-;; NOTE: init.el is now generated from Emacs.org.  Please edit that file
+;; NOTE: init.el is now generated from README.org.  Please edit that file
 ;;       in Emacs and init.el will be generated automatically!
 
 ;; Font size
@@ -8,12 +8,9 @@
 ;; Frame transparency
 (defvar cfg/frame-transparency '(97 . 97))
 
-(setq gc-cons-threshold 4000000000) ;; 4000mb of memory
-(setq read-process-output-max (* 1024 1024))
-(setq history-length 100)
+(setq history-length 300)
 (put 'minibuffer-history 'history-length 100)
-(put 'kill-ring 'history-length 30)
-(savehist-mode -1)
+(put 'kill-ring 'history-length 40)
 (setq warning-minimum-level :emergency)
 
 ;; Initialize package sources
@@ -27,7 +24,7 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-  ;; Initialize use-package on non-Linux platforms
+;; Initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
@@ -60,8 +57,6 @@
 (setq dashboard-set-file-icons t)
 (setq dashboard-center-content t)
 (setq dashboard-set-footer nil)
-  ;; (if (equal user-full-name "axl")
-  ;;     (add-hook 'after-init-hook 'org-agenda-list))
 
 ;; (setq inhibit-startup-message t)
 
@@ -97,7 +92,7 @@
 (setq-default tab-width 4)
 (setq-default c-basic-offset 4)
 
-(setq split-width-threshold 9999)
+(setq split-width-threshold 9999) ;; Horizontal split by default
 
 (set-face-attribute 'default nil :font "Fira Code Retina" :height cfg/default-font-size)
 
@@ -118,10 +113,10 @@
 
 ;; redefing segment to show workspace by name instead of explicit name 
 (doom-modeline-def-segment workspace-name
-"The current workspace name or number.
+  "The current workspace name or number.
 Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
-(when doom-modeline-workspace-name
-  (when-let
+  (when doom-modeline-workspace-name
+    (when-let
       ((name (cond
               ((and (bound-and-true-p eyebrowse-mode)
                     (< 1 (length (eyebrowse--get 'window-configs))))
@@ -146,7 +141,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   :init (which-key-mode)
   :diminish which-key-mode
   :config
-  (setq which-key-idle-delay 1))
+  (setq which-key-idle-delay 0.5))
 
 (use-package ivy
   :diminish
@@ -181,18 +176,22 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package smex)
 
 (defun my-name-tab-by-project-or-default ()
-  "Return project name if in a project, or default tab-bar name if not.
-The default tab-bar name uses the buffer name."
-  (let ((project-name (projectile-project-name)))
-    (if (string= "-" project-name)
-        (tab-bar-tab-name-current)
-      (projectile-project-name))))
+    "Return project name if in a project, or default tab-bar name if not.
+  The default tab-bar name uses the buffer name."
+    (let ((project-name (projectile-project-name)))
+      (if (string= "-" project-name)
+          (tab-bar-tab-name-current)
+        (projectile-project-name))))
 
-(setq tab-bar-mode t)
-(setq tab-bar-show nil)
-;; (setq tab-bar-new-tab-choice "*dashboard*")
-(setq tab-bar-tab-name-function #'my-name-tab-by-project-or-default)
+  (setq tab-bar-mode t)
+  (setq tab-bar-show nil)
+  ;; (setq tab-bar-new-tab-choice "*dashboard*")
+  (setq tab-bar-tab-name-function #'my-name-tab-by-project-or-default)
 
+;; Rebind C-x t to C-x w for similar and convenient work with eyebrowse's C-c w
+(global-unset-key (kbd "C-x t"))
+(define-key ctl-x-map "w" tab-prefix-map)
+;; Also, set C-c arrow to switch between tabs
 (global-set-key (kbd "C-c <left>") 'tab-bar-switch-to-prev-tab)
 (global-set-key (kbd "C-c <right>") 'tab-bar-switch-to-next-tab)
 
@@ -211,7 +210,7 @@ The default tab-bar name uses the buffer name."
 "scale text"
 ("j" text-scale-increase "in")
 ("k" text-scale-decrease "out"))
-(global-set-key (kbd "C-c l") 'hydra-text-scale/body)
+(global-set-key (kbd "C-c f") 'hydra-text-scale/body)
 
 (use-package highlight-indent-guides
 :hook ((prog-mode text-mode conf-mode) . highlight-indent-guides-mode)
@@ -508,8 +507,9 @@ The default tab-bar name uses the buffer name."
   ;; :bind ("C-c c f" . lsp-ui-doc-focus-frame)
   ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
   :custom
-  ;; (lsp-ui-doc-position 'bottom)
-  (lsp-ui-doc-enable nil)
+  (lsp-ui-doc-position 'bottom)
+  (lsp-ui-doc-show-with-cursor nil)
+  (lsp-ui-doc-show-with-mouse nil)
   )
 
 (use-package lsp-treemacs
@@ -556,7 +556,7 @@ The default tab-bar name uses the buffer name."
   :ensure t
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
-  ;; (python-shell-interpreter "python3.9")
+  (python-shell-interpreter "python3")
   (dap-python-executable "python3")
   (dap-python-debugger 'debugpy)
   )
@@ -841,14 +841,14 @@ The default tab-bar name uses the buffer name."
   :config
   (setq-default tramp-default-method "scp")) ;; for performance
 
- (use-package vagrant-tramp)
+(use-package vagrant-tramp)
+(use-package counsel-tramp)
 
 (use-package docker) ;; manage docker containers
 ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
 
 ;; docker fs access via tramp
 (use-package docker-tramp)
-(use-package helm-tramp)
 
 (use-package imenu-list
   :ensure t

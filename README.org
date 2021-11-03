@@ -6,7 +6,7 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
 
 #+begin_src emacs-lisp
 
-  ;; NOTE: init.el is now generated from Emacs.org.  Please edit that file
+  ;; NOTE: init.el is now generated from README.org.  Please edit that file
   ;;       in Emacs and init.el will be generated automatically!
 
   ;; Font size
@@ -16,12 +16,9 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
   ;; Frame transparency
   (defvar cfg/frame-transparency '(97 . 97))
 
-  (setq gc-cons-threshold 4000000000) ;; 4000mb of memory
-  (setq read-process-output-max (* 1024 1024))
-  (setq history-length 100)
+  (setq history-length 300)
   (put 'minibuffer-history 'history-length 100)
-  (put 'kill-ring 'history-length 30)
-  (savehist-mode -1)
+  (put 'kill-ring 'history-length 40)
   (setq warning-minimum-level :emergency)
 #+end_src
 
@@ -40,7 +37,7 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
   (unless package-archive-contents
     (package-refresh-contents))
 
-    ;; Initialize use-package on non-Linux platforms
+  ;; Initialize use-package on non-Linux platforms
   (unless (package-installed-p 'use-package)
     (package-install 'use-package))
 
@@ -57,27 +54,25 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
 * Dashboard
 Startup dashboard
 #+begin_src emacs-lisp
-(use-package page-break-lines)
-(use-package all-the-icons)
+  (use-package page-break-lines)
+  (use-package all-the-icons)
 
-(use-package dashboard
-  :ensure t
-  :config
-  (dashboard-setup-startup-hook))
+  (use-package dashboard
+    :ensure t
+    :config
+    (dashboard-setup-startup-hook))
 
-(setq dashboard-items '((recents  . 5)
-                        (bookmarks . 5)
-                        (projects . 5)
-                        (agenda . 5)
-                        (registers . 5)))
+  (setq dashboard-items '((recents  . 5)
+                          (bookmarks . 5)
+                          (projects . 5)
+                          (agenda . 5)
+                          (registers . 5)))
 
-(setq dashboard-startup-banner 'logo)
-(setq dashboard-set-heading-icons t)
-(setq dashboard-set-file-icons t)
-(setq dashboard-center-content t)
-(setq dashboard-set-footer nil)
-  ;; (if (equal user-full-name "axl")
-  ;;     (add-hook 'after-init-hook 'org-agenda-list))
+  (setq dashboard-startup-banner 'logo)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-center-content t)
+  (setq dashboard-set-footer nil)
 #+end_src
 * UI Configuration
 ** Basic UI Configuration
@@ -117,7 +112,7 @@ Startup dashboard
   (setq-default tab-width 4)
   (setq-default c-basic-offset 4)
   
-  (setq split-width-threshold 9999)
+  (setq split-width-threshold 9999) ;; Horizontal split by default
 #+end_src
 
 ** Font Configuration
@@ -138,7 +133,9 @@ Install [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://fonts.go
 
 ** Color Theme
 
-[[https://github.com/hlissner/emacs-doom-themes][doom-themes]] is a great set of themes with a lot of variety and support for many different Emacs modes.  Taking a look at the [[https://github.com/hlissner/emacs-doom-themes/tree/screenshots][screenshots]] might help you decide which one you like best.  You can also run =M-x counsel-load-theme= to choose between them easily.
+[[https://github.com/hlissner/emacs-doom-themes][doom-themes]] is a great set of themes with a lot of variety and support for many different Emacs modes.
+Taking a look at the [[https://github.com/hlissner/emacs-doom-themes/tree/screenshots][screenshots]] might help you decide which one you like best.
+You can also run =M-x counsel-load-theme= to choose between them easily.
 
 #+begin_src emacs-lisp
 
@@ -160,13 +157,13 @@ Install [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://fonts.go
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
     :custom ((doom-modeline-height 15)))
-  
+
   ;; redefing segment to show workspace by name instead of explicit name 
   (doom-modeline-def-segment workspace-name
-  "The current workspace name or number.
+    "The current workspace name or number.
   Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
-  (when doom-modeline-workspace-name
-    (when-let
+    (when doom-modeline-workspace-name
+      (when-let
         ((name (cond
                 ((and (bound-and-true-p eyebrowse-mode)
                       (< 1 (length (eyebrowse--get 'window-configs))))
@@ -198,13 +195,14 @@ Install [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://fonts.go
   :init (which-key-mode)
   :diminish which-key-mode
   :config
-  (setq which-key-idle-delay 1))
+  (setq which-key-idle-delay 0.5))
 
 #+end_src
 
 ** Ivy and Counsel
 
-[[https://oremacs.com/swiper/][Ivy]] is an excellent completion framework for Emacs.  It provides a minimal yet powerful selection menu that appears when you open files, switch buffers, and for many other tasks in Emacs.  
+[[https://oremacs.com/swiper/][Ivy]] is an excellent completion framework for Emacs.
+It provides a minimal yet powerful selection menu that appears when you open files, switch buffers, and for many other tasks in Emacs.  
 Counsel is a customized set of commands to replace `find-file` with `counsel-find-file`, etc which provide useful commands for each of the default completion commands.
 
 [[https://github.com/Yevgnen/ivy-rich][ivy-rich]] adds extra columns to a few of the Counsel commands to provide more information about each item.
@@ -247,21 +245,27 @@ Counsel is a customized set of commands to replace `find-file` with `counsel-fin
 
 ** Tab-bar configuration
 #+begin_src emacs-lisp
-  (defun my-name-tab-by-project-or-default ()
-    "Return project name if in a project, or default tab-bar name if not.
-  The default tab-bar name uses the buffer name."
-    (let ((project-name (projectile-project-name)))
-      (if (string= "-" project-name)
-          (tab-bar-tab-name-current)
-        (projectile-project-name))))
+    (defun my-name-tab-by-project-or-default ()
+      "Return project name if in a project, or default tab-bar name if not.
+    The default tab-bar name uses the buffer name."
+      (let ((project-name (projectile-project-name)))
+        (if (string= "-" project-name)
+            (tab-bar-tab-name-current)
+          (projectile-project-name))))
 
-  (setq tab-bar-mode t)
-  (setq tab-bar-show nil)
-  ;; (setq tab-bar-new-tab-choice "*dashboard*")
-  (setq tab-bar-tab-name-function #'my-name-tab-by-project-or-default)
+    (setq tab-bar-mode t)
+    (setq tab-bar-show nil)
+    ;; (setq tab-bar-new-tab-choice "*dashboard*")
+    (setq tab-bar-tab-name-function #'my-name-tab-by-project-or-default)
 
+  ;; Rebind C-x t to C-x w for similar and convenient work with eyebrowse's C-c w
+  (global-unset-key (kbd "C-x t"))
+  (define-key ctl-x-map "w" tab-prefix-map)
+  ;; Also, set C-c arrow to switch between tabs
   (global-set-key (kbd "C-c <left>") 'tab-bar-switch-to-prev-tab)
   (global-set-key (kbd "C-c <right>") 'tab-bar-switch-to-next-tab)
+
+
 
 #+end_src
 ** Helpful Help Commands
@@ -283,17 +287,16 @@ For example, if you use =describe-function=, you will not only get the documenta
 #+end_src
 
 ** Text Scaling
-[[https://github.com/abo-abo/hydra][Hydra]] 
+Text size manupulation using [[https://github.com/abo-abo/hydra][Hydra]] 
+Quickly adjusting the scale of the text llon screen.
 
-Quickly adjusting the scale of the text on screen. 
 #+begin_src emacs-lisp
   (use-package hydra)
   (defhydra hydra-text-scale (:timeout 10)
   "scale text"
   ("j" text-scale-increase "in")
   ("k" text-scale-decrease "out"))
-  (global-set-key (kbd "C-c l") 'hydra-text-scale/body)
-
+  (global-set-key (kbd "C-c f") 'hydra-text-scale/body)
 #+end_src
 
 ** Highlight indent
@@ -321,7 +324,8 @@ Highlight indent makes much easier to find code block.
            (highlight-indent-guides-mode -1)))))
 #+end_src
 
-** Other window by ace-window
+** Ace-window
+Switch to other window interactively
 #+begin_src emacs-lisp
 (use-package ace-window
   :init
@@ -331,7 +335,8 @@ Highlight indent makes much easier to find code block.
   (setq aw-ignore-current t))
 #+end_src
 
-** Reverse-im for multi-language support
+** Reverse-im
+For multi-language support
 #+begin_src emacs-lisp
 (use-package reverse-im
   :ensure t
@@ -340,8 +345,9 @@ Highlight indent makes much easier to find code block.
   :config
   (reverse-im-mode t))
 #+end_src
-* Org Mode
-[[https://orgmode.org/][Org Mode]] is one of the hallmark features of Emacs.  It is a rich document editor, project planner, task and time tracker, blogging engine, and literate coding utility all wrapped up in one package.
+* REVIEW Org Mode
+[[https://orgmode.org/][Org Mode]] is one of the hallmark features of Emacs.
+It is a rich document editor, project planner, task and time tracker, blogging engine, and literate coding utility all wrapped up in one package.
 ** Better Font Faces
 
 The =cfg/org-font-setup= function configures various text faces to tweak the sizes of headings and use variable width fonts in most cases so that it looks more like we're editing a document in =org-mode=.  We switch back to fixed width (monospace) fonts for code blocks and tables so that they display correctly.
@@ -646,9 +652,9 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
 *** IDE Features with lsp-mode
 **** lsp-mode
 
-We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enable IDE-like functionality for many different programming languages via "language servers" that speak the [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]].  Before trying to set up =lsp-mode= for a particular language, check out the [[https://emacs-lsp.github.io/lsp-mode/page/languages/][documentation for your language]] so that you can learn which language servers are available and how to install them.
+We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enable IDE-like functionality for many different programming languages via "language servers" that speak the [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]].
+[[https://emacs-lsp.github.io/lsp-mode/page/languages/][Documentation for languages]]
 #+begin_src emacs-lisp
-
   (use-package lsp-mode
     :init
     (setq lsp-keymap-prefix "C-c c")
@@ -672,18 +678,19 @@ We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enab
 
 **** lsp-ui
 
-[[https://emacs-lsp.github.io/lsp-ui/][lsp-ui]] is a set of UI enhancements built on top of =lsp-mode= which make Emacs feel even more like an IDE.  Check out the screenshots on the =lsp-ui= homepage (linked at the beginning of this paragraph) to see examples of what it can do.
+[[https://emacs-lsp.github.io/lsp-ui/][lsp-ui]] is a set of UI enhancements built on top of =lsp-mode= which make Emacs feel even more like an IDE.
 
 #+begin_src emacs-lisp
 
-    (use-package lsp-ui
-      :hook (lsp-mode . lsp-ui-mode)
-      ;; :bind ("C-c c f" . lsp-ui-doc-focus-frame)
-      ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
-      :custom
-      ;; (lsp-ui-doc-position 'bottom)
-      (lsp-ui-doc-enable nil)
-      )
+  (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode)
+    ;; :bind ("C-c c f" . lsp-ui-doc-focus-frame)
+    ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
+    :custom
+    (lsp-ui-doc-position 'bottom)
+    (lsp-ui-doc-show-with-cursor nil)
+    (lsp-ui-doc-show-with-mouse nil)
+    )
 
 #+end_src
 
@@ -808,7 +815,7 @@ There are a number of other language servers for Python so if you find that =pyl
     :ensure t
     :custom
     ;; NOTE: Set these if Python 3 is called "python3" on your system!
-    ;; (python-shell-interpreter "python3.9")
+    (python-shell-interpreter "python3")
     (dap-python-executable "python3")
     (dap-python-debugger 'debugpy)
     )
@@ -1190,7 +1197,8 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
     :config
     (setq-default tramp-default-method "scp")) ;; for performance
 
-   (use-package vagrant-tramp)    
+  (use-package vagrant-tramp)
+  (use-package counsel-tramp)
 #+end_src
 
 ** Docker
@@ -1200,8 +1208,6 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
 
   ;; docker fs access via tramp
   (use-package docker-tramp)
-  (use-package helm-tramp)
-
 #+end_src
 ** imenu-list and occur hotkey
 #+begin_src emacs-lisp
