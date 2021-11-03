@@ -190,7 +190,7 @@ The default tab-bar name uses the buffer name."
 
 (setq tab-bar-mode t)
 (setq tab-bar-show nil)
-(setq tab-bar-new-tab-choice "*dashboard*")
+;; (setq tab-bar-new-tab-choice "*dashboard*")
 (setq tab-bar-tab-name-function #'my-name-tab-by-project-or-default)
 
 (global-set-key (kbd "C-c <left>") 'tab-bar-switch-to-prev-tab)
@@ -509,7 +509,8 @@ The default tab-bar name uses the buffer name."
   ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
   :custom
   ;; (lsp-ui-doc-position 'bottom)
-  (lsp-ui-doc-enable nil))
+  (lsp-ui-doc-enable nil)
+  )
 
 (use-package lsp-treemacs
   :after lsp)
@@ -567,7 +568,7 @@ The default tab-bar name uses the buffer name."
   (python-mode . (lambda ()
                  (require 'lsp-python-ms)
                  (lsp))))
-;; Cause stuck =( 
+
 ;; (use-package lsp-pyright
 ;;   :ensure t
 ;;   :hook (python-mode . (lambda ()
