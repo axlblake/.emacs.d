@@ -399,7 +399,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (cfg/org-font-setup))
 (setq org-startup-folded t)
 (add-hook 'org-mode-hook 'org-hide-block-all)
-(setq org-export-backends '(ascii html icalendar latex md odt))
 (setq org-startup-with-inline-images "inlineimages")
 (add-hook 'org-babel-after-execute-hook
         (lambda ()
@@ -419,6 +418,9 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package visual-fill-column
   :hook (org-mode . cfg/org-mode-visual-fill))
+
+(setq org-export-with-sub-superscripts nil)
+(setq org-export-backends '(ascii html md odt))
 
 (org-babel-do-load-languages
   'org-babel-load-languages
@@ -879,6 +881,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
                           (setq left-margin-width 2 right-margin-width 0)
                           ;; force fringe update
                           (set-window-buffer nil (current-buffer)))))
+
+(use-package devdocs)
 
 (use-package vterm
   :commands vterm
