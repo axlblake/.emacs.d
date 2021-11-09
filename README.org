@@ -327,12 +327,13 @@ Highlight indent makes much easier to find code block.
 ** Ace-window
 Switch to other window interactively
 #+begin_src emacs-lisp
-(use-package ace-window
-  :init
-  (global-set-key (kbd "C-x o") 'ace-window)
-  :config
-  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-  (setq aw-ignore-current t))
+  (use-package ace-window
+    :init
+    (global-set-key (kbd "C-x o") 'ace-window)
+    :config
+    (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+    (setq aw-ignore-current t)
+    (setq aw-ignore-on nil))
 #+end_src
 
 ** Reverse-im
@@ -712,25 +713,6 @@ We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enab
 
 #+end_src
 
-**** lsp-treemacs
-
-[[https://github.com/emacs-lsp/lsp-treemacs][lsp-treemacs]] provides nice tree views for different aspects of your code like symbols in a file, references of a symbol, or diagnostic messages (errors and warnings) that are found in your code.
-
-Try these commands with =M-x=:
-
-- =lsp-treemacs-symbols= - Show a tree view of the symbols in the current file
-- =lsp-treemacs-references= - Show a tree view for the references of the symbol under the cursor
-- =lsp-treemacs-error-list= - Show a tree view for the diagnostic messages in the project
-
-This package is built on the [[https://github.com/Alexander-Miller/treemacs][treemacs]] package which might be of some interest to you if you like to have a file browser at the left side of your screen in your editor.
-
-#+begin_src emacs-lisp
-
-  (use-package lsp-treemacs
-    :after lsp)
-
-#+end_src
-
 **** lsp-ivy
 
 [[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy]] integrates Ivy with =lsp-mode= to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
@@ -1030,6 +1012,12 @@ Flymake alternative
           flycheck-standard-error-navigation t
           flycheck-deferred-syntax-check nil)
     )
+#+end_src
+** Treemacs
+#+begin_src emacs-lisp
+  (use-package treemacs
+    :config
+    (setq treemacs-python-executable (executable-find "python3")))
 #+end_src
 
 ** Projectile

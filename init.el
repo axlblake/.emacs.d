@@ -238,7 +238,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (global-set-key (kbd "C-x o") 'ace-window)
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-  (setq aw-ignore-current t))
+  (setq aw-ignore-current t)
+  (setq aw-ignore-on nil))
 
 (use-package reverse-im
   :ensure t
@@ -530,9 +531,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (lsp-ui-doc-show-with-mouse nil)
   )
 
-(use-package lsp-treemacs
-  :after lsp)
-
 (use-package lsp-ivy)
 
 (use-package yasnippet)                  ; Snippets
@@ -738,6 +736,10 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
         flycheck-standard-error-navigation t
         flycheck-deferred-syntax-check nil)
   )
+
+(use-package treemacs
+  :config
+  (setq treemacs-python-executable (executable-find "python3")))
 
 (use-package projectile
   :diminish projectile-mode
