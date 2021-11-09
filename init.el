@@ -248,11 +248,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (reverse-im-mode t))
 
 (defun cfg/org-font-setup ()
-  ;; Replace list hyphen with dot
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
   ;; Set faces for heading levels
   (dolist (face '((org-level-1 . 1.2)
                   (org-level-2 . 1.1)
@@ -272,6 +267,27 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+
+;; (add-hook 'org-mode-hook (lambda ()
+;;                            "Beautify Org Checkbox Symbol"
+;;                            (push '("[ ]" .  "☐") prettify-symbols-alist)
+;;                            (push '("[X]" . "☑" ) prettify-symbols-alist)
+;;                            (push '("[-]" . "❍" ) prettify-symbols-alist)
+;;                            (prettify-symbols-mode)))
+
+;; (defface org-checkbox-done-text
+;;   '((t (:foreground "#71696A" :strike-through t)))
+;;   "Face for the text part of a checked org-mode checkbox.")
+
+;; (font-lock-add-keywords
+;;  'org-mode
+;;  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+;;     1 'org-checkbox-done-text prepend))
+;;  'append)
+;; Replace list hyphen with dot
+;; (font-lock-add-keywords 'org-mode
+;;                         '(("^ *\\([-]\\) "
+;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
 (defun cfg/org-mode-setup ()
   (org-indent-mode)

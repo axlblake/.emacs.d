@@ -345,7 +345,7 @@ For multi-language support
   :config
   (reverse-im-mode t))
 #+end_src
-* REVIEW Org Mode
+* Org Mode
 [[https://orgmode.org/][Org Mode]] is one of the hallmark features of Emacs.
 It is a rich document editor, project planner, task and time tracker, blogging engine, and literate coding utility all wrapped up in one package.
 ** Better Font Faces
@@ -355,11 +355,6 @@ The =cfg/org-font-setup= function configures various text faces to tweak the siz
 #+begin_src emacs-lisp
 
   (defun cfg/org-font-setup ()
-    ;; Replace list hyphen with dot
-    (font-lock-add-keywords 'org-mode
-                            '(("^ *\\([-]\\) "
-                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
     ;; Set faces for heading levels
     (dolist (face '((org-level-1 . 1.2)
                     (org-level-2 . 1.1)
@@ -380,10 +375,29 @@ The =cfg/org-font-setup= function configures various text faces to tweak the siz
     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
     (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
+  ;; (add-hook 'org-mode-hook (lambda ()
+  ;;                            "Beautify Org Checkbox Symbol"
+  ;;                            (push '("[ ]" .  "☐") prettify-symbols-alist)
+  ;;                            (push '("[X]" . "☑" ) prettify-symbols-alist)
+  ;;                            (push '("[-]" . "❍" ) prettify-symbols-alist)
+  ;;                            (prettify-symbols-mode)))
+
+  ;; (defface org-checkbox-done-text
+  ;;   '((t (:foreground "#71696A" :strike-through t)))
+  ;;   "Face for the text part of a checked org-mode checkbox.")
+
+  ;; (font-lock-add-keywords
+  ;;  'org-mode
+  ;;  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+  ;;     1 'org-checkbox-done-text prepend))
+  ;;  'append)
+  ;; Replace list hyphen with dot
+  ;; (font-lock-add-keywords 'org-mode
+  ;;                         '(("^ *\\([-]\\) "
+  ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 #+end_src
 
-** Basic Config
-
+** REVIEW Basic Config
 This section contains the basic configuration for =org-mode= plus the configuration for Org agendas and capture templates.  There's a lot to unpack in here so I'd recommend watching the videos for [[https://youtu.be/VcgjTEa0kU4][Part 5]] and [[https://youtu.be/PNE-mgkZ6HM][Part 6]] for a full explanation.
 
 #+begin_src emacs-lisp
@@ -556,7 +570,6 @@ We use [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]
   (setq org-export-with-sub-superscripts nil)
   (setq org-export-backends '(ascii html md odt))
 #+end_src
-
 ** Configure Babel Languages
 
 To execute or export code in =org-mode= code blocks, you'll need to set up =org-babel-load-languages= for each language you'd like to use.  [[https://orgmode.org/worg/org-contrib/babel/languages/index.html][This page]] documents all of the languages that you can use with =org-babel=.
