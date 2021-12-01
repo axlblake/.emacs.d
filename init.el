@@ -38,6 +38,20 @@
         auto-package-update-interval 30)
   (auto-package-update-maybe))
 
+(when (equal system-type 'darwin)
+  (use-package exec-path-from-shell
+    :ensure t
+    :if (memq window-system '(mac ns))
+    :config
+    (setq exec-path-from-shell-arguments '("-l"))
+    (exec-path-from-shell-initialize))
+
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'control)
+
+  (setq insert-directory-program "/opt/homebrew/bin/gls")
+  )
+
 (use-package page-break-lines)
 (use-package all-the-icons)
 

@@ -51,6 +51,22 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
           auto-package-update-interval 30)
     (auto-package-update-maybe))
 #+end_src
+* MacOS specific configurations
+#+begin_src emacs-lisp
+  (when (equal system-type 'darwin)
+    (use-package exec-path-from-shell
+      :ensure t
+      :if (memq window-system '(mac ns))
+      :config
+      (setq exec-path-from-shell-arguments '("-l"))
+      (exec-path-from-shell-initialize))
+
+    (setq mac-command-modifier 'meta)
+    (setq mac-option-modifier 'control)
+
+    (setq insert-directory-program "/opt/homebrew/bin/gls")
+    )
+#+end_src
 * Dashboard
 Startup dashboard
 #+begin_src emacs-lisp
