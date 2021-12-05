@@ -453,6 +453,9 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (setq org-export-with-sub-superscripts nil)
 (setq org-export-backends '(ascii html md odt))
 
+(use-package restclient)
+(use-package ob-restclient)
+
 (org-babel-do-load-languages
   'org-babel-load-languages
   '((emacs-lisp . t)
@@ -460,7 +463,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
     (sql . t)
     (js . t)
     (plantuml . t)
-    (python . t)))
+    (python . t)
+    (restclient . t)))
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
 (push '("plantuml" . plantuml) org-src-lang-modes)
@@ -477,6 +481,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (add-to-list 'org-structure-template-alist '("sql" . "src sql"))
 (add-to-list 'org-structure-template-alist '("json" . "src json"))
 (add-to-list 'org-structure-template-alist '("plant" . "src plantuml"))
+(add-to-list 'org-structure-template-alist '("rest" . "src restclient"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun cfg/org-babel-tangle-config ()

@@ -587,24 +587,30 @@ We use [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]
   (setq org-export-with-sub-superscripts nil)
   (setq org-export-backends '(ascii html md odt))
 #+end_src
+** Restclient with babel using ob-resticlient
+#+begin_src emacs-lisp
+  (use-package restclient)
+  (use-package ob-restclient)
+#+end_src
 ** Configure Babel Languages
 
 To execute or export code in =org-mode= code blocks, you'll need to set up =org-babel-load-languages= for each language you'd like to use.  [[https://orgmode.org/worg/org-contrib/babel/languages/index.html][This page]] documents all of the languages that you can use with =org-babel=.
 
 #+begin_src emacs-lisp
 
-    (org-babel-do-load-languages
-      'org-babel-load-languages
-      '((emacs-lisp . t)
-        (shell . t)
-        (sql . t)
-        (js . t)
-        (plantuml . t)
-        (python . t)))
+      (org-babel-do-load-languages
+        'org-babel-load-languages
+        '((emacs-lisp . t)
+          (shell . t)
+          (sql . t)
+          (js . t)
+          (plantuml . t)
+          (python . t)
+          (restclient . t)))
 
-    (push '("conf-unix" . conf-unix) org-src-lang-modes)
-    (push '("plantuml" . plantuml) org-src-lang-modes)
-    (setq org-confirm-babel-evaluate nil)
+      (push '("conf-unix" . conf-unix) org-src-lang-modes)
+      (push '("plantuml" . plantuml) org-src-lang-modes)
+      (setq org-confirm-babel-evaluate nil)
 
 #+end_src
 
@@ -626,6 +632,7 @@ You can add more =src= block templates below by copying one of the lines and cha
   (add-to-list 'org-structure-template-alist '("sql" . "src sql"))
   (add-to-list 'org-structure-template-alist '("json" . "src json"))
   (add-to-list 'org-structure-template-alist '("plant" . "src plantuml"))
+  (add-to-list 'org-structure-template-alist '("rest" . "src restclient"))
 
 #+end_src
 
@@ -1277,7 +1284,6 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
 #+end_src
 * Terminals
 ** vterm
-
 [[https://github.com/akermu/emacs-libvterm/][vterm]] is an improved terminal emulator package which uses a compiled native module to interact with the underlying terminal applications.  This enables it to be much faster than =term-mode= and to also provide a more complete terminal emulation experience.
 
 Make sure that you have the [[https://github.com/akermu/emacs-libvterm/#requirements][necessary dependencies]] installed before trying to use =vterm= because there is a module that will need to be compiled before you can use it successfully.
@@ -1296,7 +1302,6 @@ Make sure that you have the [[https://github.com/akermu/emacs-libvterm/#requirem
 #+end_src
 
 ** shell-mode
-
 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Interactive-Shell.html#Interactive-Shell][shell-mode]] is a middle ground between =term-mode= and Eshell.  It is *not* a terminal emulator so more complex terminal programs will not run inside of it.  It does have much better integration with Emacs because all command input in this mode is handled by Emacs and then sent to the underlying shell once you press Enter.  This means that you can use =evil-mode='s editing motions on the command line, unlike in the terminal emulator modes above.
 
 *Useful key bindings:*
@@ -1344,7 +1349,6 @@ If popup is focused, delete it."
 (global-set-key (kbd "C-c t") 'shell-toggle)
 
 #+end_src
-
 * File Management
 ** Dired
 Dired is a built-in file manager for Emacs that does some pretty amazing things!  Here are some key bindings you should try out:
