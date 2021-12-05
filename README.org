@@ -708,6 +708,8 @@ We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enab
     (lsp-enable-which-key-integration t)
     (setq lsp-headerline-breadcrumb-enable nil)
     (setq lsp-signature-auto-activate nil)
+    (setq lsp-pylsp-plugins-mccabe-enabled nil)
+    (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
     )
 #+end_src
 
@@ -816,10 +818,10 @@ Make sure you have the =pyls= language server installed before trying =lsp-mode=
 
 #+begin_src sh :tangle no
 
-  pip install --user "python-lsp-server[all]"
-  pip install --user "black"
-  pip install --user "isort"
-  pip install --user "debugpy"
+  pip install "python-lsp-server[all]"
+  pip install "black"
+  pip install "isort"
+  pip install "debugpy"
 
 #+end_src
 
@@ -836,13 +838,13 @@ There are a number of other language servers for Python so if you find that =pyl
     (dap-python-debugger 'debugpy)
     )
 
-  (use-package lsp-python-ms
-    :ensure t
-    :init (setq lsp-python-ms-auto-install-server t)
-    :hook
-    (python-mode . (lambda ()
-                   (require 'lsp-python-ms)
-                   (lsp))))
+  ;; (use-package lsp-python-ms
+  ;;   :ensure t
+  ;;   :init (setq lsp-python-ms-auto-install-server t)
+  ;;   :hook
+  ;;   (python-mode . (lambda ()
+  ;;                  (require 'lsp-python-ms)
+  ;;                  (lsp))))
 
   ;; (use-package lsp-pyright
   ;;   :ensure t

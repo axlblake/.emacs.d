@@ -533,6 +533,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (lsp-enable-which-key-integration t)
   (setq lsp-headerline-breadcrumb-enable nil)
   (setq lsp-signature-auto-activate nil)
+  (setq lsp-pylsp-plugins-mccabe-enabled nil)
+  (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
   )
 
 (use-package lsp-ui
@@ -591,13 +593,13 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (dap-python-debugger 'debugpy)
   )
 
-(use-package lsp-python-ms
-  :ensure t
-  :init (setq lsp-python-ms-auto-install-server t)
-  :hook
-  (python-mode . (lambda ()
-                 (require 'lsp-python-ms)
-                 (lsp))))
+;; (use-package lsp-python-ms
+;;   :ensure t
+;;   :init (setq lsp-python-ms-auto-install-server t)
+;;   :hook
+;;   (python-mode . (lambda ()
+;;                  (require 'lsp-python-ms)
+;;                  (lsp))))
 
 ;; (use-package lsp-pyright
 ;;   :ensure t
