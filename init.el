@@ -782,8 +782,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (setq projectile-indexing-method 'alien) ;; native hybrid alien
 (setq projectile-sort-order 'recentf)
 
-(global-set-key (kbd "C-x <left>") 'projectile-previous-project-buffer)
-(global-set-key (kbd "C-x <right>") 'projectile-next-project-buffer)
+;; (global-set-key (kbd "C-x <left>") 'projectile-previous-project-buffer)
+;; (global-set-key (kbd "C-x <right>") 'projectile-next-project-buffer)
 
 (use-package magit
   :ensure t

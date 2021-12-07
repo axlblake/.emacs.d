@@ -1073,8 +1073,8 @@ Flymake alternative
   (setq projectile-indexing-method 'alien) ;; native hybrid alien
   (setq projectile-sort-order 'recentf)
 
-  (global-set-key (kbd "C-x <left>") 'projectile-previous-project-buffer)
-  (global-set-key (kbd "C-x <right>") 'projectile-next-project-buffer)
+  ;; (global-set-key (kbd "C-x <left>") 'projectile-previous-project-buffer)
+  ;; (global-set-key (kbd "C-x <right>") 'projectile-next-project-buffer)
 
 #+end_src
 
