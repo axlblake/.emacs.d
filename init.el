@@ -520,6 +520,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   :config
   (org-roam-setup))
 
+(use-package ob-aync)
+
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c c")
@@ -780,6 +782,9 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (setq projectile-indexing-method 'alien) ;; native hybrid alien
 (setq projectile-sort-order 'recentf)
 
+(global-set-key (kbd "C-x <left>") 'projectile-previous-project-buffer)
+(global-set-key (kbd "C-x <right>") 'projectile-next-project-buffer)
+
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status))
@@ -791,16 +796,19 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
  ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
  ;;(use-package forge)
 
+(use-package forge
+  :after magit)
+
 (use-package git-timemachine
    :ensure t
    :bind (("C-c g" . git-timemachine)))
 
 (use-package diff-hl
-:hook (magit-pre-refresh . diff-hl-magit-pre-refresh)
-:hook (magit-post-refresh . diff-hl-magit-post-refresh)
-:config
-;; use margin instead of fringe
-(diff-hl-margin-mode))
+  :hook (magit-pre-refresh . diff-hl-magit-pre-refresh)
+  :hook (magit-post-refresh . diff-hl-magit-post-refresh)
+  :config
+  ;; use margin instead of fringe
+  (diff-hl-margin-mode))
 (global-diff-hl-mode)
 
 (use-package evil-nerd-commenter

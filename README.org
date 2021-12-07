@@ -689,6 +689,10 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
     :config
     (org-roam-setup))
 #+end_src
+** Babel async support
+#+begin_src emacs-lisp
+(use-package ob-aync)
+#+end_src
 * Development
 ** Languages
 *** IDE Features with lsp-mode
@@ -1068,10 +1072,13 @@ Flymake alternative
 
   (setq projectile-indexing-method 'alien) ;; native hybrid alien
   (setq projectile-sort-order 'recentf)
+
+  (global-set-key (kbd "C-x <left>") 'projectile-previous-project-buffer)
+  (global-set-key (kbd "C-x <right>") 'projectile-next-project-buffer)
+
 #+end_src
 
 ** Magit
-
 [[https://magit.vc/][Magit]] is the best Git interface I've ever used.  Common Git operations are easy to execute quickly using Magit's command panel system.
 
 #+begin_src emacs-lisp
@@ -1085,20 +1092,28 @@ Flymake alternative
    ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
    ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
    ;;(use-package forge)
-
-  (use-package git-timemachine
-     :ensure t
-     :bind (("C-c g" . git-timemachine)))
 #+end_src
 
-Diff hl shows changes in buffer within magit diff
+*** Magit Forge for pulls requests management
+#+begin_src emacs-lisp
+  (use-package forge
+    :after magit)
+#+end_src
+*** Git timemachine to observe by git log
+#+begin_src emacs-lisp
+    (use-package git-timemachine
+       :ensure t
+       :bind (("C-c g" . git-timemachine)))
+#+end_src
+
+*** Diff hl shows changes in buffer within magit diff
 #+begin_src emacs-lisp
   (use-package diff-hl
-  :hook (magit-pre-refresh . diff-hl-magit-pre-refresh)
-  :hook (magit-post-refresh . diff-hl-magit-post-refresh)
-  :config
-  ;; use margin instead of fringe
-  (diff-hl-margin-mode))
+    :hook (magit-pre-refresh . diff-hl-magit-pre-refresh)
+    :hook (magit-post-refresh . diff-hl-magit-post-refresh)
+    :config
+    ;; use margin instead of fringe
+    (diff-hl-margin-mode))
   (global-diff-hl-mode)
 #+end_src
 
