@@ -520,7 +520,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   :config
   (org-roam-setup))
 
-(use-package ob-aync)
+(use-package ob-async)
 
 (use-package lsp-mode
   :init
@@ -627,6 +627,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (local-set-key (kbd "C-c c = r") 'python-black-region))
 
 (add-hook 'python-mode-hook 'py-local-keys)
+(add-hook 'python-mode-hook 'yas-minor-mode-on)
 
 ;; (use-package pipenv
   ;;     :hook (python-mode . pipenv-mode)
@@ -886,13 +887,21 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
           (lambda () (yafolding-mode)))
 
 (use-package tramp ;; with use-package
-  :defer t
-  :config
-  (setq-default tramp-default-method "scp")) ;; for performance
+    :defer t
+    :config
+    (setq-default tramp-default-method "scp")) ;; for performance
 
-(use-package vagrant-tramp)
-(use-package counsel-tramp
-  :bind (("C-x t" . counsel-tramp)))
+  (use-package vagrant-tramp)
+  (use-package counsel-tramp
+    :bind (("C-x t" . counsel-tramp)))
+
+(setq remote-file-name-inhibit-cache nil)
+(setq vc-ignore-dir-regexp
+      (format "%s\\|%s"
+              vc-ignore-dir-regexp
+              tramp-file-name-regexp))
+(setq tramp-verbose 1)
+(setq projectile-mode-line "Projectile")
 
 (use-package docker) ;; manage docker containers
 ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd

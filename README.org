@@ -691,7 +691,7 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
 #+end_src
 ** Babel async support
 #+begin_src emacs-lisp
-(use-package ob-aync)
+(use-package ob-async)
 #+end_src
 * Development
 ** Languages
@@ -876,6 +876,8 @@ There are a number of other language servers for Python so if you find that =pyl
     (local-set-key (kbd "C-c c = r") 'python-black-region))
 
   (add-hook 'python-mode-hook 'py-local-keys)
+  (add-hook 'python-mode-hook 'yas-minor-mode-on)
+
 
 #+end_src
 
@@ -1239,13 +1241,21 @@ local and the remote host, whereas Tramp uses a combination of `rsh'
 and `rcp' or other work-alike programs, such as `ssh'/`scp'.
 #+begin_src emacs-lisp
   (use-package tramp ;; with use-package
-    :defer t
-    :config
-    (setq-default tramp-default-method "scp")) ;; for performance
+      :defer t
+      :config
+      (setq-default tramp-default-method "scp")) ;; for performance
 
-  (use-package vagrant-tramp)
-  (use-package counsel-tramp
-    :bind (("C-x t" . counsel-tramp)))
+    (use-package vagrant-tramp)
+    (use-package counsel-tramp
+      :bind (("C-x t" . counsel-tramp)))
+
+  (setq remote-file-name-inhibit-cache nil)
+  (setq vc-ignore-dir-regexp
+        (format "%s\\|%s"
+                vc-ignore-dir-regexp
+                tramp-file-name-regexp))
+  (setq tramp-verbose 1)
+  (setq projectile-mode-line "Projectile")
 #+end_src
 
 ** Docker
