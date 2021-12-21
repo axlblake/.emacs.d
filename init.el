@@ -537,11 +537,16 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
          (rust-mode . lsp)
          (js-mode . lsp))
   :config
-  (lsp-enable-which-key-integration t)
+  (setq lsp-enable-which-key-integration t)
   (setq lsp-headerline-breadcrumb-enable nil)
   (setq lsp-signature-auto-activate nil)
+  (setq lsp-pylsp-configuration-sources ["flake8"])
+  (setq lsp-pylsp-plugins-flake8-enabled nil)
   (setq lsp-pylsp-plugins-mccabe-enabled nil)
   (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
+  (setq lsp-pylsp-plugins-pyflakes-enabled nil)
+  (setq lsp-pylsp-plugins-pylint-enabled nil)
+  (setq lsp-pylsp-plugins-autopep8-enabled t)
   )
 
 (use-package lsp-ui
