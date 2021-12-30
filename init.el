@@ -525,6 +525,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c c")
+  (setq-default lsp-modeline-diagnostics-enable nil)
   :custom
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   ;; (lsp-eldoc-render-all t)
@@ -605,31 +606,12 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (dap-python-debugger 'debugpy)
   )
 
-;; (use-package lsp-python-ms
-;;   :ensure t
-;;   :init (setq lsp-python-ms-auto-install-server t)
-;;   :hook
-;;   (python-mode . (lambda ()
-;;                  (require 'lsp-python-ms)
-;;                  (lsp))))
-
-;; (use-package lsp-pyright
-;;   :ensure t
-;;   :hook (python-mode . (lambda ()
-;;                          (require 'lsp-pyright)
-;;                          (lsp))))  ; or lsp-deferred
-
-
-(use-package python-black
-  :demand t
-  :after python)
-
 (use-package py-isort)
 
 (defun py-local-keys()
   (local-set-key (kbd "C-c c i") 'py-isort-buffer)
-  (local-set-key (kbd "C-c c = =") 'python-black-buffer)
-  (local-set-key (kbd "C-c c = r") 'python-black-region))
+  (local-set-key (kbd "C-c c e") 'flycheck-list-errors)
+  (local-set-key (kbd "<C-backspace>") 'my-backward-delete-word))
 
 (add-hook 'python-mode-hook 'py-local-keys)
 (add-hook 'python-mode-hook 'yas-minor-mode-on)
@@ -1027,7 +1009,9 @@ If popup is focused, delete it."
 ;;                    (flyspell-mode 1))) )
 (global-set-key (kbd "C-c s") 'ispell)
 
-;; Duplicate row
+;; Other window alternative
+ (global-set-key (kbd "M-o") #'mode-line-other-buffer)
+ ;; Duplicate row
  (defun my-duplicate-line()
    (interactive)
    (move-beginning-of-line 1)
