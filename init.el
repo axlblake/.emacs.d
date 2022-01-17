@@ -119,8 +119,6 @@
 (use-package doom-themes
   :init (load-theme 'doom-one t))
 
-(use-package all-the-icons)
-
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
@@ -822,14 +820,14 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (with-eval-after-load 'ibuffer
   ;; Display buffer icons on GUI
-  (define-ibuffer-column icon (:name "  ")
-    (let ((icon (if (and (buffer-file-name)
-                         (all-the-icons-auto-mode-match?))
-                    (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
-                  (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
-      (if (symbolp icon)
-          (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
-        icon)))
+  ;; (define-ibuffer-column icon (:name "  ")
+  ;;   (let ((icon (if (and (buffer-file-name)
+  ;;                        (all-the-icons-auto-mode-match?))
+  ;;                   (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
+  ;;                 (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
+  ;;     (if (symbolp icon)
+  ;;         (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
+  ;;       icon)))
 
   ;; Redefine size column to display human readable size
   (define-ibuffer-column size
@@ -878,7 +876,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
     :config
     (setq-default tramp-default-method "scp")) ;; for performance
 
-  (use-package vagrant-tramp)
+  ;; (use-package vagrant-tramp)
   (use-package counsel-tramp
     :bind (("C-x t" . counsel-tramp)))
 
@@ -973,11 +971,6 @@ If popup is focused, delete it."
   :custom ((dired-listing-switches "-laGh1v --group-directories-first"))
 )
 
-(use-package dired-single)
-
-(use-package all-the-icons-dired
-  :hook (dired-mode . all-the-icons-dired-mode))
-
 (use-package dired-open
   :config
   ;; Doesn't work as expected!
@@ -991,6 +984,11 @@ If popup is focused, delete it."
          ("," . dired-clean-directory)
          ("." . dired-hide-dotfiles-mode))
 )
+
+;; Make dired open in the same window when using RET or ^
+(put 'dired-find-alternate-file 'disabled nil) ; disables warning
+(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file) ; was dired-advertised-find-file
+(define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file "..")))  ; was dired-up-directory
 
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
@@ -1088,6 +1086,10 @@ If popup is focused, delete it."
 
 (advice-add 'start-file-process-shell-command :around #'start-file-process-shell-command@around)
 (setq org-babel-python-command "python3")
+
+(defadvice projectile-project-root (around ignore-remote first activate)
+  (unless (file-remote-p default-directory) ad-do-it))
+(setq projectile-mode-line "Projectile")
 
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
