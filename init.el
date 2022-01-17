@@ -47,8 +47,6 @@
     (exec-path-from-shell-initialize))
 
   (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier 'control)
-
   (setq insert-directory-program "/opt/homebrew/bin/gls")
   )
 
