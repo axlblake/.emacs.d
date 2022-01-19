@@ -315,9 +315,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
 
-  (setq org-agenda-files
-        '("~/Dropbox/org_files/tasks.org"))
-
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
   (setq org-habit-graph-column 60)

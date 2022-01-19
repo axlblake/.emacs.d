@@ -429,9 +429,6 @@ This section contains the basic configuration for =org-mode= plus the configurat
     (setq org-log-done 'time)
     (setq org-log-into-drawer t)
 
-    (setq org-agenda-files
-          '("~/Dropbox/org_files/tasks.org"))
-
     (require 'org-habit)
     (add-to-list 'org-modules 'org-habit)
     (setq org-habit-graph-column 60)
@@ -1237,6 +1234,13 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
   (setq tramp-verbose 1)
   (setq projectile-mode-line "Projectile")
 #+end_src
+
+
+#+begin_comment
+Add without = to bash.rc (bash.bashrc for root) at the top of it to make tramp much faster and avoid fancy coloring data from remote shell
+
+=[[ $TERM == "dumb" ]]= && PS1='$ ' && return  
+#+end_comment
 
 ** Docker
 #+begin_src emacs-lisp
