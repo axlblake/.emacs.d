@@ -527,6 +527,56 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package ob-async)
 
+(use-package org-trello)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
+ '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org") nil (org-trello))
+ '(package-selected-packages
+   '(org-trello yasnippet-snippets yafolding which-key web-mode vue-mode vterm vlf visual-fill-column use-package undo-tree typescript-mode solidity-flycheck smex rust-mode reverse-im rainbow-delimiters pyvenv python-mode py-isort prettier pomidor plantuml-mode page-break-lines org-roam org-bullets ob-restclient ob-async multiple-cursors move-text lsp-ui lsp-java lsp-ivy ivy-rich imenu-list ibuffer-vc ibuffer-projectile highlight-indent-guides helpful git-timemachine forge eyebrowse exec-path-from-shell evil-nerd-commenter elisp-format doom-themes doom-modeline dockerfile-mode docker-compose-mode docker dired-open dired-hide-dotfiles dired-du diff-hl devdocs dashboard counsel-tramp counsel-projectile company-solidity company-org-block company-box auto-package-update))
+ '(safe-local-variable-values
+   '((org-todo-keyword-faces
+      ("Backlog" . "#838f9b")
+      ("Todo" . "#8fce00")
+      ("In-progress" . "#94c2e5")
+      ("Testing" . "#ce7e00")
+      ("Done" . "#4c4c4c"))
+     (org-todo-keyword-faces
+      ("Backlog" . "#838f9b")
+      ("Todo" . "#8fce00")
+      ("In-progress" . "#94c2e5")
+      ("Testing" . "#94c2e5")
+      ("Done" . "#4c4c4c"))
+     (org-todo-keyword-faces
+      ("Backlog" . "#838f9b")
+      ("Todo" . "#8fce00")
+      ("In-progress" . "#94c2e5")
+      ("Testing" . "#94c2e5")
+      ("Done" . "#94c2e5"))
+     (org-todo-keyword-faces
+      ("Backlog" . "#838f9b")
+      ("Todo" . "#8fce00")
+      ("In-progress" . "#94c2e5"))
+     (org-todo-keyword-faces
+      ("Backlog" . "#838f9b")
+      ("Todo" . "#8fce00")
+      ("In-progress" . "#539ed6"))
+     (org-todo-keyword-faces
+      ("Backlog" . "#838f9b")
+      ("Todo" . "#8fce00")
+      ("In-progress" . "#2986cc"))
+     (org-todo-keyword-faces
+      ("Backlog" . "#314559")
+      ("Todo" . "green")
+      ("In-progress" . "blue"))
+     (org-todo-keyword-faces
+      ("Backlog" . "gray")
+      ("Todo" . "green")
+      ("In-progress" . "blue")))))
+
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c c")
@@ -1113,3 +1163,9 @@ If popup is focused, delete it."
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

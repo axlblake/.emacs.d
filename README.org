@@ -699,6 +699,12 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
 #+begin_src emacs-lisp
 (use-package ob-async)
 #+end_src
+** Trello support
+#+begin_src emacs-lisp
+  (use-package org-trello)
+  (custom-set-variables '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org")))
+
+#+end_src
 * Development
 ** Languages
 *** IDE Features with lsp-mode
