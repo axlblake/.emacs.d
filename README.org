@@ -63,6 +63,7 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
 
     (setq mac-command-modifier 'meta)
     (setq insert-directory-program "/opt/homebrew/bin/gls")
+    (setq epa-pinentry-mode 'loopback)
     )
 #+end_src
 * Dashboard
@@ -220,37 +221,42 @@ Counsel is a customized set of commands to replace `find-file` with `counsel-fin
 
 #+begin_src emacs-lisp
 
-  (use-package ivy
-    :diminish
-    :bind (("C-S-s" . swiper)
-           :map ivy-minibuffer-map
-           ("TAB" . ivy-alt-done)
-           ("C-l" . ivy-alt-done)
-           ("C-j" . ivy-next-line)
-           ("C-k" . ivy-previous-line)
-           :map ivy-switch-buffer-map
-           ("C-k" . ivy-previous-line)
-           ("C-l" . ivy-done)
-           ("C-d" . ivy-switch-buffer-kill)
-           :map ivy-reverse-i-search-map
-           ("C-k" . ivy-previous-line)
-           ("C-d" . ivy-reverse-i-search-kill))
-    :config
-    (ivy-mode 1))
+   (use-package ivy
+     :diminish
+     :bind (("C-S-s" . swiper)
+            :map ivy-minibuffer-map
+            ("TAB" . ivy-alt-done)
+            ("C-l" . ivy-alt-done)
+            ("C-j" . ivy-next-line)
+            ("C-k" . ivy-previous-line)
+            :map ivy-switch-buffer-map
+            ("C-k" . ivy-previous-line)
+            ("C-l" . ivy-done)
+            ("C-d" . ivy-switch-buffer-kill)
+            :map ivy-reverse-i-search-map
+            ("C-k" . ivy-previous-line)
+            ("C-d" . ivy-reverse-i-search-kill))
+     :config
+     (ivy-mode 1))
 
-  (use-package ivy-rich
-    :init
-    (ivy-rich-mode 1))
+   (use-package ivy-rich
+     :ensure t
+     :after (ivy counsel)
+     :config
+     (ivy-rich-parse-remote-buffer nil)
+     (ivy-rich-parse-remote-file-path nil)
+     (ivy-rich-path-style (quote full))
+     (ivy-rich-mode 1))
 
-  (use-package counsel
-    :bind (("C-x b" . 'counsel-switch-buffer))
-    :custom
-    (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
-    :config
-    (counsel-mode 1))
+   (use-package counsel
+     :bind (("C-x b" . 'counsel-switch-buffer))
+     :custom
+     (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+     :config
+     (counsel-mode 1))
 
-  ;; Counsel should remeber last M-x commands (make it smarter)
-  (use-package smex)
+   ;; Counsel should remeber last M-x commands (make it smarter)
+   (use-package smex)
 
 #+end_src
 
@@ -356,6 +362,14 @@ For multi-language support
   (reverse-im-input-methods '("russian-computer"))
   :config
   (reverse-im-mode t))
+#+end_src
+** Avy
+#+begin_src emacs-lisp
+  (use-package avy)
+  (global-set-key (kbd "C-;") 'avy-goto-char)
+  (global-set-key (kbd "C-:") 'avy-goto-word-0)
+  (global-set-key (kbd "C-]") 'avy-goto-line)
+  (global-set-key (kbd "C-}") 'avy-goto-word-0)
 #+end_src
 * Org Mode
 [[https://orgmode.org/][Org Mode]] is one of the hallmark features of Emacs.
@@ -840,6 +854,8 @@ There are a number of other language servers for Python so if you find that =pyl
 
   (use-package python-mode
     :ensure t
+    :config
+    (py-underscore-word-syntax-p-off)
     :custom
     ;; NOTE: Set these if Python 3 is called "python3" on your system!
     (python-shell-interpreter "python3")
@@ -1233,6 +1249,15 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
                 tramp-file-name-regexp))
   (setq tramp-verbose 1)
   (setq projectile-mode-line "Projectile")
+  (setq tramp-ssh-controlmaster-options "")
+  ;; disable completion in shell mode
+  (defun my-shell-mode-setup-function () 
+    (when (and (fboundp 'company-mode)
+               (file-remote-p default-directory))
+      (company-mode -1)))
+
+  (add-hook 'shell-mode-hook 'my-shell-mode-setup-function)
+
 #+end_src
 
 
@@ -1442,6 +1467,8 @@ Dired is a built-in file manager for Emacs that does some pretty amazing things!
            ("," . dired-clean-directory)
            ("." . dired-hide-dotfiles-mode))
   )
+
+  (use-package dired-du)
 
   ;; Make dired open in the same window when using RET or ^
   (put 'dired-find-alternate-file 'disabled nil) ; disables warning

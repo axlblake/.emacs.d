@@ -48,6 +48,7 @@
 
   (setq mac-command-modifier 'meta)
   (setq insert-directory-program "/opt/homebrew/bin/gls")
+  (setq epa-pinentry-mode 'loopback)
   )
 
 (use-package page-break-lines)
@@ -172,7 +173,12 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (ivy-mode 1))
 
 (use-package ivy-rich
-  :init
+  :ensure t
+  :after (ivy counsel)
+  :config
+  (ivy-rich-parse-remote-buffer nil)
+  (ivy-rich-parse-remote-file-path nil)
+  (ivy-rich-path-style (quote full))
   (ivy-rich-mode 1))
 
 (use-package counsel
@@ -257,6 +263,12 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (reverse-im-input-methods '("russian-computer"))
   :config
   (reverse-im-mode t))
+
+(use-package avy)
+(global-set-key (kbd "C-;") 'avy-goto-char)
+(global-set-key (kbd "C-:") 'avy-goto-word-0)
+(global-set-key (kbd "C-]") 'avy-goto-line)
+(global-set-key (kbd "C-}") 'avy-goto-word-0)
 
 (defun cfg/org-font-setup ()
   ;; Set faces for heading levels
@@ -592,6 +604,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package python-mode
   :ensure t
+  :config
+  (py-underscore-word-syntax-p-off)
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
   (python-shell-interpreter "python3")
@@ -882,6 +896,14 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
               tramp-file-name-regexp))
 (setq tramp-verbose 1)
 (setq projectile-mode-line "Projectile")
+(setq tramp-ssh-controlmaster-options "")
+;; disable completion in shell mode
+(defun my-shell-mode-setup-function () 
+  (when (and (fboundp 'company-mode)
+             (file-remote-p default-directory))
+    (company-mode -1)))
+
+(add-hook 'shell-mode-hook 'my-shell-mode-setup-function)
 
 (use-package docker) ;; manage docker containers
 ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
@@ -979,6 +1001,8 @@ If popup is focused, delete it."
          ("," . dired-clean-directory)
          ("." . dired-hide-dotfiles-mode))
 )
+
+(use-package dired-du)
 
 ;; Make dired open in the same window when using RET or ^
 (put 'dired-find-alternate-file 'disabled nil) ; disables warning
