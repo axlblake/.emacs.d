@@ -176,7 +176,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   :ensure t
   :after (ivy counsel)
   :config
-  (ivy-rich-parse-remote-buffer nil)
   (ivy-rich-parse-remote-file-path nil)
   (ivy-rich-path-style (quote full))
   (ivy-rich-mode 1))
@@ -260,7 +259,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package reverse-im
   :ensure t
   :custom
-  (reverse-im-input-methods '("russian-computer"))
+  (reverse-im-input-methods '("ukrainian-computer"))
   :config
   (reverse-im-mode t))
 
@@ -528,54 +527,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package ob-async)
 
 (use-package org-trello)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
- '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org") nil (org-trello))
- '(package-selected-packages
-   '(org-trello yasnippet-snippets yafolding which-key web-mode vue-mode vterm vlf visual-fill-column use-package undo-tree typescript-mode solidity-flycheck smex rust-mode reverse-im rainbow-delimiters pyvenv python-mode py-isort prettier pomidor plantuml-mode page-break-lines org-roam org-bullets ob-restclient ob-async multiple-cursors move-text lsp-ui lsp-java lsp-ivy ivy-rich imenu-list ibuffer-vc ibuffer-projectile highlight-indent-guides helpful git-timemachine forge eyebrowse exec-path-from-shell evil-nerd-commenter elisp-format doom-themes doom-modeline dockerfile-mode docker-compose-mode docker dired-open dired-hide-dotfiles dired-du diff-hl devdocs dashboard counsel-tramp counsel-projectile company-solidity company-org-block company-box auto-package-update))
- '(safe-local-variable-values
-   '((org-todo-keyword-faces
-      ("Backlog" . "#838f9b")
-      ("Todo" . "#8fce00")
-      ("In-progress" . "#94c2e5")
-      ("Testing" . "#ce7e00")
-      ("Done" . "#4c4c4c"))
-     (org-todo-keyword-faces
-      ("Backlog" . "#838f9b")
-      ("Todo" . "#8fce00")
-      ("In-progress" . "#94c2e5")
-      ("Testing" . "#94c2e5")
-      ("Done" . "#4c4c4c"))
-     (org-todo-keyword-faces
-      ("Backlog" . "#838f9b")
-      ("Todo" . "#8fce00")
-      ("In-progress" . "#94c2e5")
-      ("Testing" . "#94c2e5")
-      ("Done" . "#94c2e5"))
-     (org-todo-keyword-faces
-      ("Backlog" . "#838f9b")
-      ("Todo" . "#8fce00")
-      ("In-progress" . "#94c2e5"))
-     (org-todo-keyword-faces
-      ("Backlog" . "#838f9b")
-      ("Todo" . "#8fce00")
-      ("In-progress" . "#539ed6"))
-     (org-todo-keyword-faces
-      ("Backlog" . "#838f9b")
-      ("Todo" . "#8fce00")
-      ("In-progress" . "#2986cc"))
-     (org-todo-keyword-faces
-      ("Backlog" . "#314559")
-      ("Todo" . "green")
-      ("In-progress" . "blue"))
-     (org-todo-keyword-faces
-      ("Backlog" . "gray")
-      ("Todo" . "green")
-      ("In-progress" . "blue")))))
+(custom-set-variables '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org")))
 
 (use-package lsp-mode
   :init
@@ -603,6 +555,11 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (setq lsp-pylsp-plugins-pyflakes-enabled nil)
   (setq lsp-pylsp-plugins-pylint-enabled nil)
   (setq lsp-pylsp-plugins-autopep8-enabled t)
+  (lsp-register-client
+    (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
+                     :major-modes '(python-mode)
+                     :remote? t
+                     :server-id 'pyls-remote))
   )
 
 (use-package lsp-ui
@@ -836,11 +793,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
- ;; NOTE: Make sure to configure a GitHub token before using this package!
- ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
- ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
- ;;(use-package forge)
-
 (use-package forge
   :after magit)
 
@@ -931,29 +883,40 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
           (lambda () (yafolding-mode)))
 
 (use-package tramp ;; with use-package
-    :defer t
-    :config
-    (setq-default tramp-default-method "scp")) ;; for performance
+   :defer t
+   :config
+   (setq-default tramp-default-method "scp")) ;; for performance
 
-  ;; (use-package vagrant-tramp)
-  (use-package counsel-tramp
-    :bind (("C-x t" . counsel-tramp)))
+ ;; (use-package vagrant-tramp)
 
-(setq remote-file-name-inhibit-cache nil)
+ (use-package tramp-term)
+ (use-package counsel-tramp
+   :bind (("C-x t" . counsel-tramp)))
+
 (setq vc-ignore-dir-regexp
-      (format "%s\\|%s"
-              vc-ignore-dir-regexp
-              tramp-file-name-regexp))
-(setq tramp-verbose 1)
-(setq projectile-mode-line "Projectile")
-(setq tramp-ssh-controlmaster-options "")
-;; disable completion in shell mode
-(defun my-shell-mode-setup-function () 
-  (when (and (fboundp 'company-mode)
-             (file-remote-p default-directory))
-    (company-mode -1)))
+    (format "\\(%s\\)\\|\\(%s\\)"
+            vc-ignore-dir-regexp
+            tramp-file-name-regexp))
+ ;; or
+ ;; (setq vc-handled-backends '(Git))
+ (customize-set-variable 'tramp-use-ssh-controlmaster-options nil)
 
-(add-hook 'shell-mode-hook 'my-shell-mode-setup-function)
+ ;; (setq remote-file-name-inhibit-cache nil)
+ ;; (setq shell-prompt-pattern '"^[^#$%>\n]*~?[#$%>] *")
+
+ ;; ;; disable completion in shell mode
+ ;; (defun my-shell-mode-setup-function () 
+ ;;   (when (and (fboundp 'company-mode)
+ ;;              (file-remote-p default-directory))
+ ;;     (company-mode -1)))
+
+ ;; (add-hook 'shell-mode-hook 'my-shell-mode-setup-function)
+ ;; (add-hook
+ ;;  'dired-before-readin-hook
+ ;;  (lambda ()
+ ;;    (when (file-remote-p default-directory)
+ ;;      (setq dired-actual-switches "-al"))))
+ ;; (customize-set-variable 'ido-enable-tramp-completion nil)
 
 (use-package docker) ;; manage docker containers
 ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
@@ -1076,6 +1039,9 @@ If popup is focused, delete it."
 ;;                    (flyspell-mode 1))) )
 (global-set-key (kbd "C-c s") 'ispell)
 
+(use-package emojify
+  :hook (after-init . global-emojify-mode))
+
 ;; Other window alternative
  (global-set-key (kbd "M-o") #'mode-line-other-buffer)
  ;; Duplicate row
@@ -1163,9 +1129,3 @@ If popup is focused, delete it."
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
