@@ -968,6 +968,13 @@ Java configuration for lsp mode
 
 
 #+end_src
+*** php
+#+begin_src emacs-lisp
+  (use-package php-mode
+    :ensure t
+    )
+
+#+end_src
 *** Web-mode
 #+begin_src emacs-lisp
 (use-package web-mode
@@ -1097,8 +1104,11 @@ Flymake alternative
 
 *** Magit Forge for pulls requests management
 #+begin_src emacs-lisp
-  (use-package forge
-    :after magit)
+    (use-package forge
+      :after magit
+      :custom
+      (add-to-list 'forge-alist '("git.xdev.re" "git.xdev.re/api/v4" "git.xdev.re"  forge-gitlab-repository))
+      (global-set-key (kbd "C->") 'mc/mark-next-like-this))
 #+end_src
 *** Git timemachine to observe by git log
 #+begin_src emacs-lisp
@@ -1571,6 +1581,8 @@ Some additional custom changes
    ;; Bind them to emacs's default shortcut keys:
    (global-set-key (kbd "<C-delete>") 'my-delete-word)
    (global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
+  ;; just one space to prevent global language change hotkey overrid
+   (global-set-key (kbd "C-S-d") 'just-one-space)
 
    ;; Delete highlighted text on input
    (delete-selection-mode 1)

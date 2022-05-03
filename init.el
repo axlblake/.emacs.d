@@ -702,6 +702,10 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (add-hook 'java-mode-hook 'lsp-deferred)
   (add-hook 'java-mode-hook 'yas-minor-mode-on)
 
+(use-package php-mode
+  :ensure t
+  )
+
 (use-package web-mode
 :mode
   (
@@ -794,7 +798,10 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (use-package forge
-  :after magit)
+  :after magit
+  :custom
+  (add-to-list 'forge-alist '("git.xdev.re" "git.xdev.re/api/v4" "git.xdev.re"  forge-gitlab-repository))
+  (global-set-key (kbd "C->") 'mc/mark-next-like-this))
 
 (use-package git-timemachine
    :ensure t
@@ -1089,6 +1096,8 @@ If popup is focused, delete it."
  ;; Bind them to emacs's default shortcut keys:
  (global-set-key (kbd "<C-delete>") 'my-delete-word)
  (global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
+;; just one space to prevent global language change hotkey overrid
+ (global-set-key (kbd "C-S-d") 'just-one-space)
 
  ;; Delete highlighted text on input
  (delete-selection-mode 1)
