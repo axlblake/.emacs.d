@@ -62,6 +62,8 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
       (exec-path-from-shell-initialize))
 
     (setq mac-command-modifier 'meta)
+    (setq mac-option-key-is-meta nil)
+
     (setq insert-directory-program "/opt/homebrew/bin/gls")
     (setq epa-pinentry-mode 'loopback)
     )
@@ -1104,11 +1106,12 @@ Flymake alternative
 
 *** Magit Forge for pulls requests management
 #+begin_src emacs-lisp
-    (use-package forge
-      :after magit
-      :custom
-      (add-to-list 'forge-alist '("git.xdev.re" "git.xdev.re/api/v4" "git.xdev.re"  forge-gitlab-repository))
-      (global-set-key (kbd "C->") 'mc/mark-next-like-this))
+  (use-package forge
+    :after magit
+    :config
+    (add-to-list 'forge-alist '("git.xdev.re" "git.xdev.re/api/v4" "git.xdev.re"  forge-gitlab-repository))
+    :custom
+    (global-set-key (kbd "C->") 'mc/mark-next-like-this))
 #+end_src
 *** Git timemachine to observe by git log
 #+begin_src emacs-lisp
@@ -1530,6 +1533,15 @@ Store all backup and autosave files in the =tmp= dir
 #+begin_src emacs-lisp
 (use-package emojify
   :hook (after-init . global-emojify-mode))
+#+end_src
+* Miscelations
+** Elfeed
+#+begin_src emacs-lisp
+  (use-package elfeed)
+  (use-package elfeed-goodies)
+  (elfeed-goodies/setup)
+  (setq elfeed-goodies/entry-pane-size 0.5)
+  (global-set-key (kbd "C-c i") 'elfeed)
 #+end_src
 * Custom
 Some additional custom changes

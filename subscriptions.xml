@@ -1,0 +1,22 @@
+<opml version="2.0">
+	<body>
+		<outline text="Subscriptions" title="Subscriptions">
+			<outline xmlUrl='http://www.theverge.com/rss/index.xml' />
+<outline xmlUrl='https://techcrunch.com/feed/' />
+<outline xmlUrl='http://feeds.mashable.com/Mashable' />
+<outline xmlUrl='http://www.engadget.com/rss.xml' />
+<outline xmlUrl='https://www.wired.com/feed/rss' />
+<outline xmlUrl='https://www.technologyreview.com/topnews.rss' />
+<outline xmlUrl='https://www.cnet.com/rss/news/' />
+<outline xmlUrl='http://feeds.feedburner.com/venturebeat/SZYF' />
+<outline xmlUrl='https://www.techmeme.com/feed.xml?x=1' />
+<outline xmlUrl='http://feeds.feedburner.com/IeeeSpectrumFullText' />
+<outline xmlUrl='http://feeds.bbci.co.uk/news/rss.xml' />
+<outline xmlUrl='http://rss.nytimes.com/services/xml/rss/nyt/World.xml' />
+<outline xmlUrl='http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml' />
+<outline xmlUrl='http://feeds.howtogeek.com/HowToGeek' />
+<outline xmlUrl='https://thestartupmag.com/feed/' />
+	
+		</outline>
+	</body>
+</opml>

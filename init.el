@@ -47,6 +47,8 @@
     (exec-path-from-shell-initialize))
 
   (setq mac-command-modifier 'meta)
+  (setq mac-option-key-is-meta nil)
+
   (setq insert-directory-program "/opt/homebrew/bin/gls")
   (setq epa-pinentry-mode 'loopback)
   )
@@ -527,7 +529,22 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package ob-async)
 
 (use-package org-trello)
-(custom-set-variables '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org")))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
+ '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org") nil (org-trello))
+ '(safe-local-variable-values
+   '((eval pyvenv-workon "python3.7-altcoin")
+     (eval dap-register-debug-template "CB Altcoin Run Tests"
+           (list :type "python" :args "-i" :cwd nil :env
+                 '(("DEBUG" . "1"))
+                 :target-module
+                 (expand-file-name "~/Documents/code/cb-altcoin/tests_run.py")
+                 :request "launch" :name "CB Altcoin Run Tests"))
+     (eval setq dap-python-executable "/Users/axl/.virtualenvs/python3.7-altcoin/bin/python"))))
 
 (use-package lsp-mode
   :init
@@ -799,8 +816,9 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package forge
   :after magit
-  :custom
+  :config
   (add-to-list 'forge-alist '("git.xdev.re" "git.xdev.re/api/v4" "git.xdev.re"  forge-gitlab-repository))
+  :custom
   (global-set-key (kbd "C->") 'mc/mark-next-like-this))
 
 (use-package git-timemachine
@@ -1049,6 +1067,12 @@ If popup is focused, delete it."
 (use-package emojify
   :hook (after-init . global-emojify-mode))
 
+(use-package elfeed)
+(use-package elfeed-goodies)
+(elfeed-goodies/setup)
+(setq elfeed-goodies/entry-pane-size 0.5)
+(global-set-key (kbd "C-c i") 'elfeed)
+
 ;; Other window alternative
  (global-set-key (kbd "M-o") #'mode-line-other-buffer)
  ;; Duplicate row
@@ -1138,3 +1162,9 @@ If popup is focused, delete it."
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
