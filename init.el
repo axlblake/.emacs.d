@@ -441,6 +441,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
         (lambda ()
           (when org-inline-image-overlays
             (org-redisplay-inline-images))))
+(setq org-image-actual-width (/ (display-pixel-width) 2))
 
 (use-package org-bullets
   :after org
@@ -529,22 +530,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package ob-async)
 
 (use-package org-trello)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
- '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org") nil (org-trello))
- '(safe-local-variable-values
-   '((eval pyvenv-workon "python3.7-altcoin")
-     (eval dap-register-debug-template "CB Altcoin Run Tests"
-           (list :type "python" :args "-i" :cwd nil :env
-                 '(("DEBUG" . "1"))
-                 :target-module
-                 (expand-file-name "~/Documents/code/cb-altcoin/tests_run.py")
-                 :request "launch" :name "CB Altcoin Run Tests"))
-     (eval setq dap-python-executable "/Users/axl/.virtualenvs/python3.7-altcoin/bin/python"))))
+(custom-set-variables '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org")))
 
 (use-package lsp-mode
   :init
@@ -728,6 +714,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (
    ".twig$"
    ".hbs$"
+   ".html$"
    ".blade.php$"
    ".liquid$"
    )
@@ -1162,9 +1149,3 @@ If popup is focused, delete it."
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

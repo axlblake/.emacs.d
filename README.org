@@ -424,7 +424,10 @@ The =cfg/org-font-setup= function configures various text faces to tweak the siz
   ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 #+end_src
 
-** REVIEW Basic Config
+** Basic Config
+:LOGBOOK:
+- State "DONE"       from "BACKLOG"    [2022-05-18 Wed 19:26]
+:END:
 This section contains the basic configuration for =org-mode= plus the configuration for Org agendas and capture templates.  There's a lot to unpack in here so I'd recommend watching the videos for [[https://youtu.be/VcgjTEa0kU4][Part 5]] and [[https://youtu.be/PNE-mgkZ6HM][Part 6]] for a full explanation.
 
 #+begin_src emacs-lisp
@@ -557,6 +560,7 @@ This section contains the basic configuration for =org-mode= plus the configurat
           (lambda ()
             (when org-inline-image-overlays
               (org-redisplay-inline-images))))
+  (setq org-image-actual-width (/ (display-pixel-width) 2))
 #+end_src
 
 *** Nicer Heading Bullets
@@ -984,6 +988,7 @@ Java configuration for lsp mode
   (
    ".twig$"
    ".hbs$"
+   ".html$"
    ".blade.php$"
    ".liquid$"
    )
