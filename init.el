@@ -44,14 +44,30 @@
     :if (memq window-system '(mac ns))
     :config
     (setq exec-path-from-shell-arguments '("-l"))
-    (exec-path-from-shell-initialize))
+    (exec-path-from-shell-initialize)
+    (if (and (fboundp 'native-comp-available-p)
+           (native-comp-available-p))
+      (progn
+        (message "Native comp is available")
+        ;; Using Emacs.app/Contents/MacOS/bin since it was compiled with
+        ;; ./configure --prefix="$PWD/nextstep/Emacs.app/Contents/MacOS"
+        (add-to-list 'exec-path (concat invocation-directory "bin") t)
+        (setenv "LIBRARY_PATH" (concat (getenv "LIBRARY_PATH")
+                                       (when (getenv "LIBRARY_PATH")
+                                         ":")
+                                       ;; This is where Homebrew puts gcc libraries.
+                                       (car (file-expand-wildcards
+                                             (expand-file-name "~/homebrew/opt/gcc/lib/gcc/*")))))
+        ;; Only set after LIBRARY_PATH can find gcc libraries.
+        (setq comp-deferred-compilation t))
+    (message "Native comp is *not* available")))
 
-  (setq mac-command-modifier 'meta)
-  (setq mac-option-key-is-meta nil)
+    (setq mac-command-modifier 'meta
+          mac-option-key-is-meta nil
+          mac-option-modifier 'none)    
 
-  (setq insert-directory-program "/opt/homebrew/bin/gls")
-  (setq epa-pinentry-mode 'loopback)
-  )
+    (setq insert-directory-program "/opt/homebrew/bin/gls")
+    (setq epa-pinentry-mode 'loopback))
 
 (use-package page-break-lines)
 (use-package all-the-icons)
@@ -122,7 +138,9 @@
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 15)))
+  :custom (
+           (doom-modeline-height 15)
+           (doom-modeline-buffer-file-name-style 'truncate-upto-project)))
 
 ;; redefing segment to show workspace by name instead of explicit name 
 (doom-modeline-def-segment workspace-name
@@ -588,6 +606,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   ;; (dap-ui-mode 1)
 
   :config
+  (dap-ui-mode 1)
   ;; Set up Node debugging
   ;; (require 'dap-node)
   ;; (dap-node-setup) ;; Automatically installs Node debug adapter if needed
@@ -603,6 +622,15 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
         (lambda (arg) (call-interactively #'dap-hydra)))
 (global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
 (global-set-key (kbd "C-c c d") 'dap-debug)
+
+(with-eval-after-load 'dap-ui
+  (setq dap-ui-buffer-configurations
+        `((,dap-ui--locals-buffer . ((side . right) (slot . 1) (window-width . 0.32)  (window-height . 0.80)))
+          (,dap-ui--expressions-buffer . ((side . right) (slot . 2) (window-width . 0.32) (window-height . 0.10)))
+          (,dap-ui--sessions-buffer . ((side . right) (slot . 3) (window-width . 0.32) (window-height . 0.10)))
+          (,dap-ui--breakpoints-buffer . ((side . left) (slot . 2) (window-width . ,treemacs-width)))
+          (,dap-ui--debug-window-buffer . ((side . bottom) (slot . 3) (window-width . 0.20)))
+          (,dap-ui--repl-buffer . ((side . right) (slot . 2) (window-width . 0.45))))))
 
 (use-package typescript-mode
     :mode "\\.ts\\'"
@@ -632,6 +660,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (add-hook 'python-mode-hook 'py-local-keys)
 (add-hook 'python-mode-hook 'yas-minor-mode-on)
+
+(use-package py-yapf)
 
 ;; (use-package pipenv
   ;;     :hook (python-mode . pipenv-mode)
@@ -664,6 +694,25 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 ;; ((python-mode . ((eval . (lsp-register-custom-settings
 ;;                           '(("python.pythonPath" "/.../.venv/bin/python"
 ;;                              "python.venvPath" "/.../.venv")))))))
+
+(defconst brace-regexp
+  "[^{]{[^{}]*}")
+(defconst python-f-string-regexp
+  "f\\('.*?[^\\]'\\|\".*?[^\\]\"\\)")
+(defun python-f-string-font-lock-find (limit)
+  (while (re-search-forward python-f-string-regexp limit t)
+    (put-text-property (match-beginning 0) (match-end 0)
+                       'face 'font-lock-string-face)
+    (let ((start (match-beginning 0)))
+      (while (re-search-backward brace-regexp start t)
+        (put-text-property (1+ (match-beginning 0)) (match-end 0)
+                           'face 'font-lock-type-face))))
+  nil)
+(with-eval-after-load 'python
+  (font-lock-add-keywords
+   'python-mode
+   `((python-f-string-font-lock-find))
+   'append))
 
 (use-package lsp-java
   :init
@@ -897,38 +946,15 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package tramp ;; with use-package
    :defer t
    :config
-   (setq-default tramp-default-method "scp")) ;; for performance
+   (setq-default tramp-default-method "scp")
+   (setq vc-handled-backends '(Git)
+   (setq tramp-use-ssh-controlmaster-options nil)))
 
  ;; (use-package vagrant-tramp)
 
- (use-package tramp-term)
- (use-package counsel-tramp
+(use-package tramp-term)
+(use-package counsel-tramp
    :bind (("C-x t" . counsel-tramp)))
-
-(setq vc-ignore-dir-regexp
-    (format "\\(%s\\)\\|\\(%s\\)"
-            vc-ignore-dir-regexp
-            tramp-file-name-regexp))
- ;; or
- ;; (setq vc-handled-backends '(Git))
- (customize-set-variable 'tramp-use-ssh-controlmaster-options nil)
-
- ;; (setq remote-file-name-inhibit-cache nil)
- ;; (setq shell-prompt-pattern '"^[^#$%>\n]*~?[#$%>] *")
-
- ;; ;; disable completion in shell mode
- ;; (defun my-shell-mode-setup-function () 
- ;;   (when (and (fboundp 'company-mode)
- ;;              (file-remote-p default-directory))
- ;;     (company-mode -1)))
-
- ;; (add-hook 'shell-mode-hook 'my-shell-mode-setup-function)
- ;; (add-hook
- ;;  'dired-before-readin-hook
- ;;  (lambda ()
- ;;    (when (file-remote-p default-directory)
- ;;      (setq dired-actual-switches "-al"))))
- ;; (customize-set-variable 'ido-enable-tramp-completion nil)
 
 (use-package docker) ;; manage docker containers
 ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
@@ -966,6 +992,16 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
                           (set-window-buffer nil (current-buffer)))))
 
 (use-package devdocs)
+
+(use-package csv-mode)
+
+(setq ediff-split-window-function (quote split-window-horizontally))
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq ediff-diff-options "-w")
+(setq ediff-split-window-function 'split-window-horizontally)
+
+(use-package ediff-util
+  :hook (ediff-after-quit-hook-internal . winner-undo))
 
 (use-package vterm
   :commands vterm
