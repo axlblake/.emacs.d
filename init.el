@@ -1,6 +1,5 @@
 ;; NOTE: init.el is now generated from README.org.  Please edit that file
 ;;       in Emacs and init.el will be generated automatically!
-
 ;; Font size
 (defvar cfg/default-font-size 120)
 (defvar cfg/default-variable-font-size 120)
@@ -67,6 +66,9 @@
           mac-option-modifier 'none)    
 
     (setq insert-directory-program "/opt/homebrew/bin/gls")
+    (require 'epa-file)
+    (custom-set-variables '(epg-gpg-program  "/opt/homebrew/bin/gpg"))
+    (epa-file-enable)
     (setq epa-pinentry-mode 'loopback))
 
 (use-package page-break-lines)
@@ -947,8 +949,10 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
    :defer t
    :config
    (setq-default tramp-default-method "scp")
-   (setq vc-handled-backends '(Git)
-   (setq tramp-use-ssh-controlmaster-options nil)))
+   (setq vc-handled-backends '(Git))
+   (setq tramp-verbose 0)
+   (setq tramp-chunksize 2000)
+   (setq tramp-use-ssh-controlmaster-options nil))
 
  ;; (use-package vagrant-tramp)
 
@@ -993,8 +997,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package devdocs)
 
-(use-package csv-mode)
-
 (setq ediff-split-window-function (quote split-window-horizontally))
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 (setq ediff-diff-options "-w")
@@ -1002,6 +1004,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package ediff-util
   :hook (ediff-after-quit-hook-internal . winner-undo))
+
+(use-package csv-mode)
 
 (use-package vterm
   :commands vterm
@@ -1049,26 +1053,55 @@ If popup is focused, delete it."
   :custom ((dired-listing-switches "-laGh1v --group-directories-first"))
 )
 
-(use-package dired-open
-  :config
-  ;; Doesn't work as expected!
-  ;;(add-to-list 'dired-open-functions #'dired-open-xdg t)
-  (setq dired-open-extensions '(("png" . "feh")
-                                ("mkv" . "mpv"))))
-
 (use-package dired-hide-dotfiles
   :hook (dired-mode . dired-hide-dotfiles-mode)
   :bind (:map dired-mode-map
          ("," . dired-clean-directory)
          ("." . dired-hide-dotfiles-mode))
 )
+;; ;; Make dired open in the same window when using RET or ^
+;; (put 'dired-find-alternate-file 'disabled nil) ; disables warning
+;; (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file) ; was dired-advertised-find-file
+;; (define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file "..")))  ; was dired-up-directory
 
-(use-package dired-du)
-
-;; Make dired open in the same window when using RET or ^
-(put 'dired-find-alternate-file 'disabled nil) ; disables warning
-(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file) ; was dired-advertised-find-file
-(define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file "..")))  ; was dired-up-directory
+;; (use-package dirvish
+;;   :init
+;;   (dirvish-override-dired-mode)
+;;   :custom
+;;   (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
+;;    '(("h" "~/"                          "Home")
+;;      ("d" "~/Documents/"                "Documents")
+;;      ("r" "/"                           "Root")))
+;;   :config
+;;   ;; (dirvish-peek-mode) ; Preview files in minibuffer
+;;   ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+;;   (setq dirvish-mode-line-format
+;;         '(:left (sort symlink) :right (omit yank index)))
+;;   (setq dirvish-attributes
+;;         '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
+;;   (setq delete-by-moving-to-trash t)
+;;   (setq dired-listing-switches
+;;         "-l --almost-all --human-readable --group-directories-first --no-group")
+;;   :bind
+;;   (("C-x f" . dirvish-fd)
+;;   :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
+;;    ("a"   . dirvish-quick-access)
+;;    ("f"   . dirvish-file-info-menu)
+;;    ("y"   . dirvish-yank-menu)
+;;    ("N"   . dirvish-narrow)
+;;    ("^"   . dirvish-history-last)
+;;    ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+;;    ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+;;    ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+;;    ("TAB" . dirvish-subtree-toggle)
+;;    ("M-f" . dirvish-history-go-forward)
+;;    ("M-b" . dirvish-history-go-backward)
+;;    ("M-l" . dirvish-ls-switches-menu)
+;;    ("M-m" . dirvish-mark-menu)
+;;    ("M-t" . dirvish-layout-toggle)
+;;    ("M-s" . dirvish-setup-menu)
+;;    ("M-e" . dirvish-emerge-menu)
+;;    ("M-j" . dirvish-fd-jump)))
 
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
@@ -1095,6 +1128,40 @@ If popup is focused, delete it."
 (elfeed-goodies/setup)
 (setq elfeed-goodies/entry-pane-size 0.5)
 (global-set-key (kbd "C-c i") 'elfeed)
+
+(use-package osm
+  :bind (("C-c m h" . osm-home)
+         ("C-c m s" . osm-search)
+         ("C-c m v" . osm-server)
+         ("C-c m t" . osm-goto)
+         ("C-c m x" . osm-gpx-show)
+         ("C-c m j" . osm-bookmark-jump))
+
+  :custom
+  ;; Take a look at the customization group `osm' for more options.
+  (osm-server 'default) ;; Configure the tile server
+  (osm-copyright t)     ;; Display the copyright information
+
+  :init
+  ;; Load Org link support
+  (with-eval-after-load 'org
+    (require 'osm-ol)))
+
+(use-package dwim-shell-command
+  :ensure t
+  :bind (([remap shell-command] . dwim-shell-command)
+         :map dired-mode-map
+         ([remap dired-do-async-shell-command] . dwim-shell-command)
+         ([remap dired-do-shell-command] . dwim-shell-command)
+         ([remap dired-smart-shell-command] . dwim-shell-command))
+  :config
+  (defun dwim-shell-commands-image-exif-metadata ()
+  "View EXIF metadata in image(s)."
+  (interactive)
+  (dwim-shell-command-on-marked-files
+   "View EXIF"
+   "exiftool '<<f>>'"
+   :utils "exiftool")))
 
 ;; Other window alternative
  (global-set-key (kbd "M-o") #'mode-line-other-buffer)
@@ -1185,3 +1252,4 @@ If popup is focused, delete it."
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
+(setq counsel-tramp-custom-connections '(/ssh:trx|docker:crystal_trx:/))
