@@ -66,9 +66,7 @@
           mac-option-modifier 'none)    
 
     (setq insert-directory-program "/opt/homebrew/bin/gls")
-    (require 'epa-file)
     (custom-set-variables '(epg-gpg-program  "/opt/homebrew/bin/gpg"))
-    (epa-file-enable)
     (setq epa-pinentry-mode 'loopback))
 
 (use-package page-break-lines)
@@ -550,7 +548,16 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package ob-async)
 
 (use-package org-trello)
-(custom-set-variables '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org")))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(epg-gpg-program "/opt/homebrew/bin/gpg")
+ '(org-trello-current-prefix-keybinding "C-c o")
+ '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org"))
+ '(package-selected-packages
+   '(ediff-util yasnippet-snippets yafolding which-key web-mode vue-mode vterm vlf visual-fill-column use-package undo-tree typescript-mode tramp-term solidity-flycheck smex rust-mode reverse-im rainbow-delimiters pyvenv python-mode py-yapf py-isort prettier pomidor plantuml-mode php-mode page-break-lines osm org-trello org-roam org-bullets ob-restclient ob-async multiple-cursors move-text lsp-ui lsp-java lsp-ivy json-mode ivy-rich imenu-list ibuffer-vc ibuffer-projectile highlight-indent-guides helpful gnu-elpa-keyring-update git-timemachine forge eyebrowse exec-path-from-shell evil-nerd-commenter emojify elisp-format elfeed-goodies dwim-shell-command doom-themes doom-modeline dockerfile-mode docker-tramp docker-compose-mode docker dired-hide-dotfiles diff-hl devdocs dashboard csv-mode counsel-tramp counsel-projectile company-solidity company-org-block company-box auto-package-update all-the-icons)))
 
 (use-package lsp-mode
   :init
@@ -1253,3 +1260,9 @@ If popup is focused, delete it."
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
 (setq counsel-tramp-custom-connections '(/ssh:trx|docker:crystal_trx:/))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

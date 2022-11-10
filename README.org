@@ -81,9 +81,7 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
             mac-option-modifier 'none)    
 
       (setq insert-directory-program "/opt/homebrew/bin/gls")
-      (require 'epa-file)
       (custom-set-variables '(epg-gpg-program  "/opt/homebrew/bin/gpg"))
-      (epa-file-enable)
       (setq epa-pinentry-mode 'loopback))
 #+end_src
 * Dashboard
