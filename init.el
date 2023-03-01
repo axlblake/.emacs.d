@@ -63,7 +63,8 @@
 
     (setq mac-command-modifier 'meta
           mac-option-key-is-meta nil
-          mac-option-modifier 'none)    
+          mac-option-modifier 'none)
+    (setq ns-right-option-modifier 'super)
 
     (setq insert-directory-program "/opt/homebrew/bin/gls")
     (custom-set-variables '(epg-gpg-program  "/opt/homebrew/bin/gpg"))
@@ -196,7 +197,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   :ensure t
   :after (ivy counsel)
   :config
-  (ivy-rich-parse-remote-file-path nil)
   (ivy-rich-path-style (quote full))
   (ivy-rich-mode 1))
 
@@ -210,19 +210,9 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 ;; Counsel should remeber last M-x commands (make it smarter)
 (use-package smex)
 
-(defun my-name-tab-by-project-or-default ()
-    "Return project name if in a project, or default tab-bar name if not.
-  The default tab-bar name uses the buffer name."
-    (let ((project-name (projectile-project-name)))
-      (if (string= "-" project-name)
-          (tab-bar-tab-name-current)
-        (projectile-project-name))))
-
-  (setq tab-bar-mode t)
+(setq tab-bar-mode t)
   (setq tab-bar-show nil)
   ;; (setq tab-bar-new-tab-choice "*dashboard*")
-  (setq tab-bar-tab-name-function #'my-name-tab-by-project-or-default)
-
 ;; Rebind C-x t to C-x w for similar and convenient work with eyebrowse's C-c w
 (global-unset-key (kbd "C-x t"))
 (define-key ctl-x-map "w" tab-prefix-map)
@@ -548,16 +538,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package ob-async)
 
 (use-package org-trello)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(epg-gpg-program "/opt/homebrew/bin/gpg")
- '(org-trello-current-prefix-keybinding "C-c o")
- '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org"))
- '(package-selected-packages
-   '(ediff-util yasnippet-snippets yafolding which-key web-mode vue-mode vterm vlf visual-fill-column use-package undo-tree typescript-mode tramp-term solidity-flycheck smex rust-mode reverse-im rainbow-delimiters pyvenv python-mode py-yapf py-isort prettier pomidor plantuml-mode php-mode page-break-lines osm org-trello org-roam org-bullets ob-restclient ob-async multiple-cursors move-text lsp-ui lsp-java lsp-ivy json-mode ivy-rich imenu-list ibuffer-vc ibuffer-projectile highlight-indent-guides helpful gnu-elpa-keyring-update git-timemachine forge eyebrowse exec-path-from-shell evil-nerd-commenter emojify elisp-format elfeed-goodies dwim-shell-command doom-themes doom-modeline dockerfile-mode docker-tramp docker-compose-mode docker dired-hide-dotfiles diff-hl devdocs dashboard csv-mode counsel-tramp counsel-projectile company-solidity company-org-block company-box auto-package-update all-the-icons)))
+(custom-set-variables '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org")))
 
 (use-package lsp-mode
   :init
@@ -627,19 +608,19 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   ;; Make sure that dap-firefox-debug-program is pointing to the proper file.
   (require 'dap-firefox))
 
-(add-hook 'dap-stopped-hook
-        (lambda (arg) (call-interactively #'dap-hydra)))
+;; (add-hook 'dap-stopped-hook
+;;         (lambda (arg) (call-interactively #'dap-hydra)))
 (global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
 (global-set-key (kbd "C-c c d") 'dap-debug)
 
-(with-eval-after-load 'dap-ui
-  (setq dap-ui-buffer-configurations
-        `((,dap-ui--locals-buffer . ((side . right) (slot . 1) (window-width . 0.32)  (window-height . 0.80)))
-          (,dap-ui--expressions-buffer . ((side . right) (slot . 2) (window-width . 0.32) (window-height . 0.10)))
-          (,dap-ui--sessions-buffer . ((side . right) (slot . 3) (window-width . 0.32) (window-height . 0.10)))
-          (,dap-ui--breakpoints-buffer . ((side . left) (slot . 2) (window-width . ,treemacs-width)))
-          (,dap-ui--debug-window-buffer . ((side . bottom) (slot . 3) (window-width . 0.20)))
-          (,dap-ui--repl-buffer . ((side . right) (slot . 2) (window-width . 0.45))))))
+;; (with-eval-after-load 'dap-ui
+;;   (setq dap-ui-buffer-configurations
+;;         `((,dap-ui--locals-buffer . ((side . right) (slot . 1) (window-width . 0.32)  (window-height . 0.80)))
+;;           (,dap-ui--expressions-buffer . ((side . right) (slot . 2) (window-width . 0.32) (window-height . 0.10)))
+;;           (,dap-ui--sessions-buffer . ((side . right) (slot . 3) (window-width . 0.32) (window-height . 0.10)))
+;;           (,dap-ui--breakpoints-buffer . ((side . left) (slot . 2) (window-width . ,treemacs-width)))
+;;           (,dap-ui--debug-window-buffer . ((side . bottom) (slot . 3) (window-width . 0.20)))
+;;           (,dap-ui--repl-buffer . ((side . right) (slot . 2) (window-width . 0.45))))))
 
 (use-package typescript-mode
     :mode "\\.ts\\'"
@@ -856,6 +837,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status))
+  :hook (magit-status-refresh-hook . magit-fetch)
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
@@ -955,11 +937,13 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package tramp ;; with use-package
    :defer t
    :config
-   (setq-default tramp-default-method "scp")
+   (setq-default tramp-default-method "scpx")
    (setq vc-handled-backends '(Git))
-   (setq tramp-verbose 0)
-   (setq tramp-chunksize 2000)
-   (setq tramp-use-ssh-controlmaster-options nil))
+   (setq vc-ignore-dir-regexp (format "\\(%s\\)\\|\\(%s\\)"
+                              vc-ignore-dir-regexp tramp-file-name-regexp))
+   (setq tramp-copy-size-limit nil)
+   (setq tramp-completion-reread-directory-timeout t)
+   (setq tramp-verbose 0))
 
  ;; (use-package vagrant-tramp)
 
@@ -1008,9 +992,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 (setq ediff-diff-options "-w")
 (setq ediff-split-window-function 'split-window-horizontally)
-
-(use-package ediff-util
-  :hook (ediff-after-quit-hook-internal . winner-undo))
 
 (use-package csv-mode)
 
@@ -1170,6 +1151,51 @@ If popup is focused, delete it."
    "exiftool '<<f>>'"
    :utils "exiftool")))
 
+(use-package websocket)
+
+(let* ((file-contents (with-temp-buffer
+                        (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
+                        (buffer-substring-no-properties (point-min) (point-max))))
+       (lines (split-string file-contents "\n" t))
+       (my-api-key-line (cl-find-if (lambda (line) (string-match-p "^emacs-chatgpt-api-key=" line)) lines))
+       (my-api-key-value (when my-api-key-line
+                           (substring my-api-key-line (1+ (string-match "=" my-api-key-line))))))
+
+  (if my-api-key-value
+      (setq emacs-chatgpt-api-key my-api-key-value)
+    (error "my-api-key not found in file")))
+
+(defun chatgpt-send-message (message)
+  "Send MESSAGE to the ChatGPT API and return the response."
+  (let* ((model-id "text-davinci-002")
+         (url-request-method "POST")
+         (url-request-extra-headers
+          `(("Content-Type" . "application/json")
+            ("Authorization" . ,(concat "Bearer " emacs-chatgpt-api-key)))))
+    (setq url-request-data (json-encode `(("model" . ,model-id)
+                                          ("prompt" . ,message)
+                                          ("temperature" . 0.9)
+                                          ("max_tokens" . 150))))
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://api.openai.com/v1/completions")
+      (goto-char (point-min))
+      (search-forward "\n\n")
+      (let* ((json-object-type 'hash-table)
+             (response-json (json-read))
+             (choices (gethash "choices" response-json))
+             (texts (mapcar (lambda (choice) (gethash "text" choice)) choices)))
+        texts))))
+
+(defun chatgpt-interact ()
+  "Interact with the ChatGPT API."
+  (interactive)
+  (let ((message (read-string "Enter your message: ")))
+    (message "ChatGPT: %s" (string-join (chatgpt-send-message message) "\n"))))
+
+;; Bind the `chatgpt-interact` function to a keybinding
+(global-set-key (kbd "C-c C-g") 'chatgpt-interact)
+
 ;; Other window alternative
  (global-set-key (kbd "M-o") #'mode-line-other-buffer)
  ;; Duplicate row
@@ -1260,9 +1286,3 @@ If popup is focused, delete it."
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
 (setq counsel-tramp-custom-connections '(/ssh:trx|docker:crystal_trx:/))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

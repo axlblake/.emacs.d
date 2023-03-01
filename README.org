@@ -78,7 +78,8 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
 
       (setq mac-command-modifier 'meta
             mac-option-key-is-meta nil
-            mac-option-modifier 'none)    
+            mac-option-modifier 'none)
+      (setq ns-right-option-modifier 'super)
 
       (setq insert-directory-program "/opt/homebrew/bin/gls")
       (custom-set-variables '(epg-gpg-program  "/opt/homebrew/bin/gpg"))
@@ -263,7 +264,6 @@ Counsel is a customized set of commands to replace `find-file` with `counsel-fin
      :ensure t
      :after (ivy counsel)
      :config
-     (ivy-rich-parse-remote-file-path nil)
      (ivy-rich-path-style (quote full))
      (ivy-rich-mode 1))
 
@@ -281,19 +281,9 @@ Counsel is a customized set of commands to replace `find-file` with `counsel-fin
 
 ** Tab-bar configuration
 #+begin_src emacs-lisp
-    (defun my-name-tab-by-project-or-default ()
-      "Return project name if in a project, or default tab-bar name if not.
-    The default tab-bar name uses the buffer name."
-      (let ((project-name (projectile-project-name)))
-        (if (string= "-" project-name)
-            (tab-bar-tab-name-current)
-          (projectile-project-name))))
-
     (setq tab-bar-mode t)
     (setq tab-bar-show nil)
     ;; (setq tab-bar-new-tab-choice "*dashboard*")
-    (setq tab-bar-tab-name-function #'my-name-tab-by-project-or-default)
-
   ;; Rebind C-x t to C-x w for similar and convenient work with eyebrowse's C-c w
   (global-unset-key (kbd "C-x t"))
   (define-key ctl-x-map "w" tab-prefix-map)
@@ -726,10 +716,9 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
 #+begin_src emacs-lisp
   (use-package org-trello)
   (custom-set-variables '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org")))
-
 #+end_src
 * Development
-** Languages
+** Languages and environments
 *** IDE Features with lsp-mode
 **** lsp-mode
 
@@ -836,19 +825,19 @@ Try these commands with =M-x=:
     ;; Make sure that dap-firefox-debug-program is pointing to the proper file.
     (require 'dap-firefox))
 
-  (add-hook 'dap-stopped-hook
-          (lambda (arg) (call-interactively #'dap-hydra)))
+  ;; (add-hook 'dap-stopped-hook
+  ;;         (lambda (arg) (call-interactively #'dap-hydra)))
   (global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
   (global-set-key (kbd "C-c c d") 'dap-debug)
 
-  (with-eval-after-load 'dap-ui
-    (setq dap-ui-buffer-configurations
-          `((,dap-ui--locals-buffer . ((side . right) (slot . 1) (window-width . 0.32)  (window-height . 0.80)))
-            (,dap-ui--expressions-buffer . ((side . right) (slot . 2) (window-width . 0.32) (window-height . 0.10)))
-            (,dap-ui--sessions-buffer . ((side . right) (slot . 3) (window-width . 0.32) (window-height . 0.10)))
-            (,dap-ui--breakpoints-buffer . ((side . left) (slot . 2) (window-width . ,treemacs-width)))
-            (,dap-ui--debug-window-buffer . ((side . bottom) (slot . 3) (window-width . 0.20)))
-            (,dap-ui--repl-buffer . ((side . right) (slot . 2) (window-width . 0.45))))))
+  ;; (with-eval-after-load 'dap-ui
+  ;;   (setq dap-ui-buffer-configurations
+  ;;         `((,dap-ui--locals-buffer . ((side . right) (slot . 1) (window-width . 0.32)  (window-height . 0.80)))
+  ;;           (,dap-ui--expressions-buffer . ((side . right) (slot . 2) (window-width . 0.32) (window-height . 0.10)))
+  ;;           (,dap-ui--sessions-buffer . ((side . right) (slot . 3) (window-width . 0.32) (window-height . 0.10)))
+  ;;           (,dap-ui--breakpoints-buffer . ((side . left) (slot . 2) (window-width . ,treemacs-width)))
+  ;;           (,dap-ui--debug-window-buffer . ((side . bottom) (slot . 3) (window-width . 0.20)))
+  ;;           (,dap-ui--repl-buffer . ((side . right) (slot . 2) (window-width . 0.45))))))
 #+end_src
 
 *** JavaScript \ TypeScript
@@ -1072,6 +1061,7 @@ Java configuration for lsp mode
           (lambda () (setq indent-tabs-mode nil)))
   (define-key rust-mode-map (kbd "C-c C-c") 'rust-run)
 #+end_src
+*** Arduino?
 ** Company Mode
 
 [[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).
@@ -1156,6 +1146,7 @@ Flymake alternative
   (use-package magit
     :ensure t
     :bind (("C-x g" . magit-status))
+    :hook (magit-status-refresh-hook . magit-fetch)
     :custom
     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 #+end_src
@@ -1311,11 +1302,13 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
   (use-package tramp ;; with use-package
      :defer t
      :config
-     (setq-default tramp-default-method "scp")
+     (setq-default tramp-default-method "scpx")
      (setq vc-handled-backends '(Git))
-     (setq tramp-verbose 0)
-     (setq tramp-chunksize 2000)
-     (setq tramp-use-ssh-controlmaster-options nil))
+     (setq vc-ignore-dir-regexp (format "\\(%s\\)\\|\\(%s\\)"
+                                vc-ignore-dir-regexp tramp-file-name-regexp))
+     (setq tramp-copy-size-limit nil)
+     (setq tramp-completion-reread-directory-timeout t)
+     (setq tramp-verbose 0))
 
    ;; (use-package vagrant-tramp)
 
@@ -1387,9 +1380,6 @@ Additional ediff configurations
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   (setq ediff-diff-options "-w")
   (setq ediff-split-window-function 'split-window-horizontally)
-
-  (use-package ediff-util
-    :hook (ediff-after-quit-hook-internal . winner-undo))
 #+end_src
 ** csv-mode
 #+begin_src emacs-lisp
@@ -1661,6 +1651,53 @@ Store all backup and autosave files in the =tmp= dir
    "View EXIF"
    "exiftool '<<f>>'"
    :utils "exiftool")))
+#+end_src
+* ChatGPT
+#+begin_src emacs-lisp
+  (use-package websocket)
+
+  (let* ((file-contents (with-temp-buffer
+                          (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
+                          (buffer-substring-no-properties (point-min) (point-max))))
+         (lines (split-string file-contents "\n" t))
+         (my-api-key-line (cl-find-if (lambda (line) (string-match-p "^emacs-chatgpt-api-key=" line)) lines))
+         (my-api-key-value (when my-api-key-line
+                             (substring my-api-key-line (1+ (string-match "=" my-api-key-line))))))
+
+    (if my-api-key-value
+        (setq emacs-chatgpt-api-key my-api-key-value)
+      (error "my-api-key not found in file")))
+
+  (defun chatgpt-send-message (message)
+    "Send MESSAGE to the ChatGPT API and return the response."
+    (let* ((model-id "text-davinci-002")
+           (url-request-method "POST")
+           (url-request-extra-headers
+            `(("Content-Type" . "application/json")
+              ("Authorization" . ,(concat "Bearer " emacs-chatgpt-api-key)))))
+      (setq url-request-data (json-encode `(("model" . ,model-id)
+                                            ("prompt" . ,message)
+                                            ("temperature" . 0.9)
+                                            ("max_tokens" . 150))))
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://api.openai.com/v1/completions")
+        (goto-char (point-min))
+        (search-forward "\n\n")
+        (let* ((json-object-type 'hash-table)
+               (response-json (json-read))
+               (choices (gethash "choices" response-json))
+               (texts (mapcar (lambda (choice) (gethash "text" choice)) choices)))
+          texts))))
+
+  (defun chatgpt-interact ()
+    "Interact with the ChatGPT API."
+    (interactive)
+    (let ((message (read-string "Enter your message: ")))
+      (message "ChatGPT: %s" (string-join (chatgpt-send-message message) "\n"))))
+
+  ;; Bind the `chatgpt-interact` function to a keybinding
+  (global-set-key (kbd "C-c C-g") 'chatgpt-interact)
 #+end_src
 * Custom
 Some additional custom changes
