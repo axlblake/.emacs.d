@@ -1151,8 +1151,6 @@ If popup is focused, delete it."
    "exiftool '<<f>>'"
    :utils "exiftool")))
 
-(use-package websocket)
-
 (let* ((file-contents (with-temp-buffer
                         (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
                         (buffer-substring-no-properties (point-min) (point-max))))
@@ -1167,7 +1165,7 @@ If popup is focused, delete it."
 
 (defun chatgpt-send-message (message)
   "Send MESSAGE to the ChatGPT API and return the response."
-  (let* ((model-id "text-davinci-002")
+  (let* ((model-id "text-davinci-003")
          (url-request-method "POST")
          (url-request-extra-headers
           `(("Content-Type" . "application/json")
