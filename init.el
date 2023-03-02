@@ -1151,19 +1151,20 @@ If popup is focused, delete it."
    "exiftool '<<f>>'"
    :utils "exiftool")))
 
-(let* ((file-contents (with-temp-buffer
-                        (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
-                        (buffer-substring-no-properties (point-min) (point-max))))
-       (lines (split-string file-contents "\n" t))
-       (my-api-key-line (cl-find-if (lambda (line) (string-match-p "^emacs-chatgpt-api-key=" line)) lines))
-       (my-api-key-value (when my-api-key-line
-                           (substring my-api-key-line (1+ (string-match "=" my-api-key-line))))))
+(defun chatgpt-get-api-key ()
+    (let* ((file-contents (with-temp-buffer
+                            (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
+                            (buffer-substring-no-properties (point-min) (point-max))))
+           (lines (split-string file-contents "\n" t))
+           (my-api-key-line (cl-find-if (lambda (line) (string-match-p "^emacs-chatgpt-api-key=" line)) lines))
+           (my-api-key-value (when my-api-key-line
+                               (substring my-api-key-line (1+ (string-match "=" my-api-key-line))))))
 
-  (if my-api-key-value
-      (setq emacs-chatgpt-api-key my-api-key-value)
-    (error "my-api-key not found in file")))
+      (if my-api-key-value
+          my-api-key-value
+        (error "my-api-key not found in file"))))
 
-(defun extract-content-text (response-data)
+(defun chatgpt-extract-content-text (response-data)
   "Extract content text from response-data."
   (let ((choices (cdr (assoc 'choices response-data))))
     (mapconcat (lambda (choice)
@@ -1188,7 +1189,7 @@ If popup is focused, delete it."
           (request "https://api.openai.com/v1/chat/completions"
             :type "POST"
             :headers `(("Content-Type" . "application/json")
-                       ("Authorization" . ,(concat "Bearer " emacs-chatgpt-api-key)))
+                       ("Authorization" . ,(concat "Bearer " (chatgpt-get-api-key))))
             :data json-data
             :parser 'json-read
             :error
@@ -1197,7 +1198,7 @@ If popup is focused, delete it."
             :success (cl-function
                       (lambda (&key data &allow-other-keys)
                         (insert "ChatGPT: \n")
-                        (insert (extract-content-text data))
+                        (insert (chatgpt-extract-content-text data))
                         (message "Response displayed in new buffer."))))))
       (other-window 1))))
 ;; ;; Bind the `chatgpt-interact` function to a keybinding
