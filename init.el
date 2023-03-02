@@ -1199,6 +1199,7 @@ If popup is focused, delete it."
                       (lambda (&key data &allow-other-keys)
                         (insert "ChatGPT: \n")
                         (insert (chatgpt-extract-content-text data))
+                        (goto-char (point-min))
                         (message "Response displayed in new buffer."))))))
       (other-window 1))))
 ;; ;; Bind the `chatgpt-interact` function to a keybinding
