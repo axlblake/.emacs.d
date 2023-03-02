@@ -1682,6 +1682,7 @@ Store all backup and autosave files in the =tmp= dir
       (let ((chat-gpt-buffer (generate-new-buffer "*ChatGPT Response*")))
         (set-window-buffer (split-window-right) chat-gpt-buffer)
         (with-current-buffer chat-gpt-buffer
+          (markdown-mode)
           (erase-buffer)
           (let* ((input-data `((messages . (((role . "user") (content . ,message))))
                                (model . "gpt-3.5-turbo")
@@ -1705,10 +1706,6 @@ Store all backup and autosave files in the =tmp= dir
   ;; ;; Bind the `chatgpt-interact` function to a keybinding
   (global-set-key (kbd "C-c C-g") 'chatgpt-send-message)
 #+end_src
-
-#+RESULTS:
-: chatgpt-send-message
-
 * Custom
 Some additional custom changes
 #+begin_src emacs-lisp

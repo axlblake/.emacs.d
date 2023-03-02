@@ -1179,6 +1179,7 @@ If popup is focused, delete it."
     (let ((chat-gpt-buffer (generate-new-buffer "*ChatGPT Response*")))
       (set-window-buffer (split-window-right) chat-gpt-buffer)
       (with-current-buffer chat-gpt-buffer
+        (markdown-mode)
         (erase-buffer)
         (let* ((input-data `((messages . (((role . "user") (content . ,message))))
                              (model . "gpt-3.5-turbo")
