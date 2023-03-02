@@ -1163,36 +1163,44 @@ If popup is focused, delete it."
       (setq emacs-chatgpt-api-key my-api-key-value)
     (error "my-api-key not found in file")))
 
-(defun chatgpt-send-message (message)
-  "Send MESSAGE to the ChatGPT API and return the response."
-  (let* ((model-id "text-davinci-003")
-         (url-request-method "POST")
-         (url-request-extra-headers
-          `(("Content-Type" . "application/json")
-            ("Authorization" . ,(concat "Bearer " emacs-chatgpt-api-key)))))
-    (setq url-request-data (json-encode `(("model" . ,model-id)
-                                          ("prompt" . ,message)
-                                          ("temperature" . 0.9)
-                                          ("max_tokens" . 150))))
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://api.openai.com/v1/completions")
-      (goto-char (point-min))
-      (search-forward "\n\n")
-      (let* ((json-object-type 'hash-table)
-             (response-json (json-read))
-             (choices (gethash "choices" response-json))
-             (texts (mapcar (lambda (choice) (gethash "text" choice)) choices)))
-        texts))))
+(defun extract-content-text (response-data)
+  "Extract content text from response-data."
+  (let ((choices (cdr (assoc 'choices response-data))))
+    (mapconcat (lambda (choice)
+                 (let ((message (cdr (assoc 'message choice))))
+                   (cdr (assoc 'content message))))
+               choices
+               "\n")))
 
-(defun chatgpt-interact ()
-  "Interact with the ChatGPT API."
+(defun chatgpt-send-message ()
+  "Send a message to ChatGPT and display response choices in a new buffer."
   (interactive)
-  (let ((message (read-string "Enter your message: ")))
-    (message "ChatGPT: %s" (string-join (chatgpt-send-message message) "\n"))))
-
-;; Bind the `chatgpt-interact` function to a keybinding
-(global-set-key (kbd "C-c C-g") 'chatgpt-interact)
+  (let ((message (read-string "Enter message: ")))
+    (let ((chat-gpt-buffer (generate-new-buffer "*ChatGPT Response*")))
+      (set-window-buffer (split-window-right) chat-gpt-buffer)
+      (with-current-buffer chat-gpt-buffer
+        (erase-buffer)
+        (let* ((input-data `((messages . (((role . "user") (content . ,message))))
+                             (model . "gpt-3.5-turbo")
+                             (temperature . 0.6)))
+               (json-data (json-encode input-data)))
+          (request "https://api.openai.com/v1/chat/completions"
+            :type "POST"
+            :headers `(("Content-Type" . "application/json")
+                       ("Authorization" . ,(concat "Bearer " emacs-chatgpt-api-key)))
+            :data json-data
+            :parser 'json-read
+            :error
+            (cl-function (lambda (&rest args &key error-thrown data &allow-other-keys)
+                           (message "Got error: %S" data)))
+            :success (cl-function
+                      (lambda (&key data &allow-other-keys)
+                        (insert "ChatGPT: \n")
+                        (insert (extract-content-text data))
+                        (message "Response displayed in new buffer."))))))
+      (other-window 1))))
+;; ;; Bind the `chatgpt-interact` function to a keybinding
+(global-set-key (kbd "C-c C-g") 'chatgpt-send-message)
 
 ;; Other window alternative
  (global-set-key (kbd "M-o") #'mode-line-other-buffer)
