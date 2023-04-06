@@ -585,10 +585,25 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package lsp-ivy)
 
-(use-package yasnippet)                  ; Snippets
+(use-package yasnippet
+:ensure t
+:config
+  (yas-global-mode 1)
+)
 (use-package yasnippet-snippets)         ; Collection of snippets
+(use-package py-snippets
+:ensure t
+:after yasnippet
+:config
+(py-snippets-initialize))
 
 (use-package dap-mode
+  :defer
+  :custom
+  (dap-auto-configure-mode t "Automatically configure dap.")
+  (dap-auto-configure-features
+   '(sessions locals breakpoints expressions tooltip)  "Remove the button panel in the top.")
+
   ;; Uncomment the config below if you want all UI panes to be hidden by default!
   ;; :custom
   ;; (lsp-enable-dap-auto-configure nil)
@@ -601,7 +616,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   ;; (require 'dap-node)
   ;; (dap-node-setup) ;; Automatically installs Node debug adapter if needed
   ;; Set up python debugging
-  ;; requires pip install ptvsd >= 4.2
   (require 'dap-python)
   ;; dap-mode for javascript
   ;; you only need call dap-firefox-setup after requiring dap-firefox
@@ -756,8 +770,10 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
    ".html$"
    ".blade.php$"
    ".liquid$"
+   ".ts$"
    )
 )
+(use-package rainbow-mode)
 
 (use-package solidity-mode
   :config
@@ -782,7 +798,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package company
   :after lsp-mode
-  :hook (lsp-mode . company-mode)
+  :hook (after-init-hook . global-company-mode)
   :bind (:map company-active-map
          ("<tab>" . company-complete-selection))
         (:map lsp-mode-map
@@ -814,6 +830,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (setq treemacs-python-executable (executable-find "python3")))
 
 (use-package projectile
+  :ensure t
   :diminish projectile-mode
   :config (projectile-mode)
   :custom ((projectile-completion-system 'ivy))
@@ -821,6 +838,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   ("C-c p" . projectile-command-map)
   :init
   ;; NOTE: Set this to the folder where you keep your Git repos!
+  (projectile-mode +1)
   (when (file-directory-p "~/code")
     (setq projectile-project-search-path '("~/code")))
   (setq projectile-switch-project-action #'projectile-dired))
@@ -1173,6 +1191,14 @@ If popup is focused, delete it."
                choices
                "\n")))
 
+(defun chatgpt-extract-content-images (response-data)
+    "Extract content images from response-data."
+  (let (images (cdr (assoc 'data response-data)))
+    (mapconcat (lambda (item)
+                 (let (cdr (assoc 'url item))))
+               images
+               "\n")))
+
 (defun chatgpt-send-message ()
   "Send a message to ChatGPT and display response choices in a new buffer."
   (interactive)
@@ -1202,8 +1228,39 @@ If popup is focused, delete it."
                         (goto-char (point-min))
                         (message "Response displayed in new buffer."))))))
       (other-window 1))))
-;; ;; Bind the `chatgpt-interact` function to a keybinding
 (global-set-key (kbd "C-c C-g") 'chatgpt-send-message)
+
+  ;; refactor to reuse
+  (defun chatgpt-send-message-image ()
+  "Send a message to ChatGPT and display response choices in a new buffer."
+  (interactive)
+  (let ((message (read-string "Enter image description: ")))
+    (let ((chat-gpt-image-buffer (generate-new-buffer "*ChatGPT Response Image*")))
+      (set-window-buffer (split-window-right) chat-gpt-image-buffer)
+      (with-current-buffer chat-gpt-image-buffer
+        (image-mode)
+        (erase-buffer)
+        (let* ((input-data `((prompt . ,message)
+                             (n . 3)
+                             (size . "256x256")))
+               (json-data (json-encode input-data)))
+          (request "https://api.openai.com/v1/images/generations"
+            :type "POST"
+            :headers `(("Content-Type" . "application/json")
+                       ("Authorization" . ,(concat "Bearer " (chatgpt-get-api-key))))
+            :data json-data
+            :parser 'json-read
+            :error
+            (cl-function (lambda (&rest args &key error-thrown data &allow-other-keys)
+                           (message "Got error: %S" data)))
+            :success (cl-function
+                      (lambda (&key data &allow-other-keys)
+                        (insert "ChatGPT: \n")
+                        (insert (chatgpt-extract-content-images data))
+                        (goto-char (point-min))
+                        (message "Response displayed in new buffer."))))))
+      (other-window 1))))
+(global-set-key (kbd "C-c C-i") 'chatgpt-send-message-image)
 
 ;; Other window alternative
  (global-set-key (kbd "M-o") #'mode-line-other-buffer)
