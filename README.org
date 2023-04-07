@@ -1672,17 +1672,17 @@ Store all backup and autosave files in the =tmp= dir
 * ChatGPT
 #+begin_src emacs-lisp
   (defun chatgpt-get-api-key ()
-      (let* ((file-contents (with-temp-buffer
-                              (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
-                              (buffer-substring-no-properties (point-min) (point-max))))
-             (lines (split-string file-contents "\n" t))
-             (my-api-key-line (cl-find-if (lambda (line) (string-match-p "^emacs-chatgpt-api-key=" line)) lines))
-             (my-api-key-value (when my-api-key-line
-                                 (substring my-api-key-line (1+ (string-match "=" my-api-key-line))))))
+    (let* ((file-contents (with-temp-buffer
+                            (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
+                            (buffer-substring-no-properties (point-min) (point-max))))
+           (lines (split-string file-contents "\n" t))
+           (my-api-key-line (cl-find-if (lambda (line) (string-match-p "^emacs-chatgpt-api-key=" line)) lines))
+           (my-api-key-value (when my-api-key-line
+                               (substring my-api-key-line (1+ (string-match "=" my-api-key-line))))))
 
-        (if my-api-key-value
-            my-api-key-value
-          (error "my-api-key not found in file"))))
+      (if my-api-key-value
+          my-api-key-value
+        (error "my-api-key not found in file"))))
 
   (defun chatgpt-extract-content-text (response-data)
     "Extract content text from response-data."
@@ -1694,7 +1694,7 @@ Store all backup and autosave files in the =tmp= dir
                  "\n")))
 
   (defun chatgpt-extract-content-images (response-data)
-      "Extract content images from response-data."
+    "Extract content images from response-data."
     (let (images (cdr (assoc 'data response-data)))
       (mapconcat (lambda (item)
                    (let (cdr (assoc 'url item))))
@@ -1704,65 +1704,35 @@ Store all backup and autosave files in the =tmp= dir
   (defun chatgpt-send-message ()
     "Send a message to ChatGPT and display response choices in a new buffer."
     (interactive)
-    (let ((message (read-string "Enter message: ")))
+    (let ((prompt (read-string "Enter message: ")))
+      (setf lexical-binding t)
       (let ((chat-gpt-buffer (generate-new-buffer "*ChatGPT Response*")))
         (set-window-buffer (split-window-right) chat-gpt-buffer)
         (with-current-buffer chat-gpt-buffer
           (markdown-mode)
           (erase-buffer)
-          (let* ((input-data `((messages . (((role . "user") (content . ,message))))
-                               (model . "gpt-3.5-turbo")
-                               (temperature . 0.6)))
-                 (json-data (json-encode input-data)))
-            (request "https://api.openai.com/v1/chat/completions"
-              :type "POST"
-              :headers `(("Content-Type" . "application/json")
-                         ("Authorization" . ,(concat "Bearer " (chatgpt-get-api-key))))
-              :data json-data
-              :parser 'json-read
-              :error
-              (cl-function (lambda (&rest args &key error-thrown data &allow-other-keys)
-                             (message "Got error: %S" data)))
-              :success (cl-function
-                        (lambda (&key data &allow-other-keys)
-                          (insert "ChatGPT: \n")
-                          (insert (chatgpt-extract-content-text data))
-                          (goto-char (point-min))
-                          (message "Response displayed in new buffer."))))))
+          (request "https://api.openai.com/v1/chat/completions"
+            :type "POST"
+            :headers `(("Content-Type" . "application/json")
+                       ("Authorization" . ,(concat "Bearer " (chatgpt-get-api-key))))
+            :data (json-encode `((messages . (((role . "user") (content . ,prompt))))
+                                 (model . "gpt-3.5-turbo")
+                                 (temperature . 0.6)))
+            :parser 'json-read
+            :error (cl-function
+                    (lambda (&rest args &key error-thrown data &allow-other-keys)
+                      (message "Got error: %S" data)))
+            :success (cl-function                    
+                      (lambda (&key data &allow-other-keys)
+                        (insert "Prompt: \n=========\n")
+                        (insert (concat prompt " \n\n"))
+                        (insert "ChatGPT: \n=========\n")
+                        (insert (chatgpt-extract-content-text data))
+                        (goto-char (point-min))
+                        (message "Response displayed in new buffer.")))))
         (other-window 1))))
   (global-set-key (kbd "C-c C-g") 'chatgpt-send-message)
 
-    ;; refactor to reuse
-    (defun chatgpt-send-message-image ()
-    "Send a message to ChatGPT and display response choices in a new buffer."
-    (interactive)
-    (let ((message (read-string "Enter image description: ")))
-      (let ((chat-gpt-image-buffer (generate-new-buffer "*ChatGPT Response Image*")))
-        (set-window-buffer (split-window-right) chat-gpt-image-buffer)
-        (with-current-buffer chat-gpt-image-buffer
-          (image-mode)
-          (erase-buffer)
-          (let* ((input-data `((prompt . ,message)
-                               (n . 3)
-                               (size . "256x256")))
-                 (json-data (json-encode input-data)))
-            (request "https://api.openai.com/v1/images/generations"
-              :type "POST"
-              :headers `(("Content-Type" . "application/json")
-                         ("Authorization" . ,(concat "Bearer " (chatgpt-get-api-key))))
-              :data json-data
-              :parser 'json-read
-              :error
-              (cl-function (lambda (&rest args &key error-thrown data &allow-other-keys)
-                             (message "Got error: %S" data)))
-              :success (cl-function
-                        (lambda (&key data &allow-other-keys)
-                          (insert "ChatGPT: \n")
-                          (insert (chatgpt-extract-content-images data))
-                          (goto-char (point-min))
-                          (message "Response displayed in new buffer."))))))
-        (other-window 1))))
-  (global-set-key (kbd "C-c C-i") 'chatgpt-send-message-image)
 #+end_src
 
 #+RESULTS:
