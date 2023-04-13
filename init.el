@@ -1029,8 +1029,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (defun shell-toggle (&optional command)
   "Toggle a persistent terminal popup window.
-If popup is visible but unselected, selected it.
-If popup is focused, delete it."
+  If popup is visible but unselected, selected it.
+  If popup is focused, delete it."
   (interactive)
   (let ((buffer
          (get-buffer-create
@@ -1051,6 +1051,31 @@ If popup is focused, delete it."
           (cd dir)
           (run-mode-hooks 'shell-mode-hook))))))
 (global-set-key (kbd "C-c t") 'shell-toggle)
+
+(defun term-toggle (&optional command)
+  "Toggle a persistent terminal popup window.
+If popup is visible but unselected, selected it.
+If popup is focused, delete it."
+  (interactive)
+  (let ((buffer
+         (get-buffer-create
+          (format "*term-popup:%s*"
+                  (if (bound-and-true-p persp-mode)
+                      (safe-persp-name (get-current-persp))
+                    "main"))))
+        (dir default-directory))
+    (if-let (win (get-buffer-window buffer))
+        (if (eq (selected-window) win)
+            (let (confirm-kill-processes)
+              (delete-window win))
+          (select-window win)
+          (goto-char (point-max)))
+      (with-current-buffer (pop-to-buffer buffer)
+        (if (not (eq major-mode 'term-mode))
+            (term "/bin/zsh")
+          (cd dir)
+          (run-mode-hooks 'term-mode-hook))))))
+(global-set-key (kbd "C-c C-t") 'term-toggle)
 
 (use-package dired
   :ensure nil
@@ -1169,67 +1194,71 @@ If popup is focused, delete it."
    "exiftool '<<f>>'"
    :utils "exiftool")))
 
+(require 'request)
+
 (defun chatgpt-get-api-key ()
   (let* ((file-contents (with-temp-buffer
-                          (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
-                          (buffer-substring-no-properties (point-min) (point-max))))
-         (lines (split-string file-contents "\n" t))
-         (my-api-key-line (cl-find-if (lambda (line) (string-match-p "^emacs-chatgpt-api-key=" line)) lines))
-         (my-api-key-value (when my-api-key-line
-                             (substring my-api-key-line (1+ (string-match "=" my-api-key-line))))))
+                              (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
+                              (buffer-substring-no-properties (point-min) (point-max))))
+             (lines (split-string file-contents "\n" t))
+             (my-api-key-line (cl-find-if (lambda (line) (string-match-p "^emacs-chatgpt-api-key=" line)) lines))
+             (my-api-key-value (when my-api-key-line
+                                 (substring my-api-key-line (1+ (string-match "=" my-api-key-line))))))
 
-    (if my-api-key-value
-        my-api-key-value
-      (error "my-api-key not found in file"))))
+        (if my-api-key-value
+            my-api-key-value
+          (error "my-api-key not found in file"))))
 
-(defun chatgpt-extract-content-text (response-data)
-  "Extract content text from response-data."
-  (let ((choices (cdr (assoc 'choices response-data))))
-    (mapconcat (lambda (choice)
-                 (let ((message (cdr (assoc 'message choice))))
-                   (cdr (assoc 'content message))))
-               choices
-               "\n")))
+;; (defun chatgpt-extract-content-text (response-data)
+;;   "Extract content text from response-data."
+;;   (let ((choices (cdr (assoc 'choices response-data))))
+;;     (mapconcat (lambda (choice)
+;;                  (let ((message (cdr (assoc 'message choice))))
+;;                    (cdr (assoc 'content message))))
+;;                choices
+;;                "\n")))
 
-(defun chatgpt-extract-content-images (response-data)
-  "Extract content images from response-data."
-  (let (images (cdr (assoc 'data response-data)))
-    (mapconcat (lambda (item)
-                 (let (cdr (assoc 'url item))))
-               images
-               "\n")))
+;; (defun chatgpt-send-message ()
+;;   "Send a message to ChatGPT and display response choices in a new buffer."
+;;   (interactive)
+;;   (let ((prompt (read-string "Enter message: ")))
+;;     (let ((chat-gpt-buffer (generate-new-buffer "*ChatGPT Response*")))
+;;       (set-window-buffer (split-window-right) chat-gpt-buffer)
+;;       (chatgpt-display-response prompt chat-gpt-buffer))))
 
-(defun chatgpt-send-message ()
-  "Send a message to ChatGPT and display response choices in a new buffer."
-  (interactive)
-  (let ((prompt (read-string "Enter message: ")))
-    (setf lexical-binding t)
-    (let ((chat-gpt-buffer (generate-new-buffer "*ChatGPT Response*")))
-      (set-window-buffer (split-window-right) chat-gpt-buffer)
-      (with-current-buffer chat-gpt-buffer
-        (markdown-mode)
-        (erase-buffer)
-        (request "https://api.openai.com/v1/chat/completions"
-          :type "POST"
-          :headers `(("Content-Type" . "application/json")
-                     ("Authorization" . ,(concat "Bearer " (chatgpt-get-api-key))))
-          :data (json-encode `((messages . (((role . "user") (content . ,prompt))))
-                               (model . "gpt-3.5-turbo")
-                               (temperature . 0.6)))
-          :parser 'json-read
-          :error (cl-function
-                  (lambda (&rest args &key error-thrown data &allow-other-keys)
-                    (message "Got error: %S" data)))
-          :success (cl-function                    
-                    (lambda (&key data &allow-other-keys)
-                      (insert "Prompt: \n=========\n")
-                      (insert (concat prompt " \n\n"))
-                      (insert "ChatGPT: \n=========\n")
-                      (insert (chatgpt-extract-content-text data))
-                      (goto-char (point-min))
-                      (message "Response displayed in new buffer.")))))
-      (other-window 1))))
-(global-set-key (kbd "C-c C-g") 'chatgpt-send-message)
+
+;; (defun chatgpt-display-response (prompt buffer)
+;;   "Send a prompt to ChatGPT and display response choices in BUFFER."
+;;   (with-current-buffer buffer
+;;     (markdown-mode)
+;;     (erase-buffer)
+;;     (let (
+;;       (other-window 1)
+;;       (insert "Prompt: \n=========\n")
+;;       (insert (concat prompt " \n\n"))
+;;       (insert "ChatGPT: \n=========\n")
+;;       (insert (chatgpt-extract-content-text (chatgpt-get-response prompt)))
+;;       (goto-char (point-max))
+;;       (message "Response displayed in new buffer.")))))
+
+
+;; (defun chatgpt-get-response (prompt)
+;;   "Get a response from ChatGPT for the given PROMPT."
+;;   (request-response-data
+;;    (request "https://api.openai.com/v1/chat/completions"
+;;      :type "POST"
+;;      :sync t
+;;      :headers `(("Content-Type" . "application/json")
+;;                 ("Authorization" . ,(concat "Bearer " (chatgpt-get-api-key))))
+;;      :data (json-encode `((messages . (((role . "user") (content . ,prompt))))
+;;                           (model . "gpt-3.5-turbo")
+;;                           (temperature . 0.6)))
+;;      :parser 'json-read)))
+
+(use-package gptel
+              :config
+              (setq gptel-api-key (chatgpt-get-api-key)))
+(global-set-key (kbd "C-c C-g") 'gptel-send-menu)
 
 ;; Other window alternative
  (global-set-key (kbd "M-o") #'mode-line-other-buffer)
