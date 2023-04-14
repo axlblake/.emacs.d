@@ -1492,6 +1492,11 @@ One advantage of =shell-mode= on Windows is that it's the only way to run =cmd.e
             (cd dir)
             (run-mode-hooks 'term-mode-hook))))))
   (global-set-key (kbd "C-c C-t") 'term-toggle)
+  (add-hook 'python-mode-hook
+        (lambda () (local-set-key (kbd "C-c C-t") 'term-toggle)))
+#+end_src
+
+This will set the key binding locally for =text-mode=, so it won't be overwritten by other major modes.
 #+end_src
 * File Management
 ** Dired

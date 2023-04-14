@@ -1076,6 +1076,8 @@ If popup is focused, delete it."
           (cd dir)
           (run-mode-hooks 'term-mode-hook))))))
 (global-set-key (kbd "C-c C-t") 'term-toggle)
+(add-hook 'python-mode-hook
+      (lambda () (local-set-key (kbd "C-c C-t") 'term-toggle)))
 
 (use-package dired
   :ensure nil
