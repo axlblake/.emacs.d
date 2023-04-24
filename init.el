@@ -718,6 +718,33 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
    `((python-f-string-font-lock-find))
    'append))
 
+(with-eval-after-load 'projectile
+  (defvar start-file-path (concat (projectile-project-root) "app.py")
+    "The path to the Python project's start file.")
+
+  (defun run-venv-python-file ()
+    "Runs python module using start-file-path global variable"
+    (let ((default-directory (projectile-project-root)))
+      (async-shell-command (concat pyvenv-virtual-env "bin/python3 " start-file-path))
+      (other-window 1)
+      (rename-buffer (concat (projectile-project-name) " | shell")))
+    )
+
+  (defun run-project ()
+    "Runs the start module of the current Python project."
+    (interactive)
+    (let* ((project-root (projectile-project-root)))
+      (if (yes-or-no-p (format "Use previously selected start file?\n%s" start-file-path))
+          (run-venv-python-file)
+        (let ((selected-filepath (read-file-name "Select start file: " project-root)))
+          (setq start-file-path selected-filepath)
+          (run-venv-python-file))))))
+
+(defun py-mode-specific-bindings ()
+  (define-key python-mode-map (kbd "C-c C-c") 'run-project))
+
+(add-hook 'python-mode-hook 'py-mode-specific-bindings)
+
 (use-package lsp-java
   :init
   (defun jmi/java-mode-config ()
@@ -1260,7 +1287,7 @@ If popup is focused, delete it."
 (use-package gptel
               :config
               (setq gptel-api-key (chatgpt-get-api-key)))
-(global-set-key (kbd "C-c C-g") 'gptel-send-menu)
+(global-set-key (kbd "C-c C-g") 'gptel-menu)
 
 ;; Other window alternative
  (global-set-key (kbd "M-o") #'mode-line-other-buffer)
@@ -1323,6 +1350,7 @@ If popup is focused, delete it."
      (global-so-long-mode 1)
      (setq bidi-inhibit-bpa t))
 
+;; dap an lsp additional
 (dap-register-debug-template "Docker Debug"
                              (list :type "python"
                                    :request "attach"
@@ -1334,6 +1362,7 @@ If popup is focused, delete it."
                   :major-modes '(python-mode)
                   :remote? t
                   :server-id 'pyls-remote))
+;; subprocess call
 (defun start-file-process-shell-command@around (start-file-process-shell-command name buffer &rest args)
   "Start a program in a subprocess.  Return the process object for it.
  Similar to `start-process-shell-command', but calls `start-file-process'."
