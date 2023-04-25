@@ -976,8 +976,11 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package vlf)
 
 (use-package yafolding)
-(add-hook 'json-mode-hook
-          (lambda () (yafolding-mode)))
+(add-hook 'json-mode-hook (lambda () (yafolding-mode)))
+(add-hook 'python-mode-hook (lambda () (yafolding-mode)))
+
+(define-key yafolding-mode-map (kbd "C-x M-y") 'yafolding-toggle-all)
+(define-key yafolding-mode-map (kbd "C-x C-y") 'yafolding-toggle-element)
 
 (use-package tramp ;; with use-package
    :defer t

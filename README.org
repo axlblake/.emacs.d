@@ -1332,9 +1332,12 @@ Pretty dockerfiles
 ** Yafolding
 Yet another folding extension for Emacs
 #+begin_src emacs-lisp
-(use-package yafolding)
-(add-hook 'json-mode-hook
-          (lambda () (yafolding-mode)))
+  (use-package yafolding)
+  (add-hook 'json-mode-hook (lambda () (yafolding-mode)))
+  (add-hook 'python-mode-hook (lambda () (yafolding-mode)))
+
+  (define-key yafolding-mode-map (kbd "C-x M-y") 'yafolding-toggle-all)
+  (define-key yafolding-mode-map (kbd "C-x C-y") 'yafolding-toggle-element)
 #+end_src
 ** Tramp
 Tramp stands for `Transparent Remote (file) Access, Multiple
