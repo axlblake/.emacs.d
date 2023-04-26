@@ -1434,6 +1434,21 @@ Additional ediff configurations
 #+begin_src emacs-lisp
   (use-package csv-mode)
 #+end_src
+** kill-process in list-processes
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-l") 'list-processes)
+  (define-key process-menu-mode-map (kbd "C-k") 'my/delete-process-at-point)
+
+  (defun my/delete-process-at-point ()
+    (interactive)
+    (let ((process (get-text-property (point) 'tabulated-list-id)))
+      (cond ((and process
+                  (processp process))
+             (delete-process process)
+             (revert-buffer))
+            (t
+             (error "no process at point!")))))
+#+end_src
 * Terminals
 ** vterm
 [[https://github.com/akermu/emacs-libvterm/][vterm]] is an improved terminal emulator package which uses a compiled native module to interact with the underlying terminal applications.  This enables it to be much faster than =term-mode= and to also provide a more complete terminal emulation experience.

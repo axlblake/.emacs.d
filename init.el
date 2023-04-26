@@ -1043,6 +1043,19 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package csv-mode)
 
+(global-set-key (kbd "C-x C-l") 'list-processes)
+(define-key process-menu-mode-map (kbd "C-k") 'my/delete-process-at-point)
+
+(defun my/delete-process-at-point ()
+  (interactive)
+  (let ((process (get-text-property (point) 'tabulated-list-id)))
+    (cond ((and process
+                (processp process))
+           (delete-process process)
+           (revert-buffer))
+          (t
+           (error "no process at point!")))))
+
 (use-package vterm
   :commands vterm
   :ensure t
