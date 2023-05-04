@@ -260,13 +260,6 @@ Counsel is a customized set of commands to replace `find-file` with `counsel-fin
      :config
      (ivy-mode 1))
 
-   (use-package ivy-rich
-     :ensure t
-     :after (ivy counsel)
-     :config
-     (ivy-rich-path-style (quote full))
-     (ivy-rich-mode 1))
-
    (use-package counsel
      :bind (("C-x b" . 'counsel-switch-buffer))
      :custom
@@ -711,11 +704,6 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
 ** Babel async support
 #+begin_src emacs-lisp
 (use-package ob-async)
-#+end_src
-** Trello support
-#+begin_src emacs-lisp
-  (use-package org-trello)
-  (custom-set-variables '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org")))
 #+end_src
 * Development
 ** Languages and environments
@@ -1168,7 +1156,6 @@ Flymake alternative
     :bind-keymap
     ("C-c p" . projectile-command-map)
     :init
-    ;; NOTE: Set this to the folder where you keep your Git repos!
     (projectile-mode +1)
     (when (file-directory-p "~/code")
       (setq projectile-project-search-path '("~/code")))

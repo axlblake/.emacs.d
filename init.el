@@ -193,13 +193,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   :config
   (ivy-mode 1))
 
-(use-package ivy-rich
-  :ensure t
-  :after (ivy counsel)
-  :config
-  (ivy-rich-path-style (quote full))
-  (ivy-rich-mode 1))
-
 (use-package counsel
   :bind (("C-x b" . 'counsel-switch-buffer))
   :custom
@@ -537,9 +530,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package ob-async)
 
-(use-package org-trello)
-(custom-set-variables '(org-trello-files '("~/Dropbox/org_files/trello/defirates.org")))
-
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c c")
@@ -864,7 +854,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :init
-  ;; NOTE: Set this to the folder where you keep your Git repos!
   (projectile-mode +1)
   (when (file-directory-p "~/code")
     (setq projectile-project-search-path '("~/code")))
