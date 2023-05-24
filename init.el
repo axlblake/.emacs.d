@@ -634,17 +634,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 
 (use-package vue-mode)
 
-(use-package python-mode
-  :ensure t
-  :config
-  (py-underscore-word-syntax-p-off)
-  :custom
-  ;; NOTE: Set these if Python 3 is called "python3" on your system!
-  (python-shell-interpreter "python3")
-  (dap-python-executable "python3")
-  (dap-python-debugger 'debugpy)
-  )
-
 (use-package py-isort)
 
 (defun py-local-keys()
@@ -688,25 +677,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 ;; ((python-mode . ((eval . (lsp-register-custom-settings
 ;;                           '(("python.pythonPath" "/.../.venv/bin/python"
 ;;                              "python.venvPath" "/.../.venv")))))))
-
-(defconst brace-regexp
-  "[^{]{[^{}]*}")
-(defconst python-f-string-regexp
-  "f\\('.*?[^\\]'\\|\".*?[^\\]\"\\)")
-(defun python-f-string-font-lock-find (limit)
-  (while (re-search-forward python-f-string-regexp limit t)
-    (put-text-property (match-beginning 0) (match-end 0)
-                       'face 'font-lock-string-face)
-    (let ((start (match-beginning 0)))
-      (while (re-search-backward brace-regexp start t)
-        (put-text-property (1+ (match-beginning 0)) (match-end 0)
-                           'face 'font-lock-type-face))))
-  nil)
-(with-eval-after-load 'python
-  (font-lock-add-keywords
-   'python-mode
-   `((python-f-string-font-lock-find))
-   'append))
 
 (with-eval-after-load 'projectile
   (defvar start-file-path (concat (projectile-project-root) "app.py")
