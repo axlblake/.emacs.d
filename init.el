@@ -593,6 +593,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (dap-auto-configure-mode t "Automatically configure dap.")
   (dap-auto-configure-features
    '(sessions locals breakpoints expressions tooltip)  "Remove the button panel in the top.")
+  (dap-python-debugger 'debugpy)
 
   ;; Uncomment the config below if you want all UI panes to be hidden by default!
   ;; :custom
@@ -848,7 +849,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package forge
   :after magit
   :config
-  (add-to-list 'forge-alist '("git.xdev.re" "git.xdev.re/api/v4" "git.xdev.re"  forge-gitlab-repository))
+  (add-to-list 'forge-alist '("git.cbdev.site" "git.cbdev.site/api/v4" "git.cbdev.site"  forge-gitlab-repository))
   :custom
   (global-set-key (kbd "C->") 'mc/mark-next-like-this))
 
@@ -1005,7 +1006,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (global-set-key (kbd "C-x C-l") 'list-processes)
 (define-key process-menu-mode-map (kbd "C-k") 'my/delete-process-at-point)
 
-(defun my/delete-process-at-point ()
+(defun my-delete-process-at-point ()
   (interactive)
   (let ((process (get-text-property (point) 'tabulated-list-id)))
     (cond ((and process
@@ -1264,21 +1265,7 @@ If popup is focused, delete it."
               (setq gptel-api-key (chatgpt-get-api-key)))
 (global-set-key (kbd "C-c C-g") 'gptel-menu)
 
-;; Other window alternative
- (global-set-key (kbd "M-o") #'mode-line-other-buffer)
- ;; Duplicate row
- (defun my-duplicate-line()
-   (interactive)
-   (move-beginning-of-line 1)
-   (kill-line)
-   (yank)
-   (newline)
-   (yank)
- )
- (global-set-key (kbd "C-c d") 'my-duplicate-line)
- (global-set-key (kbd "C-c r") 'kill-whole-line)
-
- ;; Yes Or No y-or-p
+;; Yes Or No y-or-p
  (defalias 'yes-or-no-p 'y-or-n-p)
 
  ;; Whitespace mode only for python-mode (add others if you need)
@@ -1289,30 +1276,6 @@ If popup is focused, delete it."
  (add-hook 'python-mode-hook 'whitespace-mode-enable)
  (add-hook 'rust-mode-hook 'whitespace-mode-enable)
  (add-hook 'js-mode-hook 'whitespace-mode-enable)
-
- (defun my-delete-word (arg)
-   "Delete characters forward until encountering the end of a word.
- With argument, do this that many times.
- This command does not push text to `kill-ring'."
-   (interactive "p")
-   (delete-region
-    (point)
-    (progn
-      (forward-word arg)
-      (point))))
-
- (defun my-backward-delete-word (arg)
-   "Delete characters backward until encountering the beginning of a word.
- With argument, do this that many times.
- This command does not push text to `kill-ring'."
-   (interactive "p")
-   (my-delete-word (- arg)))
-
- ;; Bind them to emacs's default shortcut keys:
- (global-set-key (kbd "<C-delete>") 'my-delete-word)
- (global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
-;; just one space to prevent global language change hotkey overrid
- (global-set-key (kbd "C-S-d") 'just-one-space)
 
  ;; Delete highlighted text on input
  (delete-selection-mode 1)
@@ -1351,6 +1314,48 @@ If popup is focused, delete it."
 (defadvice projectile-project-root (around ignore-remote first activate)
   (unless (file-remote-p default-directory) ad-do-it))
 (setq projectile-mode-line "Projectile")
+
+;; Other window alternative
+ (global-set-key (kbd "M-o") #'mode-line-other-buffer)
+ ;; Duplicate row
+ (defun my-duplicate-line ()
+   (interactive)
+   (move-beginning-of-line 1)
+   (kill-line)
+   (yank)
+   (newline)
+   (yank)
+ )
+ (global-set-key (kbd "C-c d") 'my-duplicate-line)
+ (global-set-key (kbd "C-c r") 'kill-whole-line)
+
+ (defun my-copy-row-path-number ()
+   (interactive)
+   (kill-new (concat (buffer-file-name) ":" (number-to-string (line-number-at-pos)))))
+
+(defun my-delete-word (arg)
+   "Delete characters forward until encountering the end of a word.
+ With argument, do this that many times.
+ This command does not push text to `kill-ring'."
+   (interactive "p")
+   (delete-region
+    (point)
+    (progn
+      (forward-word arg)
+      (point))))
+
+ (defun my-backward-delete-word (arg)
+   "Delete characters backward until encountering the beginning of a word.
+ With argument, do this that many times.
+ This command does not push text to `kill-ring'."
+   (interactive "p")
+   (my-delete-word (- arg)))
+
+ ;; Bind them to emacs's default shortcut keys:
+ (global-set-key (kbd "<C-delete>") 'my-delete-word)
+ (global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
+;; just one space to prevent global language change hotkey overrid
+ (global-set-key (kbd "C-S-d") 'just-one-space)
 
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
