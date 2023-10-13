@@ -38,40 +38,35 @@
   (auto-package-update-maybe))
 
 (when (equal system-type 'darwin)
-  (use-package exec-path-from-shell
-    :ensure t
-    :if (memq window-system '(mac ns))
-    :config
-    (setq exec-path-from-shell-arguments '("-l"))
-    (exec-path-from-shell-initialize)
-    (if (and (fboundp 'native-comp-available-p)
-           (native-comp-available-p))
-      (progn
-        (message "Native comp is available")
-        ;; Using Emacs.app/Contents/MacOS/bin since it was compiled with
-        ;; ./configure --prefix="$PWD/nextstep/Emacs.app/Contents/MacOS"
-        (add-to-list 'exec-path (concat invocation-directory "bin") t)
-        (setenv "LIBRARY_PATH" (concat (getenv "LIBRARY_PATH")
-                                       (when (getenv "LIBRARY_PATH")
-                                         ":")
-                                       ;; This is where Homebrew puts gcc libraries.
-                                       (car (file-expand-wildcards
-                                             (expand-file-name "~/homebrew/opt/gcc/lib/gcc/*")))))
-        ;; Only set after LIBRARY_PATH can find gcc libraries.
-        (setq comp-deferred-compilation t))
-    (message "Native comp is *not* available")))
-
     (setq mac-command-modifier 'meta
           mac-option-key-is-meta nil
           mac-option-modifier 'none)
     (setq ns-right-option-modifier 'super)
-
+    (setenv "LIBRARY_PATH"
+            (string-join
+             '("/opt/homebrew/opt/gcc/lib/gcc/13"
+               "/opt/homebrew/opt/libgccjit/lib/gcc/13"
+               "/opt/homebrew/opt/gcc/lib/gcc/13/gcc/aarch64-apple-darwin21/13")
+             ":"))
     (setq insert-directory-program "/opt/homebrew/bin/gls")
     (custom-set-variables '(epg-gpg-program  "/opt/homebrew/bin/gpg"))
     (setq epa-pinentry-mode 'loopback))
 
 (use-package page-break-lines)
-(use-package all-the-icons)
+(use-package all-the-icons
+  :config
+  '(lsp-treemacs-theme "all-the-icons"))
+
+(let ((font-dest (cl-case window-system
+                 (x  (concat (or (getenv "XDG_DATA_HOME") ;; Default Linux install directories
+                                 (concat (getenv "HOME") "/.local/share"))
+                             "/fonts/"))
+                 (mac (concat (getenv "HOME") "/Library/Fonts/" ))
+                 (ns (concat (getenv "HOME") "/Library/Fonts/" )))))
+(unless (file-exists-p (concat font-dest "all-the-icons.ttf"))
+  (all-the-icons-install-fonts))
+(unless (file-exists-p (concat font-dest "NFM.ttf"))
+  (nerd-icons-install-fonts)))
 
 (use-package dashboard
   :ensure t
@@ -138,36 +133,15 @@
   :init (load-theme 'doom-one t))
 
 (use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  :custom (
-           (doom-modeline-height 15)
-           (doom-modeline-buffer-file-name-style 'truncate-upto-project)))
+    :init (doom-modeline-mode 1)
+    :custom
+    (doom-modeline-height 15)
+    (doom-modeline-buffer-file-name-style 'truncate-upto-project))
 
-;; redefing segment to show workspace by name instead of explicit name 
-(doom-modeline-def-segment workspace-name
-  "The current workspace name or number.
-Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
-  (when doom-modeline-workspace-name
-    (when-let
-      ((name (cond
-              ((and (bound-and-true-p eyebrowse-mode)
-                    (< 1 (length (eyebrowse--get 'window-configs))))
-               (assq-delete-all 'eyebrowse-mode mode-line-misc-info)
-               (when-let*
-                   ((num (eyebrowse--get 'current-slot))
-                    (tag (nth 2 (assoc num (eyebrowse--get 'window-configs)))))
-                 (if (< 0 (length tag)) tag (int-to-string num))))
-              (t
-               (let* ((current-tab (tab-bar--current-tab))
-                      (tab-index (tab-bar--current-tab-index))
-                      (explicit-name (alist-get 'name current-tab))
-                      (tab-name (alist-get 'name current-tab)))
-                 (if explicit-name tab-name (+ 1 tab-index))
-                 )))))
-    (propertize (format " %s " name) 'face
-                (if (doom-modeline--active)
-                    'doom-modeline-buffer-major-mode
-                  'mode-line-inactive)))))
+(with-eval-after-load "doom-modeline"
+  (doom-modeline-def-modeline 'main
+    '(bar matches buffer-info remote-host buffer-position parrot selection-info)
+    '(misc-info minor-modes checker input-method buffer-encoding major-mode process vcs "  ")))
 
 (use-package which-key
   :init (which-key-mode)
@@ -224,11 +198,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   ([remap describe-key] . helpful-key))
 
 (use-package hydra)
-(defhydra hydra-text-scale (:timeout 10)
-"scale text"
-("j" text-scale-increase "in")
-("k" text-scale-decrease "out"))
-(global-set-key (kbd "C-c f") 'hydra-text-scale/body)
 
 (use-package highlight-indent-guides
 :hook ((prog-mode text-mode conf-mode) . highlight-indent-guides-mode)
@@ -285,7 +254,7 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
     (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
   (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
@@ -533,14 +502,15 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c c")
-  (setq-default lsp-modeline-diagnostics-enable nil)
+  ;; (setq-default lsp-modeline-diagnostics-enable nil)
+  ;; (setq lsp-modeline-code-actions-enable nil)
   :custom
-  (lsp-rust-analyzer-cargo-watch-command "clippy")
   ;; (lsp-eldoc-render-all t)
-  (lsp-idle-delay 0.500)
+  ;; (lsp-idle-delay 0.500)
   (gc-cons-threshold 100000000)
   (read-process-output-max (* 3 1024 1024))
   (lsp-rust-analyzer-server-display-inlay-hints t)
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
   :hook ((python-mode . lsp)
          (vue-mode . lsp)
          (rust-mode . lsp)
@@ -549,8 +519,8 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
   (setq lsp-enable-which-key-integration t)
   (setq lsp-headerline-breadcrumb-enable nil)
   (setq lsp-signature-auto-activate nil)
-  (setq lsp-pylsp-configuration-sources ["flake8"])
-  (setq lsp-pylsp-plugins-flake8-enabled nil)
+  ;; (setq lsp-pylsp-configuration-sources ["flake8"])
+  ;; (setq lsp-pylsp-plugins-flake8-enabled nil)
   (setq lsp-pylsp-plugins-mccabe-enabled nil)
   (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
   (setq lsp-pylsp-plugins-pyflakes-enabled nil)
@@ -962,9 +932,6 @@ Requires `eyebrowse-mode' or `tab-bar-mode' to be enabled."
 (use-package docker) ;; manage docker containers
 ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
 
-;; docker fs access via tramp
-(use-package docker-tramp)
-
 (use-package imenu-list
   :ensure t
   :bind ("C-c c l i" . imenu-list-minor-mode)
@@ -1296,10 +1263,10 @@ If popup is focused, delete it."
                                    :host "localhost"
                                    :port 5678))
 (lsp-register-client
- (make-lsp-client :new-connection (lsp-tramp-connection "pyls")
+ (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
                   :major-modes '(python-mode)
                   :remote? t
-                  :server-id 'pyls-remote))
+                  :server-id 'pylsp-remote))
 ;; subprocess call
 (defun start-file-process-shell-command@around (start-file-process-shell-command name buffer &rest args)
   "Start a program in a subprocess.  Return the process object for it.
@@ -1316,7 +1283,7 @@ If popup is focused, delete it."
 (setq projectile-mode-line "Projectile")
 
 ;; Other window alternative
- (global-set-key (kbd "M-o") #'mode-line-other-buffer)
+ (global-set-key (kbd "M-o") 'mode-line-other-buffer)
  ;; Duplicate row
  (defun my-duplicate-line ()
    (interactive)
