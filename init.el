@@ -37,6 +37,13 @@
         auto-package-update-interval 30)
   (auto-package-update-maybe))
 
+(use-package exec-path-from-shell
+  :ensure t
+  :if (memq window-system '(mac ns))
+  :config
+  (setq exec-path-from-shell-arguments '("-l"))
+  (exec-path-from-shell-initialize))
+
 (when (equal system-type 'darwin)
     (setq mac-command-modifier 'meta
           mac-option-key-is-meta nil
@@ -51,6 +58,8 @@
     (setq insert-directory-program "/opt/homebrew/bin/gls")
     (custom-set-variables '(epg-gpg-program  "/opt/homebrew/bin/gpg"))
     (setq epa-pinentry-mode 'loopback))
+
+(setq ad-redefinition-action 'accept)
 
 (use-package page-break-lines)
 (use-package all-the-icons
@@ -141,7 +150,7 @@
 (with-eval-after-load "doom-modeline"
   (doom-modeline-def-modeline 'main
     '(bar matches buffer-info remote-host buffer-position parrot selection-info)
-    '(misc-info minor-modes checker input-method buffer-encoding major-mode process vcs "  ")))
+    '(misc-info minor-modes input-method buffer-encoding major-mode process vcs "  ")))
 
 (use-package which-key
   :init (which-key-mode)
@@ -475,14 +484,6 @@
 (setq org-plantuml-jar-path "~/plantuml.jar")
 (setq plantuml-default-exec-mode 'jar)
 
-(use-package company-org-block
-  :ensure t
-  :custom
-  (company-org-block-edit-style 'auto) ;; 'auto, 'prompt, or 'inline
-  :hook ((org-mode . (lambda ()
-                       (setq-local company-backends '(company-org-block))
-                       (company-mode +1)))))
-
 (setq org-roam-v2-ack t)
 (use-package org-roam
   :ensure t
@@ -508,7 +509,7 @@
   ;; (lsp-eldoc-render-all t)
   ;; (lsp-idle-delay 0.500)
   (gc-cons-threshold 100000000)
-  (read-process-output-max (* 3 1024 1024))
+  (read-process-output-max (* 10 1024 1024)) ;; 10Mb
   (lsp-rust-analyzer-server-display-inlay-hints t)
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   :hook ((python-mode . lsp)
@@ -757,18 +758,16 @@
 (use-package company
   :after lsp-mode
   :hook (after-init-hook . global-company-mode)
-  :bind (:map company-active-map
-         ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map
-         ("<tab>" . company-indent-or-complete-common))
   :custom
   (company-minimum-prefix-length 1)
-  (company-idle-delay 0.5))
+  (company-idle-delay 0.1))
 
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
-(add-hook 'after-init-hook 'global-company-mode)
+(add-to-list 'company-backends '(company-capf company-dabbrev))
+(with-eval-after-load 'company
+  (define-key company-mode-map (kbd "<tab>") 'company-complete))
 
 (use-package flycheck
   :diminish flycheck-mode
@@ -921,13 +920,18 @@
                               vc-ignore-dir-regexp tramp-file-name-regexp))
    (setq tramp-copy-size-limit nil)
    (setq tramp-completion-reread-directory-timeout t)
-   (setq tramp-verbose 0))
+   (setq tramp-verbose 0)
+   (setq make-backup-files nil)
+   (setq create-lockfiles nil)
+   )
 
  ;; (use-package vagrant-tramp)
 
 (use-package tramp-term)
 (use-package counsel-tramp
    :bind (("C-x t" . counsel-tramp)))
+
+(setq counsel-tramp-control-master t)
 
 (use-package docker) ;; manage docker containers
 ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
@@ -1281,6 +1285,9 @@ If popup is focused, delete it."
 (defadvice projectile-project-root (around ignore-remote first activate)
   (unless (file-remote-p default-directory) ad-do-it))
 (setq projectile-mode-line "Projectile")
+
+  ;; remove beep
+(setq ring-bell-function 'ignore)
 
 ;; Other window alternative
  (global-set-key (kbd "M-o") 'mode-line-other-buffer)

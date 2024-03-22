@@ -52,6 +52,13 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
 #+end_src
 * MacOS specific configurations
 #+begin_src emacs-lisp
+  (use-package exec-path-from-shell
+    :ensure t
+    :if (memq window-system '(mac ns))
+    :config
+    (setq exec-path-from-shell-arguments '("-l"))
+    (exec-path-from-shell-initialize))
+
   (when (equal system-type 'darwin)
       (setq mac-command-modifier 'meta
             mac-option-key-is-meta nil
@@ -66,6 +73,8 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
       (setq insert-directory-program "/opt/homebrew/bin/gls")
       (custom-set-variables '(epg-gpg-program  "/opt/homebrew/bin/gpg"))
       (setq epa-pinentry-mode 'loopback))
+  
+  (setq ad-redefinition-action 'accept)
 #+end_src
 * Dashboard
 Startup dashboard
@@ -189,7 +198,7 @@ You can also run =M-x counsel-load-theme= to choose between them easily.
   (with-eval-after-load "doom-modeline"
     (doom-modeline-def-modeline 'main
       '(bar matches buffer-info remote-host buffer-position parrot selection-info)
-      '(misc-info minor-modes checker input-method buffer-encoding major-mode process vcs "  ")))
+      '(misc-info minor-modes input-method buffer-encoding major-mode process vcs "  ")))
     #+end_src
 
 ** Which Key
@@ -643,17 +652,6 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
   (setq plantuml-default-exec-mode 'jar)
 #+end_src
 
-** Company org block
-#+begin_src emacs-lisp
-  (use-package company-org-block
-    :ensure t
-    :custom
-    (company-org-block-edit-style 'auto) ;; 'auto, 'prompt, or 'inline
-    :hook ((org-mode . (lambda ()
-                         (setq-local company-backends '(company-org-block))
-                         (company-mode +1)))))
-#+end_src
-
 ** Org-roam
 #+begin_src emacs-lisp
   (setq org-roam-v2-ack t)
@@ -691,7 +689,7 @@ We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enab
     ;; (lsp-eldoc-render-all t)
     ;; (lsp-idle-delay 0.500)
     (gc-cons-threshold 100000000)
-    (read-process-output-max (* 3 1024 1024))
+    (read-process-output-max (* 10 1024 1024)) ;; 10Mb
     (lsp-rust-analyzer-server-display-inlay-hints t)
     (lsp-rust-analyzer-cargo-watch-command "clippy")
     :hook ((python-mode . lsp)
@@ -1044,18 +1042,16 @@ We also use [[https://github.com/sebastiencs/company-box][company-box]] to furth
   (use-package company
     :after lsp-mode
     :hook (after-init-hook . global-company-mode)
-    :bind (:map company-active-map
-           ("<tab>" . company-complete-selection))
-          (:map lsp-mode-map
-           ("<tab>" . company-indent-or-complete-common))
     :custom
     (company-minimum-prefix-length 1)
-    (company-idle-delay 0.5))
+    (company-idle-delay 0.1))
 
   (use-package company-box
     :hook (company-mode . company-box-mode))
 
-  (add-hook 'after-init-hook 'global-company-mode)
+  (add-to-list 'company-backends '(company-capf company-dabbrev))
+  (with-eval-after-load 'company
+    (define-key company-mode-map (kbd "<tab>") 'company-complete))
 
 #+end_src
 ** Flycheck
@@ -1282,13 +1278,19 @@ and `rcp' or other work-alike programs, such as `ssh'/`scp'.
                                 vc-ignore-dir-regexp tramp-file-name-regexp))
      (setq tramp-copy-size-limit nil)
      (setq tramp-completion-reread-directory-timeout t)
-     (setq tramp-verbose 0))
+     (setq tramp-verbose 0)
+     (setq make-backup-files nil)
+     (setq create-lockfiles nil)
+     )
 
    ;; (use-package vagrant-tramp)
 
   (use-package tramp-term)
   (use-package counsel-tramp
      :bind (("C-x t" . counsel-tramp)))
+
+  (setq counsel-tramp-control-master t)
+
 #+end_src
 
 
@@ -1792,6 +1794,10 @@ Store all backup and autosave files in the =tmp= dir
   (defadvice projectile-project-root (around ignore-remote first activate)
     (unless (file-remote-p default-directory) ad-do-it))
   (setq projectile-mode-line "Projectile")
+
+    ;; remove beep
+  (setq ring-bell-function 'ignore)
+
 #+end_src
 
 ** My custom bindings
