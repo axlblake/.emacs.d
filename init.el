@@ -1,8 +1,7 @@
-;; NOTE: init.el is now generated from README.org.  Please edit that file
-;;       in Emacs and init.el will be generated automatically!
-;; Font size
 (defvar cfg/default-font-size 120)
 (defvar cfg/default-variable-font-size 120)
+
+(setenv "LSP_USE_PLISTS" "true")
 
 ;; Frame transparency
 (defvar cfg/frame-transparency '(97 . 97))
@@ -10,6 +9,14 @@
 (setq history-length 300)
 (put 'minibuffer-history 'history-length 100)
 (put 'kill-ring 'history-length 40)
+(setq gc-cons-threshold 100000000)
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
+(setq create-lockfiles nil)
+
+(add-hook 'after-init-hook #'(lambda ()
+                               ;; restore after startup
+                               (setq gc-cons-threshold 800000)))
+
 (setq warning-minimum-level :emergency)
 
 ;; Initialize package sources
@@ -48,6 +55,7 @@
     (setq mac-command-modifier 'meta
           mac-option-key-is-meta nil
           mac-option-modifier 'none)
+
     (setq ns-right-option-modifier 'super)
     (setenv "LIBRARY_PATH"
             (string-join
@@ -58,8 +66,6 @@
     (setq insert-directory-program "/opt/homebrew/bin/gls")
     (custom-set-variables '(epg-gpg-program  "/opt/homebrew/bin/gpg"))
     (setq epa-pinentry-mode 'loopback))
-
-(setq ad-redefinition-action 'accept)
 
 (use-package page-break-lines)
 (use-package all-the-icons
@@ -206,8 +212,6 @@
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
-(use-package hydra)
-
 (use-package highlight-indent-guides
 :hook ((prog-mode text-mode conf-mode) . highlight-indent-guides-mode)
 :init
@@ -271,26 +275,16 @@
   (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
-;; (add-hook 'org-mode-hook (lambda ()
-;;                            "Beautify Org Checkbox Symbol"
-;;                            (push '("[ ]" .  "☐") prettify-symbols-alist)
-;;                            (push '("[X]" . "☑" ) prettify-symbols-alist)
-;;                            (push '("[-]" . "❍" ) prettify-symbols-alist)
-;;                            (prettify-symbols-mode)))
+(add-hook 'org-mode-hook (lambda ()
+                           "Beautify Org Checkbox Symbol"
+                           (push '("[ ]" .  "☐") prettify-symbols-alist)
+                           (push '("[X]" . "☑" ) prettify-symbols-alist)
+                           (push '("[-]" . "❍" ) prettify-symbols-alist)
+                           (prettify-symbols-mode)))
 
-;; (defface org-checkbox-done-text
-;;   '((t (:foreground "#71696A" :strike-through t)))
-;;   "Face for the text part of a checked org-mode checkbox.")
-
-;; (font-lock-add-keywords
-;;  'org-mode
-;;  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
-;;     1 'org-checkbox-done-text prepend))
-;;  'append)
-;; Replace list hyphen with dot
-;; (font-lock-add-keywords 'org-mode
-;;                         '(("^ *\\([-]\\) "
-;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+(defface org-checkbox-done-text
+  '((t (:foreground "#71696A" :strike-through t)))
+  "Face for the text part of a checked org-mode checkbox.")
 
 (defun cfg/org-mode-setup ()
   (org-indent-mode)
@@ -314,103 +308,6 @@
   (setq org-todo-keywords
     '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
       (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
-
-  (setq org-refile-targets
-    '(("archive.org" :maxlevel . 1)
-      ("tasks.org" :maxlevel . 1)))
-
-  ;; Save Org buffers after refiling!
-  (advice-add 'org-refile :after 'org-save-all-org-buffers)
-
-  (setq org-tag-alist
-    '((:startgroup)
-       ; Put mutually exclusive tags here
-       (:endgroup)
-       ("@errand" . ?E)
-       ("@home" . ?H)
-       ("@work" . ?W)
-       ("agenda" . ?a)
-       ("planning" . ?p)
-       ("publish" . ?P)
-       ("batch" . ?b)
-       ("note" . ?n)
-       ("idea" . ?i)))
-
-  ;; Configure custom agenda views
-  (setq org-agenda-custom-commands
-   '(("d" "Dashboard"
-     ((agenda "" ((org-deadline-warning-days 7)))
-      (todo "NEXT"
-        ((org-agenda-overriding-header "Next Tasks")))
-      (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
-
-    ("n" "Next Tasks"
-     ((todo "NEXT"
-        ((org-agenda-overriding-header "Next Tasks")))))
-
-    ("W" "Work Tasks" tags-todo "+work-email")
-
-    ;; Low-effort next actions
-    ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
-     ((org-agenda-overriding-header "Low Effort Tasks")
-      (org-agenda-max-todos 20)
-      (org-agenda-files org-agenda-files)))
-
-    ("w" "Workflow Status"
-     ((todo "WAIT"
-            ((org-agenda-overriding-header "Waiting on External")
-             (org-agenda-files org-agenda-files)))
-      (todo "REVIEW"
-            ((org-agenda-overriding-header "In Review")
-             (org-agenda-files org-agenda-files)))
-      (todo "PLAN"
-            ((org-agenda-overriding-header "In Planning")
-             (org-agenda-todo-list-sublevels nil)
-             (org-agenda-files org-agenda-files)))
-      (todo "BACKLOG"
-            ((org-agenda-overriding-header "Project Backlog")
-             (org-agenda-todo-list-sublevels nil)
-             (org-agenda-files org-agenda-files)))
-      (todo "READY"
-            ((org-agenda-overriding-header "Ready for Work")
-             (org-agenda-files org-agenda-files)))
-      (todo "ACTIVE"
-            ((org-agenda-overriding-header "Active Projects")
-             (org-agenda-files org-agenda-files)))
-      (todo "COMPLETED"
-            ((org-agenda-overriding-header "Completed Projects")
-             (org-agenda-files org-agenda-files)))
-      (todo "CANC"
-            ((org-agenda-overriding-header "Cancelled Projects")
-             (org-agenda-files org-agenda-files)))))))
-
-  (setq org-capture-templates
-    `(("t" "Tasks / Projects")
-      ("tt" "Task" entry (file+olp "~/Dropbox/org_files/tasks.org" "Inbox")
-           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
-
-      ("j" "Journal Entries")
-      ("jj" "Journal" entry
-           (file+olp+datetree "~/Dropbox/org_files/journal.org")
-           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-           :clock-in :clock-resume
-           :empty-lines 1)
-      ("jm" "Meeting" entry
-           (file+olp+datetree "~/Dropbox/org_files/journal.org")
-           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-           :clock-in :clock-resume
-           :empty-lines 1)
-
-      ("w" "Workflows")
-      ("we" "Checking Email" entry (file+olp+datetree "~/Dropbox/org_files/journal.org")
-           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
-
-      ("m" "Metrics Capture")
-      ("mw" "Weight" table-line (file+headline "~/Dropbox/org_files/metrics.org" "Weight")
-       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
-
-  (define-key global-map (kbd "C-c j")
-    (lambda () (interactive) (org-capture nil "jj")))
 
   (cfg/org-font-setup))
 (setq org-startup-folded t)
@@ -439,9 +336,6 @@
 (setq org-export-with-sub-superscripts nil)
 (setq org-export-backends '(ascii html md odt))
 
-(use-package restclient)
-(use-package ob-restclient)
-
 (org-babel-do-load-languages
   'org-babel-load-languages
   '((emacs-lisp . t)
@@ -449,8 +343,7 @@
     (sql . t)
     (js . t)
     (plantuml . t)
-    (python . t)
-    (restclient . t)))
+    (python . t)))
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
 (push '("plantuml" . plantuml) org-src-lang-modes)
@@ -467,7 +360,6 @@
 (add-to-list 'org-structure-template-alist '("sql" . "src sql"))
 (add-to-list 'org-structure-template-alist '("json" . "src json"))
 (add-to-list 'org-structure-template-alist '("plant" . "src plantuml"))
-(add-to-list 'org-structure-template-alist '("rest" . "src restclient"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun cfg/org-babel-tangle-config ()
@@ -501,62 +393,45 @@
 (use-package ob-async)
 
 (use-package lsp-mode
+  :ensure t
+  :defer t
+  :hook ((python-mode . lsp))
+  :commands lsp
   :init
-  (setq lsp-keymap-prefix "C-c c")
-  ;; (setq-default lsp-modeline-diagnostics-enable nil)
-  ;; (setq lsp-modeline-code-actions-enable nil)
-  :custom
-  ;; (lsp-eldoc-render-all t)
-  ;; (lsp-idle-delay 0.500)
-  (gc-cons-threshold 100000000)
-  (read-process-output-max (* 10 1024 1024)) ;; 10Mb
-  (lsp-rust-analyzer-server-display-inlay-hints t)
-  (lsp-rust-analyzer-cargo-watch-command "clippy")
-  :hook ((python-mode . lsp)
-         (vue-mode . lsp)
-         (rust-mode . lsp)
-         (js-mode . lsp))
-  :config
-  (setq lsp-enable-which-key-integration t)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (setq lsp-signature-auto-activate nil)
-  ;; (setq lsp-pylsp-configuration-sources ["flake8"])
-  ;; (setq lsp-pylsp-plugins-flake8-enabled nil)
-  (setq lsp-pylsp-plugins-mccabe-enabled nil)
-  (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
-  (setq lsp-pylsp-plugins-pyflakes-enabled nil)
-  (setq lsp-pylsp-plugins-pylint-enabled nil)
-  (setq lsp-pylsp-plugins-autopep8-enabled t)
-  (lsp-register-client
-    (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
-                     :major-modes '(python-mode)
-                     :remote? t
-                     :server-id 'pyls-remote))
-  )
+  (setq
+        lsp-keymap-prefix "C-c c"
+        lsp-signature-doc-lines 5
+        lsp-idle-delay 0.5
+        lsp-headerline-breadcrumb-enable nil))
 
-(use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
-  ;; :bind ("C-c c f" . lsp-ui-doc-focus-frame)
-  ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
-  :custom
-  (lsp-ui-doc-position 'bottom)
-  (lsp-ui-doc-show-with-cursor nil)
-  (lsp-ui-doc-show-with-mouse nil)
-  )
+;; (defun lsp-booster--advice-json-parse (old-fn &rest args)
+;;   "Try to parse bytecode instead of json."
+;;   (or
+;;    (when (equal (following-char) ?#)
+;;      (let ((bytecode (read (current-buffer))))
+;;        (when (byte-code-function-p bytecode)
+;;          (funcall bytecode))))
+;;    (apply old-fn args)))
+;; (advice-add (if (progn (require 'json)
+;;                        (fboundp 'json-parse-buffer))
+;;                 'json-parse-buffer
+;;               'json-read)
+;;             :around
+;;             #'lsp-booster--advice-json-parse)
 
-(use-package lsp-ivy)
-
-(use-package yasnippet
-:ensure t
-:config
-  (yas-global-mode 1)
-)
-(use-package yasnippet-snippets)         ; Collection of snippets
-(use-package py-snippets
-:ensure t
-:after yasnippet
-:config
-(py-snippets-initialize))
+;; (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+;;   "Prepend emacs-lsp-booster command to lsp CMD."
+;;   (let ((orig-result (funcall old-fn cmd test?)))
+;;     (if (and (not test?)                             ;; for check lsp-server-present?
+;;              (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+;;              lsp-use-plists
+;;              (not (functionp 'json-rpc-connection))  ;; native json-rpc
+;;              (executable-find "emacs-lsp-booster"))
+;;         (progn
+;;           (message "Using emacs-lsp-booster for %s!" orig-result)
+;;           (cons "emacs-lsp-booster" orig-result))
+;;       orig-result)))
+;; (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 
 (use-package dap-mode
   :defer
@@ -589,18 +464,8 @@
 (global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
 (global-set-key (kbd "C-c c d") 'dap-debug)
 
-;; (with-eval-after-load 'dap-ui
-;;   (setq dap-ui-buffer-configurations
-;;         `((,dap-ui--locals-buffer . ((side . right) (slot . 1) (window-width . 0.32)  (window-height . 0.80)))
-;;           (,dap-ui--expressions-buffer . ((side . right) (slot . 2) (window-width . 0.32) (window-height . 0.10)))
-;;           (,dap-ui--sessions-buffer . ((side . right) (slot . 3) (window-width . 0.32) (window-height . 0.10)))
-;;           (,dap-ui--breakpoints-buffer . ((side . left) (slot . 2) (window-width . ,treemacs-width)))
-;;           (,dap-ui--debug-window-buffer . ((side . bottom) (slot . 3) (window-width . 0.20)))
-;;           (,dap-ui--repl-buffer . ((side . right) (slot . 2) (window-width . 0.45))))))
-
 (use-package typescript-mode
     :mode "\\.ts\\'"
-    :hook (typescript-mode . lsp-deferred)
     :config
     (setq typescript-indent-level 2))
 
@@ -610,22 +475,9 @@
 
 (defun py-local-keys()
   (local-set-key (kbd "C-c c i") 'py-isort-buffer)
-  (local-set-key (kbd "C-c c e") 'flycheck-list-errors)
-  (local-set-key (kbd "<C-backspace>") 'my-backward-delete-word))
+  (local-set-key (kbd "C-c c e") 'flycheck-list-errors))
 
 (add-hook 'python-mode-hook 'py-local-keys)
-(add-hook 'python-mode-hook 'yas-minor-mode-on)
-
-(use-package py-yapf)
-
-;; (use-package pipenv
-  ;;     :hook (python-mode . pipenv-mode)
-  ;;     :init
-  ;;     (setq
-  ;;      pipenv-projectile-after-switch-function
-  ;;      #'pipenv-projectile-after-switch-extended))
-
-  ;; (add-hook 'python-mode-hook #'pipenv-mode)
 
 (use-package pyvenv
     :ensure t
@@ -642,13 +494,6 @@
     (setq pyvenv-post-deactivate-hooks
           (list (lambda ()
                   (setq python-shell-interpreter "python3")))))
-
-;;; Directory Local Variables
-;;; For more information see (info "(emacs) Directory Variables")
-
-;; ((python-mode . ((eval . (lsp-register-custom-settings
-;;                           '(("python.pythonPath" "/.../.venv/bin/python"
-;;                              "python.venvPath" "/.../.venv")))))))
 
 (with-eval-after-load 'projectile
   (defvar start-file-path (concat (projectile-project-root) "app.py")
@@ -676,50 +521,6 @@
   (define-key python-mode-map (kbd "C-c C-c") 'run-project))
 
 (add-hook 'python-mode-hook 'py-mode-specific-bindings)
-
-(use-package lsp-java
-  :init
-  (defun jmi/java-mode-config ()
-    (toggle-truncate-lines 1)
-    (setq lsp-java-jdt-download-url "https://download.eclipse.org/jdtls/milestones/0.57.0/jdt-language-server-0.57.0-202006172108.tar.gz")
-    (lsp))
-
-  :config
-  ;; Enable dap-java
-  (require 'dap-java)
-
-  ;; Support Lombok in our projects, among other things
-  (setq lsp-java-vmargs
-        (list "-noverify"
-              "-Xmx2G"
-              "-XX:+UseG1GC"
-              "-XX:+UseStringDeduplication"
-              (concat "-javaagent:" jmi/lombok-jar)
-              (concat "-Xbootclasspath/a:" jmi/lombok-jar))
-        lsp-file-watch-ignored
-        '(".idea" ".ensime_cache" ".eunit" "node_modules"
-          ".git" ".hg" ".fslckout" "_FOSSIL_"
-          ".bzr" "_darcs" ".tox" ".svn" ".stack-work"
-          "build")
-
-        lsp-java-import-order '["" "java" "javax" "#"]
-        ;; Don't organize imports on save
-        lsp-java-save-action-organize-imports nil
-
-        ;; Formatter profile
-        lsp-java-format-settings-url
-        (concat "file://" jmi/java-format-settings-file))
-
-  :hook (java-mode . jmi/java-mode-config)
-
-  :demand t
-  :after (lsp lsp-mode dap-mode jmi-init-platform-paths))
-  (add-hook 'java-mode-hook 'lsp-deferred)
-  (add-hook 'java-mode-hook 'yas-minor-mode-on)
-
-(use-package php-mode
-  :ensure t
-  )
 
 (use-package web-mode
 :mode
@@ -755,6 +556,47 @@
         (lambda () (setq indent-tabs-mode nil)))
 (define-key rust-mode-map (kbd "C-c C-c") 'rust-run)
 
+(use-package dape
+  :preface
+  ;; By default dape shares the same keybinding prefix as 
+  ;; If you do not want to use any prefix, set it to nil.
+  (setq dape-key-prefix "\C-c\C-d")
+
+  ;; :hook
+  ;; Save breakpoints on quit
+  ;; ((kill-emacs . dape-breakpoint-save)
+  ;; Load breakpoints on startup
+  ;;  (after-init . dape-breakpoint-load))
+
+  ;; :init
+  ;; To use window configuration like gud (gdb-mi)
+  ;; (setq dape-buffer-window-arrangement 'gud)
+
+  ;; :config
+  ;; Info buffers to the right
+  ;; (setq dape-buffer-window-arrangement 'right)
+
+  ;; Global bindings for setting breakpoints with mouse
+  ;; (dape-breakpoint-global-mode)
+
+  ;; To not display info and/or buffers on startup
+  ;; (remove-hook 'dape-on-start-hooks 'dape-info)
+  ;; (remove-hook 'dape-on-start-hooks 'dape-repl)
+
+  ;; To display info and/or repl buffers on stopped
+  ;; (add-hook 'dape-on-stopped-hooks 'dape-info)
+  ;; (add-hook 'dape-on-stopped-hooks 'dape-repl)
+
+  ;; Kill compile buffer on build success
+  ;; (add-hook 'dape-compile-compile-hooks 'kill-buffer)
+
+  ;; Save buffers on startup, useful for interpreted languages
+  ;; (add-hook 'dape-on-start-hooks (lambda () (save-some-buffers t t)))
+
+  ;; Projectile users
+  (setq dape-cwd-fn 'projectile-project-root)
+  )
+
 (use-package company
   :after lsp-mode
   :hook (after-init-hook . global-company-mode)
@@ -767,7 +609,7 @@
 
 (add-to-list 'company-backends '(company-capf company-dabbrev))
 (with-eval-after-load 'company
-  (define-key company-mode-map (kbd "<tab>") 'company-complete))
+  (define-key company-mode-map (kbd "C-<tab>") 'company-complete))
 
 (use-package flycheck
   :diminish flycheck-mode
@@ -805,9 +647,6 @@
 (setq projectile-indexing-method 'alien) ;; native hybrid alien
 (setq projectile-sort-order 'recentf)
 
-;; (global-set-key (kbd "C-x <left>") 'projectile-previous-project-buffer)
-;; (global-set-key (kbd "C-x <right>") 'projectile-next-project-buffer)
-
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status))
@@ -815,12 +654,16 @@
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-(use-package forge
+(use-package magit-todos
   :after magit
-  :config
-  (add-to-list 'forge-alist '("git.cbdev.site" "git.cbdev.site/api/v4" "git.cbdev.site"  forge-gitlab-repository))
-  :custom
-  (global-set-key (kbd "C->") 'mc/mark-next-like-this))
+  :config (magit-todos-mode 1))
+
+;; (use-package forge
+;;   :after magit
+;;   :config
+;;   (add-to-list 'forge-alist '("git.cbdev.site" "git.cbdev.site/api/v4" "git.cbdev.site"  forge-gitlab-repository))
+;;   :custom
+;;   (global-set-key (kbd "C->") 'mc/mark-next-like-this))
 
 (use-package git-timemachine
    :ensure t
@@ -856,15 +699,15 @@
     (all-the-icons-icon-for-mode 'major-mode)))
 
 (with-eval-after-load 'ibuffer
-  ;; Display buffer icons on GUI
-  ;; (define-ibuffer-column icon (:name "  ")
-  ;;   (let ((icon (if (and (buffer-file-name)
-  ;;                        (all-the-icons-auto-mode-match?))
-  ;;                   (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
-  ;;                 (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
-  ;;     (if (symbolp icon)
-  ;;         (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
-  ;;       icon)))
+  ;;Display buffer icons on GUI
+  (define-ibuffer-column icon (:name "  ")
+    (let ((icon (if (and (buffer-file-name)
+                         (all-the-icons-auto-mode-match?))
+                    (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
+                  (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
+      (if (symbolp icon)
+          (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
+        icon)))
 
   ;; Redefine size column to display human readable size
   (define-ibuffer-column size
@@ -885,24 +728,13 @@
                     " "
           "Project: ")))
 
-(use-package eyebrowse
-  :init  
-  (setq eyebrowse-keymap-prefix (kbd "C-c w"))
-  :ensure t
-  :config
-  (eyebrowse-mode t)
-  )
+(use-package docker) ;; manage docker containers
+;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
 
 (use-package dockerfile-mode)
 (use-package docker-compose-mode)
 
 (use-package json-mode)
-
-(use-package move-text
-  :init
-  (move-text-default-bindings))
-
-(use-package vlf)
 
 (use-package yafolding)
 (add-hook 'json-mode-hook (lambda () (yafolding-mode)))
@@ -925,16 +757,11 @@
    (setq create-lockfiles nil)
    )
 
- ;; (use-package vagrant-tramp)
-
 (use-package tramp-term)
 (use-package counsel-tramp
    :bind (("C-x t" . counsel-tramp)))
 
 (setq counsel-tramp-control-master t)
-
-(use-package docker) ;; manage docker containers
-;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
 
 (use-package imenu-list
   :ensure t
@@ -942,30 +769,6 @@
   :config
   (setq imenu-list-focus-after-activation t))
 (global-set-key (kbd "C-c c l o") 'occur)
-
-(use-package prettier)
-
-(use-package undo-tree
-  :ensure t
-  :config
-  ;; autosave the undo-tree history
-  (setq undo-tree-history-directory-alist
-        `((".*" . ,temporary-file-directory)))
-  (setq undo-tree-auto-save-history t)
-  (global-undo-tree-mode +1))
-
-(use-package pomidor
-  :bind (("<f12>" . pomidor))
-  :config (setq pomidor-sound-tick nil
-                pomidor-sound-tack nil)
-  :hook (pomidor-mode . (lambda ()
-                          (display-line-numbers-mode -1) ; Emacs 26.1+
-                          (setq left-fringe-width 0 right-fringe-width 0)
-                          (setq left-margin-width 2 right-margin-width 0)
-                          ;; force fringe update
-                          (set-window-buffer nil (current-buffer)))))
-
-(use-package devdocs)
 
 (setq ediff-split-window-function (quote split-window-horizontally))
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
@@ -1066,6 +869,8 @@ If popup is focused, delete it."
          ("," . dired-clean-directory)
          ("." . dired-hide-dotfiles-mode))
 )
+
+(setq dired-dwim-target t)
 ;; ;; Make dired open in the same window when using RET or ^
 ;; (put 'dired-find-alternate-file 'disabled nil) ; disables warning
 ;; (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file) ; was dired-advertised-find-file
@@ -1115,63 +920,6 @@ If popup is focused, delete it."
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
 
-(if (executable-find "hunspell") 
-    (progn 
-      (setq ispell-program-name "hunspell") 
-        (setq ispell-really-aspell nil) 
-        (setq ispell-really-hunspell t) 
-        (setq ispell-dictionary "en-ru")) ) 
-(setq default-major-mode 'text-mode)
-;; (dolist (hook '(text-mode-hook)) 
-;;   (add-hook hook (lambda () 
-;;                    (flyspell-mode 1))) )
-(global-set-key (kbd "C-c s") 'ispell)
-
-(use-package emojify
-  :hook (after-init . global-emojify-mode))
-
-(use-package elfeed)
-(use-package elfeed-goodies)
-(elfeed-goodies/setup)
-(setq elfeed-goodies/entry-pane-size 0.5)
-(global-set-key (kbd "C-c i") 'elfeed)
-
-(use-package osm
-  :bind (("C-c m h" . osm-home)
-         ("C-c m s" . osm-search)
-         ("C-c m v" . osm-server)
-         ("C-c m t" . osm-goto)
-         ("C-c m x" . osm-gpx-show)
-         ("C-c m j" . osm-bookmark-jump))
-
-  :custom
-  ;; Take a look at the customization group `osm' for more options.
-  (osm-server 'default) ;; Configure the tile server
-  (osm-copyright t)     ;; Display the copyright information
-
-  :init
-  ;; Load Org link support
-  (with-eval-after-load 'org
-    (require 'osm-ol)))
-
-(use-package dwim-shell-command
-  :ensure t
-  :bind (([remap shell-command] . dwim-shell-command)
-         :map dired-mode-map
-         ([remap dired-do-async-shell-command] . dwim-shell-command)
-         ([remap dired-do-shell-command] . dwim-shell-command)
-         ([remap dired-smart-shell-command] . dwim-shell-command))
-  :config
-  (defun dwim-shell-commands-image-exif-metadata ()
-  "View EXIF metadata in image(s)."
-  (interactive)
-  (dwim-shell-command-on-marked-files
-   "View EXIF"
-   "exiftool '<<f>>'"
-   :utils "exiftool")))
-
-(require 'request)
-
 (defun chatgpt-get-api-key ()
   (let* ((file-contents (with-temp-buffer
                               (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
@@ -1184,52 +932,6 @@ If popup is focused, delete it."
         (if my-api-key-value
             my-api-key-value
           (error "my-api-key not found in file"))))
-
-;; (defun chatgpt-extract-content-text (response-data)
-;;   "Extract content text from response-data."
-;;   (let ((choices (cdr (assoc 'choices response-data))))
-;;     (mapconcat (lambda (choice)
-;;                  (let ((message (cdr (assoc 'message choice))))
-;;                    (cdr (assoc 'content message))))
-;;                choices
-;;                "\n")))
-
-;; (defun chatgpt-send-message ()
-;;   "Send a message to ChatGPT and display response choices in a new buffer."
-;;   (interactive)
-;;   (let ((prompt (read-string "Enter message: ")))
-;;     (let ((chat-gpt-buffer (generate-new-buffer "*ChatGPT Response*")))
-;;       (set-window-buffer (split-window-right) chat-gpt-buffer)
-;;       (chatgpt-display-response prompt chat-gpt-buffer))))
-
-
-;; (defun chatgpt-display-response (prompt buffer)
-;;   "Send a prompt to ChatGPT and display response choices in BUFFER."
-;;   (with-current-buffer buffer
-;;     (markdown-mode)
-;;     (erase-buffer)
-;;     (let (
-;;       (other-window 1)
-;;       (insert "Prompt: \n=========\n")
-;;       (insert (concat prompt " \n\n"))
-;;       (insert "ChatGPT: \n=========\n")
-;;       (insert (chatgpt-extract-content-text (chatgpt-get-response prompt)))
-;;       (goto-char (point-max))
-;;       (message "Response displayed in new buffer.")))))
-
-
-;; (defun chatgpt-get-response (prompt)
-;;   "Get a response from ChatGPT for the given PROMPT."
-;;   (request-response-data
-;;    (request "https://api.openai.com/v1/chat/completions"
-;;      :type "POST"
-;;      :sync t
-;;      :headers `(("Content-Type" . "application/json")
-;;                 ("Authorization" . ,(concat "Bearer " (chatgpt-get-api-key))))
-;;      :data (json-encode `((messages . (((role . "user") (content . ,prompt))))
-;;                           (model . "gpt-3.5-turbo")
-;;                           (temperature . 0.6)))
-;;      :parser 'json-read)))
 
 (use-package gptel
               :config
@@ -1254,32 +956,6 @@ If popup is focused, delete it."
  ;; Electric pair mode (parenthesis)
  (electric-pair-mode 1)
 
- ;; So-long
- (if (version<= "27.1" emacs-version)
-     (global-so-long-mode 1)
-     (setq bidi-inhibit-bpa t))
-
-;; dap an lsp additional
-(dap-register-debug-template "Docker Debug"
-                             (list :type "python"
-                                   :request "attach"
-                                   :name "Docker Debug"
-                                   :host "localhost"
-                                   :port 5678))
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
-                  :major-modes '(python-mode)
-                  :remote? t
-                  :server-id 'pylsp-remote))
-;; subprocess call
-(defun start-file-process-shell-command@around (start-file-process-shell-command name buffer &rest args)
-  "Start a program in a subprocess.  Return the process object for it.
- Similar to `start-process-shell-command', but calls `start-file-process'."
-  ;; On remote hosts, the local `shell-file-name' might be useless.
-  (let ((command (mapconcat 'identity args " ")))
-    (funcall start-file-process-shell-command name buffer command)))
-
-(advice-add 'start-file-process-shell-command :around #'start-file-process-shell-command@around)
 (setq org-babel-python-command "python3")
 
 (defadvice projectile-project-root (around ignore-remote first activate)
@@ -1289,10 +965,7 @@ If popup is focused, delete it."
   ;; remove beep
 (setq ring-bell-function 'ignore)
 
-;; Other window alternative
- (global-set-key (kbd "M-o") 'mode-line-other-buffer)
- ;; Duplicate row
- (defun my-duplicate-line ()
+(defun my-duplicate-line ()
    (interactive)
    (move-beginning-of-line 1)
    (kill-line)
@@ -1334,4 +1007,41 @@ If popup is focused, delete it."
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
-(setq counsel-tramp-custom-connections '(/ssh:trx|docker:crystal_trx:/))
+(setq counsel-tramp-custom-connections '(/ssh:trx|docker:crystal_trx:/ /ssh:matic|docker:crystal_matic:/ /ssh:arb|docker:crystal_arb:/ /ssh:avax|docker:crystal_avax:/))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("9f297216c88ca3f47e5f10f8bd884ab24ac5bc9d884f0f23589b0a46a608fe14" default))
+ '(epg-gpg-program "/opt/homebrew/bin/gpg")
+ '(package-selected-packages
+   '(dap-mode yafolding which-key web-mode vue-mode vterm visual-fill-column typescript-mode treemacs tramp-term solidity-flycheck smex rust-mode reverse-im rainbow-mode rainbow-delimiters pyvenv py-isort plantuml-mode page-break-lines org-roam org-bullets ob-async multiple-cursors magit-todos lsp-mode json-mode imenu-list ibuffer-vc ibuffer-projectile highlight-indent-guides helpful gptel git-timemachine exec-path-from-shell evil-nerd-commenter elisp-format doom-themes doom-modeline dockerfile-mode docker-compose-mode docker dired-hide-dotfiles diff-hl dashboard dape csv-mode counsel-tramp counsel-projectile company-solidity company-box auto-package-update all-the-icons))
+ '(safe-local-variable-values
+   '((eval pyvenv-workon "python3.10-backend")
+     (eval dap-register-debug-template "CB Backend Arb Help Add Block"
+           (list :type "python" :args "task_uid=d_help_add_block -i" :cwd "${workspaceFolder}" :env
+                 '(("DEBUG" . "1"))
+                 :target-module
+                 (expand-file-name "~/Documents/code/cb-backend/etl_scripts/blockchain_parse/d_help_add_block.py")
+                 :request "launch" :subProcess :json-false :name "CB Backend Arb Help Add Block"))
+     (eval dap-register-debug-template "CB Backend Init AVAX"
+           (list :type "python" :args "--start=RawDataCollectProcess" :cwd "${workspaceFolder}" :env
+                 '(("DEBUG" . "1"))
+                 :target-module
+                 (expand-file-name "~/Documents/code/cb-backend/currency/avax/init_schema/init_blockchain.py")
+                 :request "launch" :subProcess :json-false :name "CB Backend Init AVAX"))
+     (eval dap-register-debug-template "CB Backend"
+           (list :type "python" :args "-i" :cwd "${workspaceFolder}" :env
+                 '(("DEBUG" . "1"))
+                 :justMyCode :json-false :target-module
+                 (expand-file-name "~/Documents/code/cb-backend/api_v1_local.py")
+                 :request "launch" :name "CB Backend"))
+     (eval setq dap-python-executable "/Users/axl/.virtualenvs/python3.10-backend/bin/python"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

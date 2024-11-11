@@ -5,10 +5,12 @@
 This file generates [[file:init.el][init.el]] which can be loaded by Emacs at startup.
 
 #+begin_src emacs-lisp
+
+  ;; NOTE: init.el is now generated from README.org.  Please edit that file
+  ;;       in Emacs and init.el will be generated automatically!
+  ;; Font size
   (defvar cfg/default-font-size 120)
   (defvar cfg/default-variable-font-size 120)
-
-  (setenv "LSP_USE_PLISTS" "true")
 
   ;; Frame transparency
   (defvar cfg/frame-transparency '(97 . 97))
@@ -16,21 +18,19 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
   (setq history-length 300)
   (put 'minibuffer-history 'history-length 100)
   (put 'kill-ring 'history-length 40)
+  (setq warning-minimum-level :emergency)
   (setq gc-cons-threshold 100000000)
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
   (setq create-lockfiles nil)
 
   (add-hook 'after-init-hook #'(lambda ()
-                                 ;; restore after startup
-                                 (setq gc-cons-threshold 800000)))
+                               ;; restore after startup
+                               (setq gc-cons-threshold 800000)))
+
+
 #+end_src
 
 Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
-** Warning level
-#+begin_src emacs-lisp
-  (setq warning-minimum-level :emergency)
-#+end_src
-
 * Package System Setup
 #+begin_src emacs-lisp
 
@@ -72,7 +72,6 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
       (setq mac-command-modifier 'meta
             mac-option-key-is-meta nil
             mac-option-modifier 'none)
-      
       (setq ns-right-option-modifier 'super)
       (setenv "LIBRARY_PATH"
               (string-join
@@ -83,6 +82,8 @@ Thanks to [[https://github.com/daviwil/emacs-from-scratch][dawivil]]
       (setq insert-directory-program "/opt/homebrew/bin/gls")
       (custom-set-variables '(epg-gpg-program  "/opt/homebrew/bin/gpg"))
       (setq epa-pinentry-mode 'loopback))
+  
+  (setq ad-redefinition-action 'accept)
 #+end_src
 * Dashboard
 Startup dashboard
@@ -178,6 +179,11 @@ Install [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://fonts.go
 #+end_src
 
 ** Color Theme
+
+[[https://github.com/hlissner/emacs-doom-themes][doom-themes]] is a great set of themes with a lot of variety and support for many different Emacs modes.
+Taking a look at the [[https://github.com/hlissner/emacs-doom-themes/tree/screenshots][screenshots]] might help you decide which one you like best.
+You can also run =M-x counsel-load-theme= to choose between them easily.
+
 #+begin_src emacs-lisp
 
 (use-package doom-themes
@@ -187,7 +193,9 @@ Install [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://fonts.go
 
 ** Better Modeline
 
-[[https://github.com/seagle0128/doom-modeline][doom-modeline]] is a very attractive and rich (yet still minimal) mode line configuration for Emacs.
+[[https://github.com/seagle0128/doom-modeline][doom-modeline]] is a very attractive and rich (yet still minimal) mode line configuration for Emacs.  The default configuration is quite good but you can check out the [[https://github.com/seagle0128/doom-modeline#customize][configuration options]] for more things you can enable or disable.
+
+*NOTE:* The first time you load your configuration on a new machine, you'll need to run `M-x all-the-icons-install-fonts` so that mode line icons display correctly.
 
 #+begin_src emacs-lisp
     (use-package doom-modeline
@@ -267,6 +275,9 @@ Counsel is a customized set of commands to replace `find-file` with `counsel-fin
   ;; Also, set C-c arrow to switch between tabs
   (global-set-key (kbd "C-c <left>") 'tab-bar-switch-to-prev-tab)
   (global-set-key (kbd "C-c <right>") 'tab-bar-switch-to-next-tab)
+
+
+
 #+end_src
 ** Helpful Help Commands
 [[https://github.com/Wilfred/helpful][Helpful]] adds a lot of very helpful (get it?) information to Emacs' =describe-= command buffers.  
@@ -284,6 +295,14 @@ For example, if you use =describe-function=, you will not only get the documenta
     ([remap describe-variable] . counsel-describe-variable)
     ([remap describe-key] . helpful-key))
 
+#+end_src
+
+** Text Scaling
+Text size manupulation using [[https://github.com/abo-abo/hydra][Hydra]] 
+Quickly adjusting the scale of the text llon screen.
+
+#+begin_src emacs-lisp
+  (use-package hydra)
 #+end_src
 
 ** Highlight indent
@@ -310,6 +329,7 @@ Highlight indent makes much easier to find code block.
            (bound-and-true-p org-indent-mode)
            (highlight-indent-guides-mode -1)))))
 #+end_src
+
 ** Ace-window
 Switch to other window interactively
 #+begin_src emacs-lisp
@@ -321,6 +341,7 @@ Switch to other window interactively
     (setq aw-ignore-current t)
     (setq aw-ignore-on nil))
 #+end_src
+
 ** Reverse-im
 For multi-language support
 #+begin_src emacs-lisp
@@ -341,6 +362,7 @@ For multi-language support
 #+end_src
 * Org Mode
 [[https://orgmode.org/][Org Mode]] is one of the hallmark features of Emacs.
+It is a rich document editor, project planner, task and time tracker, blogging engine, and literate coding utility all wrapped up in one package.
 ** Better Font Faces
 
 The =cfg/org-font-setup= function configures various text faces to tweak the sizes of headings and use variable width fonts in most cases so that it looks more like we're editing a document in =org-mode=.  We switch back to fixed width (monospace) fonts for code blocks and tables so that they display correctly.
@@ -368,16 +390,26 @@ The =cfg/org-font-setup= function configures various text faces to tweak the siz
     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
     (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
-  (add-hook 'org-mode-hook (lambda ()
-                             "Beautify Org Checkbox Symbol"
-                             (push '("[ ]" .  "☐") prettify-symbols-alist)
-                             (push '("[X]" . "☑" ) prettify-symbols-alist)
-                             (push '("[-]" . "❍" ) prettify-symbols-alist)
-                             (prettify-symbols-mode)))
+  ;; (add-hook 'org-mode-hook (lambda ()
+  ;;                            "Beautify Org Checkbox Symbol"
+  ;;                            (push '("[ ]" .  "☐") prettify-symbols-alist)
+  ;;                            (push '("[X]" . "☑" ) prettify-symbols-alist)
+  ;;                            (push '("[-]" . "❍" ) prettify-symbols-alist)
+  ;;                            (prettify-symbols-mode)))
 
-  (defface org-checkbox-done-text
-    '((t (:foreground "#71696A" :strike-through t)))
-    "Face for the text part of a checked org-mode checkbox.")
+  ;; (defface org-checkbox-done-text
+  ;;   '((t (:foreground "#71696A" :strike-through t)))
+  ;;   "Face for the text part of a checked org-mode checkbox.")
+
+  ;; (font-lock-add-keywords
+  ;;  'org-mode
+  ;;  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+  ;;     1 'org-checkbox-done-text prepend))
+  ;;  'append)
+  ;; Replace list hyphen with dot
+  ;; (font-lock-add-keywords 'org-mode
+  ;;                         '(("^ *\\([-]\\) "
+  ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 #+end_src
 
 ** Basic Config
@@ -411,6 +443,31 @@ This section contains the basic configuration for =org-mode= plus the configurat
       '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
         (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
+    (setq org-refile-targets
+      '(("archive.org" :maxlevel . 1)
+        ("tasks.org" :maxlevel . 1)))
+
+    ;; Save Org buffers after refiling!
+    (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+    (setq org-tag-alist
+      '((:startgroup)
+         ; Put mutually exclusive tags here
+         (:endgroup)
+         ("@errand" . ?E)
+         ("@home" . ?H)
+         ("@work" . ?W)
+         ("agenda" . ?a)
+         ("planning" . ?p)
+         ("publish" . ?P)
+         ("batch" . ?b)
+         ("note" . ?n)
+         ("idea" . ?i)))
+
+
+    (define-key global-map (kbd "C-c j")
+      (lambda () (interactive) (org-capture nil "jj")))
+
     (cfg/org-font-setup))
   (setq org-startup-folded t)
   (add-hook 'org-mode-hook 'org-hide-block-all)
@@ -423,6 +480,43 @@ This section contains the basic configuration for =org-mode= plus the configurat
   
 #+end_src
 
+*** org-modern
+#+begin_src emacs-lisp
+(use-package org-modern)
+(setq
+ ;; Edit settings
+ org-auto-align-tags nil
+ org-tags-column 0
+ org-catch-invisible-edits 'show-and-error
+ org-special-ctrl-a/e t
+ org-insert-heading-respect-content t
+
+ ;; Org styling, hide markup etc.
+ org-hide-emphasis-markers t
+ org-pretty-entities t
+
+ ;; Agenda styling
+ org-agenda-tags-column 0
+ org-agenda-block-separator ?─
+ org-agenda-time-grid
+ '((daily today require-timed)
+   (800 1000 1200 1400 1600 1800 2000)
+   " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+ org-agenda-current-time-string
+ "◀── now ─────────────────────────────────────────────────")
+
+;; Ellipsis styling
+(setq org-ellipsis "…")
+(set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
+
+(with-eval-after-load 'org (global-org-modern-mode))
+
+(defun my/org-mode-hook ()
+  "Disable line numbers in Org mode."
+  (display-line-numbers-mode 0))
+
+(add-hook 'org-mode-hook 'my/org-mode-hook)
+#+end_src>
 *** Nicer Heading Bullets
 
 [[https://github.com/sabof/org-bullets][org-bullets]] replaces the heading stars in =org-mode= buffers with nicer looking characters that you can control.  Another option for this is [[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode]] which we may cover in a later video.
@@ -458,6 +552,11 @@ We use [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]
   (setq org-export-with-sub-superscripts nil)
   (setq org-export-backends '(ascii html md odt))
 #+end_src
+** Restclient with babel using ob-resticlient
+#+begin_src emacs-lisp
+  (use-package restclient)
+  (use-package ob-restclient)
+#+end_src
 ** Configure Babel Languages
 
 To execute or export code in =org-mode= code blocks, you'll need to set up =org-babel-load-languages= for each language you'd like to use.  [[https://orgmode.org/worg/org-contrib/babel/languages/index.html][This page]] documents all of the languages that you can use with =org-babel=.
@@ -471,7 +570,8 @@ To execute or export code in =org-mode= code blocks, you'll need to set up =org-
           (sql . t)
           (js . t)
           (plantuml . t)
-          (python . t)))
+          (python . t)
+          (restclient . t)))
 
       (push '("conf-unix" . conf-unix) org-src-lang-modes)
       (push '("plantuml" . plantuml) org-src-lang-modes)
@@ -497,6 +597,7 @@ You can add more =src= block templates below by copying one of the lines and cha
   (add-to-list 'org-structure-template-alist '("sql" . "src sql"))
   (add-to-list 'org-structure-template-alist '("json" . "src json"))
   (add-to-list 'org-structure-template-alist '("plant" . "src plantuml"))
+  (add-to-list 'org-structure-template-alist '("rest" . "src restclient"))
 
 #+end_src
 
@@ -548,53 +649,104 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
 #+end_src
 * Development
 ** Languages and environments
-*** LSP Mode
-#+begin_src emacs-lisp
-  (use-package lsp-mode
-    :ensure t
-    :defer t
-    :hook ((python-mode . lsp))
-    :commands lsp
-    :init
-    (setq
-          lsp-keymap-prefix "C-c c"
-          lsp-signature-doc-lines 5
-          lsp-idle-delay 0.5
-          lsp-headerline-breadcrumb-enable nil))
-#+end_src
-**** lsp boost
-#+begin_src emacs-lisp
-  ;; (defun lsp-booster--advice-json-parse (old-fn &rest args)
-  ;;   "Try to parse bytecode instead of json."
-  ;;   (or
-  ;;    (when (equal (following-char) ?#)
-  ;;      (let ((bytecode (read (current-buffer))))
-  ;;        (when (byte-code-function-p bytecode)
-  ;;          (funcall bytecode))))
-  ;;    (apply old-fn args)))
-  ;; (advice-add (if (progn (require 'json)
-  ;;                        (fboundp 'json-parse-buffer))
-  ;;                 'json-parse-buffer
-  ;;               'json-read)
-  ;;             :around
-  ;;             #'lsp-booster--advice-json-parse)
+*** IDE Features with lsp-mode
+**** lsp-mode
 
-  ;; (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
-  ;;   "Prepend emacs-lsp-booster command to lsp CMD."
-  ;;   (let ((orig-result (funcall old-fn cmd test?)))
-  ;;     (if (and (not test?)                             ;; for check lsp-server-present?
-  ;;              (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
-  ;;              lsp-use-plists
-  ;;              (not (functionp 'json-rpc-connection))  ;; native json-rpc
-  ;;              (executable-find "emacs-lsp-booster"))
-  ;;         (progn
-  ;;           (message "Using emacs-lsp-booster for %s!" orig-result)
-  ;;           (cons "emacs-lsp-booster" orig-result))
-  ;;       orig-result)))
-  ;; (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
-#+end_src
-**** DAP
+We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enable IDE-like functionality for many different programming languages via "language servers" that speak the [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]].
+[[https://emacs-lsp.github.io/lsp-mode/page/languages/][Documentation for languages]]
 #+begin_src emacs-lisp
+  ;; (use-package lsp-mode
+  ;;   :init
+  ;;   (setq lsp-keymap-prefix "C-c c")
+  ;;   ;; (setq-default lsp-modeline-diagnostics-enable nil)
+  ;;   ;; (setq lsp-modeline-code-actions-enable nil)
+  ;;   :custom
+  ;;   ;; (lsp-eldoc-render-all t)
+  ;;   ;; (lsp-idle-delay 0.500)
+  ;;   (read-process-output-max (* 10 1024 1024)) ;; 10Mb
+  ;;   (lsp-rust-analyzer-server-display-inlay-hints t)
+  ;;   (lsp-rust-analyzer-cargo-watch-command "clippy")
+  ;;   :hook ((python-mode . lsp)
+  ;;          (vue-mode . lsp)
+  ;;          (rust-mode . lsp)
+  ;;          (js-mode . lsp))
+  ;;   :config
+  ;;   (setq lsp-enable-which-key-integration t)
+  ;;   (setq lsp-headerline-breadcrumb-enable nil)
+  ;;   (setq lsp-signature-auto-activate nil)
+  ;;   ;; (setq lsp-pylsp-configuration-sources ["flake8"])
+  ;;   ;; (setq lsp-pylsp-plugins-flake8-enabled nil)
+  ;;   (setq lsp-pylsp-plugins-mccabe-enabled nil)
+  ;;   (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
+  ;;   (setq lsp-pylsp-plugins-pyflakes-enabled nil)
+  ;;   (setq lsp-pylsp-plugins-pylint-enabled nil)
+  ;;   (setq lsp-pylsp-plugins-autopep8-enabled t)
+  ;;   (lsp-register-client
+  ;;     (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
+  ;;                      :major-modes '(python-mode)
+  ;;                      :remote? t
+  ;;                      :server-id 'pyls-remote))
+  ;;   )
+
+  ;; (with-eval-after-load 'lsp-mode
+  ;;   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+
+#+end_src
+
+**** lsp-ui
+
+[[https://emacs-lsp.github.io/lsp-ui/][lsp-ui]] is a set of UI enhancements built on top of =lsp-mode= which make Emacs feel even more like an IDE.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package lsp-ui
+  ;;   :hook (lsp-mode . lsp-ui-mode)
+  ;;   ;; :bind ("C-c c f" . lsp-ui-doc-focus-frame)
+  ;;   ;; :bind (:map mode-specific-map ("c d" . lsp-ui-doc-focus-frame))
+  ;;   :custom
+  ;;   (lsp-ui-doc-position 'bottom)
+  ;;   (lsp-ui-doc-show-with-cursor nil)
+  ;;   (lsp-ui-doc-show-with-mouse nil)
+  ;;   )
+
+#+end_src
+
+**** lsp-ivy
+
+[[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy]] integrates Ivy with =lsp-mode= to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
+
+Try these commands with =M-x=:
+
+- =lsp-ivy-workspace-symbol= - Search for a symbol name in the current project workspace
+- =lsp-ivy-global-workspace-symbol= - Search for a symbol name in all active project workspaces
+
+#+begin_src emacs-lisp
+
+  ;; (use-package lsp-ivy)
+
+#+end_src
+
+*** Yasnippet
+#+begin_src emacs-lisp
+  (use-package yasnippet
+  :ensure t
+  :config
+    (yas-global-mode 1)
+  )
+  (use-package yasnippet-snippets)         ; Collection of snippets
+  (use-package py-snippets
+  :ensure t
+  :after yasnippet
+  :config
+  (py-snippets-initialize))
+#+end_src
+
+*** Debugging with dap-mode
+
+[[https://emacs-lsp.github.io/dap-mode/][dap-mode]] is an excellent package for bringing rich debugging capabilities to Emacs via the [[https://microsoft.github.io/debug-adapter-protocol/][Debug Adapter Protocol]].  You should check out the [[https://emacs-lsp.github.io/dap-mode/page/configuration/][configuration docs]] to learn how to configure the debugger for your language.  Also make sure to check out the documentation for the debug adapter to see what configuration parameters are available to use for your debug templates!
+
+#+begin_src emacs-lisp
+
   (use-package dap-mode
     :defer
     :custom
@@ -625,7 +777,17 @@ This snippet adds a hook to =org-mode= buffers so that =cfg/org-babel-tangle-con
   ;;         (lambda (arg) (call-interactively #'dap-hydra)))
   (global-set-key (kbd "C-c c b") 'dap-breakpoint-toggle)
   (global-set-key (kbd "C-c c d") 'dap-debug)
+
+  ;; (with-eval-after-load 'dap-ui
+  ;;   (setq dap-ui-buffer-configurations
+  ;;         `((,dap-ui--locals-buffer . ((side . right) (slot . 1) (window-width . 0.32)  (window-height . 0.80)))
+  ;;           (,dap-ui--expressions-buffer . ((side . right) (slot . 2) (window-width . 0.32) (window-height . 0.10)))
+  ;;           (,dap-ui--sessions-buffer . ((side . right) (slot . 3) (window-width . 0.32) (window-height . 0.10)))
+  ;;           (,dap-ui--breakpoints-buffer . ((side . left) (slot . 2) (window-width . ,treemacs-width)))
+  ;;           (,dap-ui--debug-window-buffer . ((side . bottom) (slot . 3) (window-width . 0.20)))
+  ;;           (,dap-ui--repl-buffer . ((side . right) (slot . 2) (window-width . 0.45))))))
 #+end_src
+
 *** JavaScript \ TypeScript
 
 This is a basic configuration for the TypeScript language so that =.ts= files activate =typescript-mode= when opened.  We're also adding a hook to =typescript-mode-hook= to call =lsp-deferred= so that we activate =lsp-mode= to get LSP features every time we edit TypeScript code.
@@ -634,6 +796,7 @@ This is a basic configuration for the TypeScript language so that =.ts= files ac
 
   (use-package typescript-mode
       :mode "\\.ts\\'"
+      :hook (typescript-mode . lsp-deferred)
       :config
       (setq typescript-indent-level 2))
 
@@ -654,6 +817,10 @@ npm install -g typescript-language-server typescript
 This will install the [[https://github.com/theia-ide/typescript-language-server][typescript-language-server]] and the TypeScript compiler package.
 *** Python
 
+We use =lsp-mode= and =dap-mode= to provide a more complete development environment for Python in Emacs.  Check out [[https://emacs-lsp.github.io/lsp-mode/page/lsp-pyls/][the =pyls= configuration]] in the =lsp-mode= documentation for more details.
+
+Make sure you have the =pyls= language server installed before trying =lsp-mode=!
+
 #+begin_src sh :tangle no
 
   pip install "python-lsp-server[all]"
@@ -670,13 +837,26 @@ There are a number of other language servers for Python so if you find that =pyl
 
   (defun py-local-keys()
     (local-set-key (kbd "C-c c i") 'py-isort-buffer)
-    (local-set-key (kbd "C-c c e") 'flycheck-list-errors))
+    (local-set-key (kbd "C-c c e") 'flycheck-list-errors)
+    (local-set-key (kbd "<C-backspace>") 'my-backward-delete-word))
 
   (add-hook 'python-mode-hook 'py-local-keys)
+  (add-hook 'python-mode-hook 'yas-minor-mode-on)
+
+  (use-package py-yapf)
 #+end_src
 
 Virtual environment support:
 #+begin_src emacs-lisp
+    ;; (use-package pipenv
+    ;;     :hook (python-mode . pipenv-mode)
+    ;;     :init
+    ;;     (setq
+    ;;      pipenv-projectile-after-switch-function
+    ;;      #'pipenv-projectile-after-switch-extended))
+
+    ;; (add-hook 'python-mode-hook #'pipenv-mode)
+
   (use-package pyvenv
       :ensure t
       :init
@@ -695,13 +875,14 @@ Virtual environment support:
 
 #+end_src
 Dir locals (.dir-locals.el) example
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   ;;; Directory Local Variables
   ;;; For more information see (info "(emacs) Directory Variables")
 
   ;; ((python-mode . ((eval . (lsp-register-custom-settings
   ;;                           '(("python.pythonPath" "/.../.venv/bin/python"
   ;;                              "python.venvPath" "/.../.venv")))))))
+
 #+end_src
 **** Run project start file command
 #+begin_src emacs-lisp
@@ -731,6 +912,58 @@ Dir locals (.dir-locals.el) example
     (define-key python-mode-map (kbd "C-c C-c") 'run-project))
 
   (add-hook 'python-mode-hook 'py-mode-specific-bindings)
+#+end_src
+*** Java
+Java configuration for lsp mode
+#+begin_src emacs-lisp
+(use-package lsp-java
+  :init
+  (defun jmi/java-mode-config ()
+    (toggle-truncate-lines 1)
+    (setq lsp-java-jdt-download-url "https://download.eclipse.org/jdtls/milestones/0.57.0/jdt-language-server-0.57.0-202006172108.tar.gz")
+    (lsp))
+
+  :config
+  ;; Enable dap-java
+  (require 'dap-java)
+
+  ;; Support Lombok in our projects, among other things
+  (setq lsp-java-vmargs
+        (list "-noverify"
+              "-Xmx2G"
+              "-XX:+UseG1GC"
+              "-XX:+UseStringDeduplication"
+              (concat "-javaagent:" jmi/lombok-jar)
+              (concat "-Xbootclasspath/a:" jmi/lombok-jar))
+        lsp-file-watch-ignored
+        '(".idea" ".ensime_cache" ".eunit" "node_modules"
+          ".git" ".hg" ".fslckout" "_FOSSIL_"
+          ".bzr" "_darcs" ".tox" ".svn" ".stack-work"
+          "build")
+
+        lsp-java-import-order '["" "java" "javax" "#"]
+        ;; Don't organize imports on save
+        lsp-java-save-action-organize-imports nil
+
+        ;; Formatter profile
+        lsp-java-format-settings-url
+        (concat "file://" jmi/java-format-settings-file))
+
+  :hook (java-mode . jmi/java-mode-config)
+
+  :demand t
+  :after (lsp lsp-mode dap-mode jmi-init-platform-paths))
+  (add-hook 'java-mode-hook 'lsp-deferred)
+  (add-hook 'java-mode-hook 'yas-minor-mode-on)
+
+
+#+end_src
+*** php
+#+begin_src emacs-lisp
+  (use-package php-mode
+    :ensure t
+    )
+
 #+end_src
 *** Web-mode
 #+begin_src emacs-lisp
@@ -775,49 +1008,6 @@ Dir locals (.dir-locals.el) example
   (define-key rust-mode-map (kbd "C-c C-c") 'rust-run)
 #+end_src
 *** Arduino?
-*** Debugging
-#+begin_src emacs-lisp
-  (use-package dape
-    :preface
-    ;; By default dape shares the same keybinding prefix as 
-    ;; If you do not want to use any prefix, set it to nil.
-    (setq dape-key-prefix "\C-c\C-d")
-
-    ;; :hook
-    ;; Save breakpoints on quit
-    ;; ((kill-emacs . dape-breakpoint-save)
-    ;; Load breakpoints on startup
-    ;;  (after-init . dape-breakpoint-load))
-
-    ;; :init
-    ;; To use window configuration like gud (gdb-mi)
-    ;; (setq dape-buffer-window-arrangement 'gud)
-
-    ;; :config
-    ;; Info buffers to the right
-    ;; (setq dape-buffer-window-arrangement 'right)
-
-    ;; Global bindings for setting breakpoints with mouse
-    ;; (dape-breakpoint-global-mode)
-
-    ;; To not display info and/or buffers on startup
-    ;; (remove-hook 'dape-on-start-hooks 'dape-info)
-    ;; (remove-hook 'dape-on-start-hooks 'dape-repl)
-
-    ;; To display info and/or repl buffers on stopped
-    ;; (add-hook 'dape-on-stopped-hooks 'dape-info)
-    ;; (add-hook 'dape-on-stopped-hooks 'dape-repl)
-
-    ;; Kill compile buffer on build success
-    ;; (add-hook 'dape-compile-compile-hooks 'kill-buffer)
-
-    ;; Save buffers on startup, useful for interpreted languages
-    ;; (add-hook 'dape-on-start-hooks (lambda () (save-some-buffers t t)))
-
-    ;; Projectile users
-    (setq dape-cwd-fn 'projectile-project-root)
-    )
-#+end_src
 ** Company Mode
 
 [[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).
@@ -887,10 +1077,14 @@ Flymake alternative
 
   (setq projectile-indexing-method 'alien) ;; native hybrid alien
   (setq projectile-sort-order 'recentf)
+
+  ;; (global-set-key (kbd "C-x <left>") 'projectile-previous-project-buffer)
+  ;; (global-set-key (kbd "C-x <right>") 'projectile-next-project-buffer)
+
 #+end_src
 
 ** Magit
-[[https://magit.vc/][Magit]] is the best Git interface I've ever used. 
+[[https://magit.vc/][Magit]] is the best Git interface I've ever used.  Common Git operations are easy to execute quickly using Magit's command panel system.
 
 #+begin_src emacs-lisp
   (use-package magit
@@ -945,7 +1139,7 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
 
 ** Rainbow Delimiters
 
-[[https://github.com/Fanael/rainbow-delimiters][rainbow-delimiters]] is useful in programming modes because it colorizes nested parentheses and brackets according to their nesting depth. 
+[[https://github.com/Fanael/rainbow-delimiters][rainbow-delimiters]] is useful in programming modes because it colorizes nested parentheses and brackets according to their nesting depth.  This makes it a lot easier to visually match parentheses in Emacs Lisp code without having to count them yourself.
 
 #+begin_src emacs-lisp
 
@@ -962,7 +1156,7 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 #+end_src
 
-*** iBuffer
+** iBuffer
 List of buffers grouped by project
 
 #+begin_src emacs-lisp
@@ -977,15 +1171,15 @@ List of buffers grouped by project
       (all-the-icons-icon-for-mode 'major-mode)))
 
   (with-eval-after-load 'ibuffer
-    ;;Display buffer icons on GUI
-    (define-ibuffer-column icon (:name "  ")
-      (let ((icon (if (and (buffer-file-name)
-                           (all-the-icons-auto-mode-match?))
-                      (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
-                    (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
-        (if (symbolp icon)
-            (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
-          icon)))
+    ;; Display buffer icons on GUI
+    ;; (define-ibuffer-column icon (:name "  ")
+    ;;   (let ((icon (if (and (buffer-file-name)
+    ;;                        (all-the-icons-auto-mode-match?))
+    ;;                   (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
+    ;;                 (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
+    ;;     (if (symbolp icon)
+    ;;         (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
+    ;;       icon)))
 
     ;; Redefine size column to display human readable size
     (define-ibuffer-column size
@@ -1006,22 +1200,38 @@ List of buffers grouped by project
                       " "
             "Project: ")))
 #+end_src
-*** Docker
+** Eyebrowse
+Windows management for multiple projects at once
 #+begin_src emacs-lisp
-  (use-package docker) ;; manage docker containers
-  ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
+  (use-package eyebrowse
+    :init  
+    (setq eyebrowse-keymap-prefix (kbd "C-c w"))
+    :ensure t
+    :config
+    (eyebrowse-mode t)
+    )
 #+end_src
-**** Dockerfile mode & Docker-compose mode
+** Dockerfile mode & Docker-compose mode
 Pretty dockerfiles
 #+begin_src emacs-lisp
 (use-package dockerfile-mode)
 (use-package docker-compose-mode)
 #+end_src
-*** JSON mode
+** JSON mode
 #+begin_src emacs-lisp
 (use-package json-mode)
 #+end_src
-*** Yafolding
+** Move text
+#+begin_src emacs-lisp
+(use-package move-text
+  :init
+  (move-text-default-bindings))
+#+end_src
+** View Large Files
+#+begin_src emacs-lisp
+(use-package vlf)
+#+end_src
+** Yafolding
 Yet another folding extension for Emacs
 #+begin_src emacs-lisp
   (use-package yafolding)
@@ -1031,10 +1241,14 @@ Yet another folding extension for Emacs
   (define-key yafolding-mode-map (kbd "C-x M-y") 'yafolding-toggle-all)
   (define-key yafolding-mode-map (kbd "C-x C-y") 'yafolding-toggle-element)
 #+end_src
-*** Tramp
+** Tramp
 Tramp stands for `Transparent Remote (file) Access, Multiple
 Protocol'.  This package provides remote file editing, similar to
 Ange-FTP.
+
+The difference is that Ange-FTP uses FTP to transfer files between the
+local and the remote host, whereas Tramp uses a combination of `rsh'
+and `rcp' or other work-alike programs, such as `ssh'/`scp'.
 #+begin_src emacs-lisp
   (use-package tramp ;; with use-package
      :defer t
@@ -1050,6 +1264,8 @@ Ange-FTP.
      (setq create-lockfiles nil)
      )
 
+   ;; (use-package vagrant-tramp)
+
   (use-package tramp-term)
   (use-package counsel-tramp
      :bind (("C-x t" . counsel-tramp)))
@@ -1062,10 +1278,15 @@ Ange-FTP.
 #+begin_comment
 Add without = to bash.rc (bash.bashrc for root) at the top of it to make tramp much faster and avoid fancy coloring data from remote shell
 
-=[[ $TERM == "dumb" ]]= && PS1='$ ' && return
+=[[ $TERM == "dumb" ]]= && PS1='$ ' && return  
 #+end_comment
 
-*** imenu-list and occur hotkey
+** Docker
+#+begin_src emacs-lisp
+  (use-package docker) ;; manage docker containers
+  ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
+#+end_src
+** imenu-list and occur hotkey
 #+begin_src emacs-lisp
 (use-package imenu-list
   :ensure t
@@ -1074,7 +1295,40 @@ Add without = to bash.rc (bash.bashrc for root) at the top of it to make tramp m
   (setq imenu-list-focus-after-activation t))
 (global-set-key (kbd "C-c c l o") 'occur)
 #+end_src
-*** ediff
+** apheleia
+Code formatting tool
+#+begin_src emacs-lisp
+(use-package apheleia)
+#+end_src
+** undo-tree
+#+begin_src emacs-lisp
+(use-package undo-tree
+  :ensure t
+  :config
+  ;; autosave the undo-tree history
+  (setq undo-tree-history-directory-alist
+        `((".*" . ,temporary-file-directory)))
+  (setq undo-tree-auto-save-history t)
+  (global-undo-tree-mode +1))
+#+end_src
+** pomodoro
+#+begin_src emacs-lisp
+(use-package pomidor
+  :bind (("<f12>" . pomidor))
+  :config (setq pomidor-sound-tick nil
+                pomidor-sound-tack nil)
+  :hook (pomidor-mode . (lambda ()
+                          (display-line-numbers-mode -1) ; Emacs 26.1+
+                          (setq left-fringe-width 0 right-fringe-width 0)
+                          (setq left-margin-width 2 right-margin-width 0)
+                          ;; force fringe update
+                          (set-window-buffer nil (current-buffer)))))
+#+end_src
+** devdocs
+#+begin_src emacs-lisp
+  (use-package devdocs)
+#+end_src
+** ediff
 Additional ediff configurations
 #+begin_src emacs-lisp
   (setq ediff-split-window-function (quote split-window-horizontally))
@@ -1082,11 +1336,11 @@ Additional ediff configurations
   (setq ediff-diff-options "-w")
   (setq ediff-split-window-function 'split-window-horizontally)
 #+end_src
-*** csv-mode
+** csv-mode
 #+begin_src emacs-lisp
   (use-package csv-mode)
 #+end_src
-*** kill-process in list-processes
+** kill-process in list-processes
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-x C-l") 'list-processes)
   (define-key process-menu-mode-map (kbd "C-k") 'my/delete-process-at-point)
@@ -1104,7 +1358,8 @@ Additional ediff configurations
 * Terminals
 ** vterm
 [[https://github.com/akermu/emacs-libvterm/][vterm]] is an improved terminal emulator package which uses a compiled native module to interact with the underlying terminal applications.  This enables it to be much faster than =term-mode= and to also provide a more complete terminal emulation experience.
-because there is a module that will need to be compiled before you can use it successfully.
+
+Make sure that you have the [[https://github.com/akermu/emacs-libvterm/#requirements][necessary dependencies]] installed before trying to use =vterm= because there is a module that will need to be compiled before you can use it successfully.
 
 #+begin_src emacs-lisp
   (use-package vterm
@@ -1331,9 +1586,77 @@ Store all backup and autosave files in the =tmp= dir
       `((".*" ,temporary-file-directory t)))
 #+end_src
 
+* Text editing
+** Flyspell with hunspell
+#+begin_src emacs-lisp
+  (if (executable-find "hunspell") 
+      (progn 
+        (setq ispell-program-name "hunspell") 
+          (setq ispell-really-aspell nil) 
+          (setq ispell-really-hunspell t) 
+          (setq ispell-dictionary "en-ru")) ) 
+  (setq default-major-mode 'text-mode)
+  ;; (dolist (hook '(text-mode-hook)) 
+  ;;   (add-hook hook (lambda () 
+  ;;                    (flyspell-mode 1))) )
+  (global-set-key (kbd "C-c s") 'ispell)
+#+end_src
+** Emojify
+#+begin_src emacs-lisp
+(use-package emojify
+  :hook (after-init . global-emojify-mode))
+#+end_src
 * Miscelations
+** Elfeed
+#+begin_src emacs-lisp
+  (use-package elfeed)
+  (use-package elfeed-goodies)
+  (elfeed-goodies/setup)
+  (setq elfeed-goodies/entry-pane-size 0.5)
+  (global-set-key (kbd "C-c i") 'elfeed)
+#+end_src
+** OSM [OpenStreetMap]
+#+begin_src emacs-lisp
+(use-package osm
+  :bind (("C-c m h" . osm-home)
+         ("C-c m s" . osm-search)
+         ("C-c m v" . osm-server)
+         ("C-c m t" . osm-goto)
+         ("C-c m x" . osm-gpx-show)
+         ("C-c m j" . osm-bookmark-jump))
+
+  :custom
+  ;; Take a look at the customization group `osm' for more options.
+  (osm-server 'default) ;; Configure the tile server
+  (osm-copyright t)     ;; Display the copyright information
+
+  :init
+  ;; Load Org link support
+  (with-eval-after-load 'org
+    (require 'osm-ol)))
+#+end_src
+** DWIM
+#+begin_src emacs-lisp
+(use-package dwim-shell-command
+  :ensure t
+  :bind (([remap shell-command] . dwim-shell-command)
+         :map dired-mode-map
+         ([remap dired-do-async-shell-command] . dwim-shell-command)
+         ([remap dired-do-shell-command] . dwim-shell-command)
+         ([remap dired-smart-shell-command] . dwim-shell-command))
+  :config
+  (defun dwim-shell-commands-image-exif-metadata ()
+  "View EXIF metadata in image(s)."
+  (interactive)
+  (dwim-shell-command-on-marked-files
+   "View EXIF"
+   "exiftool '<<f>>'"
+   :utils "exiftool")))
+#+end_src
 * ChatGPT
 #+begin_src emacs-lisp
+  (require 'request)
+
   (defun chatgpt-get-api-key ()
     (let* ((file-contents (with-temp-buffer
                                 (insert-file-contents "~/.emacs.d/secrets.txt.gpg")
@@ -1347,12 +1670,61 @@ Store all backup and autosave files in the =tmp= dir
               my-api-key-value
             (error "my-api-key not found in file"))))
 
+  ;; (defun chatgpt-extract-content-text (response-data)
+  ;;   "Extract content text from response-data."
+  ;;   (let ((choices (cdr (assoc 'choices response-data))))
+  ;;     (mapconcat (lambda (choice)
+  ;;                  (let ((message (cdr (assoc 'message choice))))
+  ;;                    (cdr (assoc 'content message))))
+  ;;                choices
+  ;;                "\n")))
+
+  ;; (defun chatgpt-send-message ()
+  ;;   "Send a message to ChatGPT and display response choices in a new buffer."
+  ;;   (interactive)
+  ;;   (let ((prompt (read-string "Enter message: ")))
+  ;;     (let ((chat-gpt-buffer (generate-new-buffer "*ChatGPT Response*")))
+  ;;       (set-window-buffer (split-window-right) chat-gpt-buffer)
+  ;;       (chatgpt-display-response prompt chat-gpt-buffer))))
+
+
+  ;; (defun chatgpt-display-response (prompt buffer)
+  ;;   "Send a prompt to ChatGPT and display response choices in BUFFER."
+  ;;   (with-current-buffer buffer
+  ;;     (markdown-mode)
+  ;;     (erase-buffer)
+  ;;     (let (
+  ;;       (other-window 1)
+  ;;       (insert "Prompt: \n=========\n")
+  ;;       (insert (concat prompt " \n\n"))
+  ;;       (insert "ChatGPT: \n=========\n")
+  ;;       (insert (chatgpt-extract-content-text (chatgpt-get-response prompt)))
+  ;;       (goto-char (point-max))
+  ;;       (message "Response displayed in new buffer.")))))
+
+
+  ;; (defun chatgpt-get-response (prompt)
+  ;;   "Get a response from ChatGPT for the given PROMPT."
+  ;;   (request-response-data
+  ;;    (request "https://api.openai.com/v1/chat/completions"
+  ;;      :type "POST"
+  ;;      :sync t
+  ;;      :headers `(("Content-Type" . "application/json")
+  ;;                 ("Authorization" . ,(concat "Bearer " (chatgpt-get-api-key))))
+  ;;      :data (json-encode `((messages . (((role . "user") (content . ,prompt))))
+  ;;                           (model . "gpt-3.5-turbo")
+  ;;                           (temperature . 0.6)))
+  ;;      :parser 'json-read)))
+
   (use-package gptel
                 :config
                 (setq gptel-api-key (chatgpt-get-api-key)))
   (global-set-key (kbd "C-c C-g") 'gptel-menu)
 
 #+end_src
+
+#+RESULTS:
+: chatgpt-send-message-image
 
 * Custom
 ** Some additional custom changes
@@ -1375,6 +1747,32 @@ Store all backup and autosave files in the =tmp= dir
    ;; Electric pair mode (parenthesis)
    (electric-pair-mode 1)
 
+   ;; So-long
+   (if (version<= "27.1" emacs-version)
+       (global-so-long-mode 1)
+       (setq bidi-inhibit-bpa t))
+
+  ;; dap an lsp additional
+  (dap-register-debug-template "Docker Debug"
+                               (list :type "python"
+                                     :request "attach"
+                                     :name "Docker Debug"
+                                     :host "localhost"
+                                     :port 5678))
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
+                    :major-modes '(python-mode)
+                    :remote? t
+                    :server-id 'pylsp-remote))
+  ;; subprocess call
+  (defun start-file-process-shell-command@around (start-file-process-shell-command name buffer &rest args)
+    "Start a program in a subprocess.  Return the process object for it.
+   Similar to `start-process-shell-command', but calls `start-file-process'."
+    ;; On remote hosts, the local `shell-file-name' might be useless.
+    (let ((command (mapconcat 'identity args " ")))
+      (funcall start-file-process-shell-command name buffer command)))
+
+  (advice-add 'start-file-process-shell-command :around #'start-file-process-shell-command@around)
   (setq org-babel-python-command "python3")
 
   (defadvice projectile-project-root (around ignore-remote first activate)
@@ -1383,10 +1781,14 @@ Store all backup and autosave files in the =tmp= dir
 
     ;; remove beep
   (setq ring-bell-function 'ignore)
+
 #+end_src
 
 ** My custom bindings
 #+begin_src emacs-lisp :lexical no
+   ;; Other window alternative
+   (global-set-key (kbd "M-o") 'mode-line-other-buffer)
+   ;; Duplicate row
    (defun my-duplicate-line ()
      (interactive)
      (move-beginning-of-line 1)
