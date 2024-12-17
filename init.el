@@ -1,15 +1,15 @@
 ;; NOTE: init.el is now generated from README.org.  Please edit that file
 ;;       in Emacs and init.el will be generated automatically!
 ;; Font size
-(defvar cfg/default-font-size 120)
-(defvar cfg/default-variable-font-size 120)
+(defvar cfg/default-font-size 140)
+(defvar cfg/default-variable-font-size 140)
 
 ;; Frame transparency
 (defvar cfg/frame-transparency '(97 . 97))
 
 (setq history-length 300)
 (put 'minibuffer-history 'history-length 100)
-(put 'kill-ring 'history-length 40)
+(put 'kill-ring 'history-length 100)
 (setq warning-minimum-level :emergency)
 
 ;; Initialize package sources
@@ -65,6 +65,7 @@
 (use-package all-the-icons
   :config
   '(lsp-treemacs-theme "all-the-icons"))
+(use-package nerd-icons)
 
 (let ((font-dest (cl-case window-system
                  (x  (concat (or (getenv "XDG_DATA_HOME") ;; Default Linux install directories
@@ -439,9 +440,6 @@
 (setq org-export-with-sub-superscripts nil)
 (setq org-export-backends '(ascii html md odt))
 
-(use-package restclient)
-(use-package ob-restclient)
-
 (org-babel-do-load-languages
   'org-babel-load-languages
   '((emacs-lisp . t)
@@ -449,8 +447,7 @@
     (sql . t)
     (js . t)
     (plantuml . t)
-    (python . t)
-    (restclient . t)))
+    (python . t)))
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
 (push '("plantuml" . plantuml) org-src-lang-modes)
@@ -467,7 +464,6 @@
 (add-to-list 'org-structure-template-alist '("sql" . "src sql"))
 (add-to-list 'org-structure-template-alist '("json" . "src json"))
 (add-to-list 'org-structure-template-alist '("plant" . "src plantuml"))
-(add-to-list 'org-structure-template-alist '("rest" . "src restclient"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun cfg/org-babel-tangle-config ()
@@ -502,37 +498,43 @@
 
 (use-package lsp-mode
   :init
+  ;; Set prefix for lsp-mode keybindings
   (setq lsp-keymap-prefix "C-c c")
-  ;; (setq-default lsp-modeline-diagnostics-enable nil)
-  ;; (setq lsp-modeline-code-actions-enable nil)
+
+  ;; Improve performance by increasing gc threshold and process read size
+  (setq gc-cons-threshold 100000000)          ; 100 MB
+  (setq read-process-output-max (* 10 1024 1024)) ; 10 MB
+
   :custom
-  ;; (lsp-eldoc-render-all t)
-  ;; (lsp-idle-delay 0.500)
-  (gc-cons-threshold 100000000)
-  (read-process-output-max (* 10 1024 1024)) ;; 10Mb
+  ;; Rust-specific configuration
   (lsp-rust-analyzer-server-display-inlay-hints t)
   (lsp-rust-analyzer-cargo-watch-command "clippy")
-  :hook ((python-mode . lsp)
-         (vue-mode . lsp)
-         (rust-mode . lsp)
-         (js-mode . lsp))
+
+  :hook
+  ((python-mode . lsp)
+   (vue-mode . lsp)
+   (rust-mode . lsp)
+   (js-mode . lsp))
+
   :config
+  ;; General LSP configuration
   (setq lsp-enable-which-key-integration t)
   (setq lsp-headerline-breadcrumb-enable nil)
   (setq lsp-signature-auto-activate nil)
-  ;; (setq lsp-pylsp-configuration-sources ["flake8"])
-  ;; (setq lsp-pylsp-plugins-flake8-enabled nil)
+
+  ;; Python-specific configuration
   (setq lsp-pylsp-plugins-mccabe-enabled nil)
   (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
   (setq lsp-pylsp-plugins-pyflakes-enabled nil)
   (setq lsp-pylsp-plugins-pylint-enabled nil)
   (setq lsp-pylsp-plugins-autopep8-enabled t)
+
+  ;; Register a remote Python LSP client
   (lsp-register-client
     (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
                      :major-modes '(python-mode)
                      :remote? t
-                     :server-id 'pyls-remote))
-  )
+                     :server-id 'pyls-remote)))
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
@@ -767,7 +769,7 @@
 
 (add-to-list 'company-backends '(company-capf company-dabbrev))
 (with-eval-after-load 'company
-  (define-key company-mode-map (kbd "<tab>") 'company-complete))
+  (define-key company-mode-map (kbd "C-<tab>") 'company-complete))
 
 (use-package flycheck
   :diminish flycheck-mode
@@ -1292,15 +1294,7 @@ If popup is focused, delete it."
 ;; Other window alternative
  (global-set-key (kbd "M-o") 'mode-line-other-buffer)
  ;; Duplicate row
- (defun my-duplicate-line ()
-   (interactive)
-   (move-beginning-of-line 1)
-   (kill-line)
-   (yank)
-   (newline)
-   (yank)
- )
- (global-set-key (kbd "C-c d") 'my-duplicate-line)
+ (global-set-key (kbd "C-c d") 'duplicate-line)
  (global-set-key (kbd "C-c r") 'kill-whole-line)
 
  (defun my-copy-row-path-number ()
@@ -1334,4 +1328,4 @@ If popup is focused, delete it."
 ;; ;; Clean up lsp blacklist folders
 ;; (setf (lsp-session-folders-blacklist (lsp-session)) nil)
 ;; (lsp--persist-session (lsp-session))
-(setq counsel-tramp-custom-connections '(/ssh:trx|docker:crystal_trx:/))
+;; (setq counsel-tramp-custom-connections '(/ssh:trx|docker:docker_container:/))
