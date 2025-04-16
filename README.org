@@ -149,8 +149,10 @@ Startup dashboard
   (setq-default indent-tabs-mode nil)
   (setq-default tab-width 4)
   (setq-default c-basic-offset 4)
-  
+
   (setq split-width-threshold 9999) ;; Horizontal split by default
+
+  (global-auto-revert-mode t)
 #+end_src
 
 ** Font Configuration

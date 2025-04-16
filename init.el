@@ -131,6 +131,8 @@
 
 (setq split-width-threshold 9999) ;; Horizontal split by default
 
+(global-auto-revert-mode t)
+
 (set-face-attribute 'default nil :font "Fira Code Retina" :height cfg/default-font-size)
 
 ;; Set the fixed pitch face
